@@ -1,4 +1,6 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://submarine/SUBMARINE_VISIBLE.tscn" type="PackedScene" id=1]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Label
@@ -11,12 +13,26 @@ func _ready():
 [node name="application_root" type="Node2D"]
 
 [node name="only_debugging_info_lives_here" type="CanvasLayer" parent="."]
+layer = 128
 
 [node name="git_info" type="Label" parent="only_debugging_info_lives_here"]
-margin_left = 745.0
-margin_top = 25.0
-margin_right = 1002.0
-margin_bottom = 41.0
+margin_left = 1019.0
+margin_top = 5.0
+margin_right = 1276.0
+margin_bottom = 36.0
 text = "test
 test"
+align = 2
 script = SubResource( 1 )
+
+[node name="Spatial" type="Spatial" parent="."]
+
+[node name="SUBMARINE_VISIBLE_ROOT" parent="Spatial" instance=ExtResource( 1 )]
+PROP_SPINUP = 0.056
+ELEVON_SPEED = 0.87
+MAX_PROP_SPEED = 15.0
+prop_desired_speed = 8.646
+elevon_desired_angle = 35.0
+
+[node name="Camera" type="Camera" parent="Spatial"]
+transform = Transform( 0.0888596, 0, 0.996044, 0, 1, 0, -0.996044, 0, 0.0888596, 8.05661, 0, 0 )
