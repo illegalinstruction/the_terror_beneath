@@ -1,5 +1,22 @@
-[gd_scene format=2]
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Label
+
+func _ready():
+	set_text(Timestamp.BUILD_DATE + \"\\n\" + Timestamp.BUILD_STAMP);
+
+"
 
 [node name="application_root" type="Node2D"]
 
 [node name="only_debugging_info_lives_here" type="CanvasLayer" parent="."]
+
+[node name="git_info" type="Label" parent="only_debugging_info_lives_here"]
+margin_left = 745.0
+margin_top = 25.0
+margin_right = 1002.0
+margin_bottom = 41.0
+text = "test
+test"
+script = SubResource( 1 )
