@@ -1,1 +1,5 @@
-./godotproj/timestamp.gd
+./godot/timestamp.gd
+*.exe
+*.elf
+*.x86_64
+*.blend1
