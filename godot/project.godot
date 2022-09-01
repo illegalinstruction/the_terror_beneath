@@ -17,6 +17,11 @@ config/icon="res://icon.png"
 
 Timestamp="*res://timestamp.gd"
 
+[display]
+
+window/size/width=1280
+window/size/height=720
+
 [gui]
 
 common/drop_mouse_on_gui_input_disabled=true
