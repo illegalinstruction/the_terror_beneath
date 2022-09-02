@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://submarine/SUBMARINE_VISIBLE.tscn" type="PackedScene" id=1]
 [ext_resource path="res://backdrop/wavy_coral/coral_01a.tscn" type="PackedScene" id=2]
+[ext_resource path="res://backdrop/wavy_coral/coral_02d.tscn" type="PackedScene" id=3]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Label
@@ -54,16 +55,22 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -5.00939, 0, 0 )
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8.70034, 0, 0 )
 
 [node name="coral_01a 006" parent="Spatial" instance=ExtResource( 2 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -11.6125, 0, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -12.3658, 0, 0 )
 
 [node name="coral_01a 007" parent="Spatial" instance=ExtResource( 2 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -14.5289, 0, 0 )
-
-[node name="coral_01a 008" parent="Spatial" instance=ExtResource( 2 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -10.1991, 0, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -15.6012, 0, 0 )
 
 [node name="coral_01a 009" parent="Spatial" instance=ExtResource( 2 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -17.1887, 0, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -19.1578, 0, 0 )
 
 [node name="coral_01a 010" parent="Spatial" instance=ExtResource( 2 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -6.90186, 0, 0 )
+
+[node name="coral_02d 000" parent="Spatial" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -10.4184, 0, 0 )
+
+[node name="coral_02d 001" parent="Spatial" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -14.4373, 0, 0 )
+
+[node name="coral_02d 002" parent="Spatial" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -11.4084, 0, 0 )
