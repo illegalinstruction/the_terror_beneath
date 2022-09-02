@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://submarine/SUBMARINE_VISIBLE.tscn" type="PackedScene" id=1]
+[ext_resource path="res://ocean/ocean-impostor.tscn" type="PackedScene" id=2]
 
 [sub_resource type="CapsuleShape" id=1]
 height = 2.15938
@@ -8,6 +9,7 @@ height = 2.15938
 [node name="gameplay" type="Spatial"]
 
 [node name="kinbody_SUBMARINE" type="KinematicBody" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0380764, 0, 0 )
 axis_lock_motion_x = true
 move_lock_x = true
 
@@ -16,3 +18,9 @@ move_lock_x = true
 [node name="CollisionShape" type="CollisionShape" parent="kinbody_SUBMARINE"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.518984 )
 shape = SubResource( 1 )
+
+[node name="Camera" type="Camera" parent="."]
+transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 10.7993, 0, 0 )
+
+[node name="ocean-impostor" parent="." instance=ExtResource( 2 )]
+transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0 )
