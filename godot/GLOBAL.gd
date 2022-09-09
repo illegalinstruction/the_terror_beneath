@@ -114,8 +114,9 @@ func poll_joystick():
 		_left_stick_distance = left_tmp.length();
 		_left_stick_angle = left_tmp.angle();
 		
-		_right_stick_x = Input.get_joy_axis(0,JOY_ANALOG_RX);
-		_right_stick_y = Input.get_joy_axis(0,JOY_ANALOG_RY);
+		# not used in this game
+		#_right_stick_x = Input.get_joy_axis(0,JOY_ANALOG_RX);
+		#_right_stick_y = Input.get_joy_axis(0,JOY_ANALOG_RY);
 		
 		#--- affordance for navigating menus ----------
 	  
@@ -196,6 +197,66 @@ func poll_joystick():
 		
 
 		return;
+	else: # keyboard;
+		#--- ANALOGUE STICKS --------------------------
+		var left_tmp : Vector2;
+		
+		# todo: make these remappable after 1.0
+		if ((Input.is_key_pressed(KEY_A)) or (Input.is_key_pressed(KEY_LEFT))):
+			left_tmp.x = -1.0;
+		if ((Input.is_key_pressed(KEY_D)) or (Input.is_key_pressed(KEY_RIGHT))):
+			left_tmp.x = 1.0;
+		if ((Input.is_key_pressed(KEY_W)) or (Input.is_key_pressed(KEY_UP))):
+			left_tmp.y = -1.0;
+		if ((Input.is_key_pressed(KEY_S)) or (Input.is_key_pressed(KEY_DOWN))):
+			left_tmp.y = 1.0;
+		
+		_left_stick_x = left_tmp.x;
+		_left_stick_y = left_tmp.y;
+		
+		_left_stick_distance = left_tmp.normalized().length();
+		_left_stick_angle = left_tmp.angle();
+		
+				#--- BUTTONS ----------------------------------
+		#----------
+		
+		if (Input.is_key_pressed(KEY_H)):
+			_button_a = _button_a + 1;
+			_button_a = int(clamp(_button_a,0,2.0));
+		else:
+			_button_a = BUTTON_STATE.IDLE;
+		
+		#----------
+		
+		if (Input.is_key_pressed(KEY_J)):
+			_button_b = _button_b + 1;
+			_button_b = int(clamp(_button_b,0,2.0));
+		else:
+			_button_b = BUTTON_STATE.IDLE;
+		
+		#----------
+		
+		if (Input.is_key_pressed(KEY_K)):
+			_button_x = _button_x + 1;
+			_button_x = int(clamp(_button_x,0,2.0));
+		else:
+			_button_x = BUTTON_STATE.IDLE;
+		
+		#----------
+		
+		if (Input.is_key_pressed(KEY_L)):
+			_button_y = _button_y + 1;
+			_button_y = int(clamp(_button_y,0,2.0));
+		else:
+			_button_y = BUTTON_STATE.IDLE;
+		
+		#----------
+		
+		# not used in this game
+		#_right_stick_x = Input.get_joy_axis(0,JOY_ANALOG_RX);
+		#_right_stick_y = Input.get_joy_axis(0,JOY_ANALOG_RY);
+	return;
+		
 
 #==============================================================================
 # UI FONT
