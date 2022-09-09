@@ -1,8 +1,11 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://submarine/SUBMARINE_VISIBLE.tscn" type="PackedScene" id=1]
 [ext_resource path="res://backdrop/wavy_coral/coral_01a.tscn" type="PackedScene" id=2]
 [ext_resource path="res://backdrop/wavy_coral/coral_02d.tscn" type="PackedScene" id=3]
+[ext_resource path="res://backdrop/wavy_coral/coral_02a.tscn" type="PackedScene" id=4]
+[ext_resource path="res://backdrop/brain_coral/brain-coral-01.tscn" type="PackedScene" id=5]
+[ext_resource path="res://backdrop/wavy_coral/coral_02b.tscn" type="PackedScene" id=6]
 
 [sub_resource type="GDScript" id=1]
 script/source = "extends Label
@@ -38,7 +41,10 @@ prop_desired_speed = 8.646
 elevon_desired_angle = 35.0
 
 [node name="Camera" type="Camera" parent="Spatial"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -6.31176, 0.067, 10.1474 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -6.31176, 0.827553, 10.1474 )
+
+[node name="coral_02a" parent="Spatial" instance=ExtResource( 4 )]
+transform = Transform( 0.999695, -0.0174497, 0.0174524, 0.0174524, 0.999848, 0, -0.0174497, 0.000304586, 0.999848, -10.2313, 0.235839, 1.66539 )
 
 [node name="coral_01a 001" parent="Spatial" instance=ExtResource( 2 )]
 
@@ -74,3 +80,9 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -14.4373, 0, 0 )
 
 [node name="coral_02d 002" parent="Spatial" instance=ExtResource( 3 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -11.4084, 0, 0 )
+
+[node name="brain-coral-01" parent="Spatial" instance=ExtResource( 5 )]
+transform = Transform( 0.945901, -0.18282, 0.268046, 0.189764, 0.98183, 0, -0.263175, 0.0508653, 0.963406, -0.671067, 0.352948, -2.52053 )
+
+[node name="coral_02b" parent="Spatial" instance=ExtResource( 6 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -11.377, 0, 1.2719 )
