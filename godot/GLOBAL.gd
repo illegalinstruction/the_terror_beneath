@@ -52,6 +52,7 @@ var screenwipe_next_scene;
 
 #---- JOYSTICK VARS ------------------------------------------------------------
 
+var is_joystick_connected : bool = false;
 var use_joystick : bool = true;
 
 enum BUTTON_STATE {
@@ -78,6 +79,17 @@ var _button_x : int = BUTTON_STATE.IDLE;
 var _button_y : int = BUTTON_STATE.IDLE;
 var _button_L2 : int = BUTTON_STATE.IDLE;
 var _button_R2 : int = BUTTON_STATE.IDLE;
+
+#-----------------------------------------------------------------------
+
+func handle_joystick_connect():
+	if (Input.get_connected_joypads().size() < 1):
+	  is_joystick_connected = false;
+	else:
+	  is_joystick_connected = true;
+	pass;
+
+#-----------------------------------------------------------------------
 
 func poll_joystick():
 	if (screenwipe_active):
@@ -209,7 +221,7 @@ func _ready():
 	# this makes it a little big at high resolutions,
 	# but easily readable on a handheld or a tv across the room...	
 	ui_font = DynamicFont.new();
-	ui_font.font_data = preload("res://fonts/sazanami-mincho.ttf");
+	# ui_font.font_data = preload("res://fonts/sazanami-mincho.ttf");
 	ui_font.outline_color = Color.black;
 	ui_font.outline_size = 1;
 
