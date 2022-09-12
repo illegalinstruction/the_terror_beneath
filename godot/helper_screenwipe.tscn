@@ -38,6 +38,8 @@ extends Node2D
 const CIRCLES_PER_ROW : int = 17;
 const CIRCLES_PER_COL : int = 10;
 
+export var CIRCLE_STEP_SIZE_TUNING : float = 2.50;
+
 var CIRCLE_STEP_SIZE : float; 
 var CIRCLE_MAX_SIZE : float;
 
@@ -45,7 +47,7 @@ var CIRCLE_MAX_SIZE : float;
 
 func _ready():
 	set_process(true);
-	CIRCLE_STEP_SIZE = (5.7 * (get_viewport().size.x / 1280));
+	CIRCLE_STEP_SIZE = (CIRCLE_STEP_SIZE_TUNING * (get_viewport().size.x / 1280));
 	CIRCLE_MAX_SIZE = (80.0 * (get_viewport().size.x / 1280));
 	return;
 	
@@ -60,7 +62,7 @@ func _draw():
 	if (Global.screenwipe_anim_clock == 0):
 		return;
 
-	CIRCLE_STEP_SIZE = (5.7 * (get_viewport().size.x / 1280));
+	CIRCLE_STEP_SIZE = (CIRCLE_STEP_SIZE_TUNING * (get_viewport().size.x / 1280));
 	CIRCLE_MAX_SIZE = (80.0 * (get_viewport().size.x / 1280));
 		
 	for y_index in range(0, CIRCLES_PER_COL) :
