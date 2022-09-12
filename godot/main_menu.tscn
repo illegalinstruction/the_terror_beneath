@@ -52,11 +52,12 @@ var cursor_index : int = 0;
 func _ready():
 	var screenwipe = load(\"res://helper_screenwipe.tscn\");
 	Global.new_scene_screenwipe_start();
+	Global.load_options_data();
 	
 	# --- load sounds
 	snd_choice 	= load(\"res://mainmenu/cursor_select.wav\");
 	snd_move 	= load(\"res://mainmenu/cursor_move.wav\");
-	$sfx_player.volume_db = (Global.sfx_vol / 128.0) - 1.0;
+	$sfx_player.volume_db = Global.get_sfx_vol_in_db();
 	
 	# --- adjust backdrop
 	$background.scale.x = (get_viewport().size.x / $background.texture.get_size().x);  
@@ -104,8 +105,7 @@ func _ready():
 	# --- add last so it's on top
 	add_child(screenwipe.instance());
 	
-	# --- test whether bgm is working
-	print(\"here 1\");
+	# --- start main menu music
 	Global.set_bgm(1);
 	
 	set_process(true);
@@ -173,7 +173,7 @@ func _process(delta):
 			Global.change_scene_to(null);
 			Global.set_bgm(0);
 		if (menu_items[cursor_index].get_text() == \"Options\"):
-			Global.change_scene_to(load(\"res://options.tscn\"));
+			Global.change_scene_to(load(\"res://options_menu.tscn\"));
 		if (menu_items[cursor_index].get_text() == \"Trophies\"):
 			Global.change_scene_to(load(\"res://trophies.tscn\"));
 		if (menu_items[cursor_index].get_text() == \"Continue\"):
@@ -182,7 +182,6 @@ func _process(delta):
 			Global.change_scene_to(load(\"res://high_scores.tscn\"));
 		if (menu_items[cursor_index].get_text() == \"New Game\"):
 			Global.change_scene_to(load(\"res://gameplay.tscn\"));
-
 
 		
 	# --- adjust cursor

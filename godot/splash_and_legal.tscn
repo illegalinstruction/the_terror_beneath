@@ -42,6 +42,7 @@ const SPLASH_END  : int = 180; # in 'ticks'
 #-------------------------------------------------------------------------------
 
 func _ready():
+	Global.load_options_data();
 	set_process(true);
 		
 	var screenwipe = load(\"res://helper_screenwipe.tscn\");

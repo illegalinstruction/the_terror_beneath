@@ -33,6 +33,9 @@
 
 extends Node2D
 
+const MAX_VOLUME : int = 8;
+const RES_SCALE_MIN : float = .5;
+const RES_SCALE_MAX : float = 1.0;
 const DEBUG_MODE : bool = true;
 const ANALOGUE_DEAD_ZONE : float = 0.25;
 
@@ -43,10 +46,22 @@ const achievements_path = game_data_base + "-trophies";
 
 const GAME_SUPPORTS_SAVING 			: bool = true;
 const GAME_SUPPORTS_HIGH_SCORES		: bool = false;
-const GAME_SUPPORTS_TROPHIES			: bool = true;
+const GAME_SUPPORTS_TROPHIES		: bool = true;
 
-var sfx_vol 		: int 	= 255;
-var music_vol 		: int 	= 255;
+var sfx_vol 		: int 	= 8;
+var music_vol 		: int 	= 8;
+
+#-------------------------------------------------------------------------------
+
+func get_music_vol_in_db():
+	if (music_fadeout_clock < SCREENWIPE_MAX_TICKS):
+		return linear2db((Global.music_vol / float(MAX_VOLUME)) * pow(BGM_FADE_PER_TICK,music_fadeout_clock));
+	return linear2db(Global.music_vol / float(MAX_VOLUME));
+
+#-------------------------------------------------------------------------------
+
+func get_sfx_vol_in_db():
+	return linear2db(Global.sfx_vol / float(MAX_VOLUME));
 
 #-------------------------------------------------------------------------------
 
@@ -54,11 +69,13 @@ func save_options_data():
 	var fout : File = File.new();
 
 	fout.open(options_path, fout.WRITE);
-	sfx_vol = int(clamp(sfx_vol,0, 255));
+	sfx_vol = int(clamp(sfx_vol,0, MAX_VOLUME));
 	fout.store_8(sfx_vol);
-	music_vol = int(clamp(music_vol, 0, 255));
+	music_vol = int(clamp(music_vol, 0, MAX_VOLUME));
 	fout.store_8(music_vol);
 	fout.store_8(use_joystick);
+	fout.store_8(fullscreen);
+	fout.store_float(resolution_scale);
 	fout.close();
 	
 	return;
@@ -73,7 +90,10 @@ func load_options_data():
 		sfx_vol = fin.get_8();
 		music_vol = fin.get_8();
 		use_joystick = fin.get_8();
+		fullscreen = fin.get_8();
+		resolution_scale = fin.get_float();
 		fin.close();
+		OS.window_fullscreen = fullscreen;
 	else:
 		save_options_data();
 	return;
@@ -82,8 +102,9 @@ func load_options_data():
 var resolution_scale 		:	float 	= 1.0; 		# between .5 and 1
 var shadow_atlas_size 		:	int 	= 10;  		# between 1 & 10, gets multiplied by 256
 var nearest_or_trilinear	:	bool	= false;	# true to reduce texture filter quality
+var fullscreen				:	bool	= false;
 
-#---- SCREEN TRANSITION VARS  --------------------------------------------------
+#---- SCREEN TRANSITION VARS  ------------------------------------bgm_fade_done = false;--------------
 # these are here as a workaround for gdscript not having static vars
 
 const SCREENWIPE_MAX_TICKS	: int = 85;
@@ -149,6 +170,26 @@ func poll_joystick():
 		_menu_accept = BUTTON_STATE.IDLE;
 		return;
 	
+	#===============================================================================================
+	# menu controls
+	if ((Input.get_joy_axis(0,JOY_ANALOG_LY) < -0.7) or (Input.is_joy_button_pressed(0, JOY_DPAD_UP)) or (Input.is_key_pressed(KEY_UP))):
+		_menu_up = _menu_up + 1;
+	else:
+		_menu_up = BUTTON_STATE.IDLE;
+	
+	if ((Input.get_joy_axis(0,JOY_ANALOG_LY) > 0.7) or (Input.is_joy_button_pressed(0, JOY_DPAD_DOWN)) or (Input.is_key_pressed(KEY_DOWN))):
+		_menu_down = _menu_down + 1;
+	else:
+		_menu_down = BUTTON_STATE.IDLE;
+  
+	if (Input.is_joy_button_pressed(0, JOY_XBOX_A) or (Input.is_joy_button_pressed(0, JOY_START)) or (Input.is_key_pressed(KEY_SPACE)) or (Input.is_key_pressed(KEY_ENTER))):
+		_menu_accept = _menu_accept + 1;
+		_menu_accept = int(clamp(_menu_accept,0,2.0));
+	else:
+		_menu_accept = BUTTON_STATE.IDLE;	
+	
+	#===============================================================================================
+	# ingame controls
 	if (use_joystick):
 	  
 		#--- ANALOGUE STICKS --------------------------
@@ -163,24 +204,6 @@ func poll_joystick():
 		# not used in this game
 		#_right_stick_x = Input.get_joy_axis(0,JOY_ANALOG_RX);
 		#_right_stick_y = Input.get_joy_axis(0,JOY_ANALOG_RY);
-		
-		#--- ugly hack for navigating menus ----------
-	  
-		if ((left_tmp.y < -0.7) or (Input.is_joy_button_pressed(0, JOY_DPAD_UP)) or (Input.is_key_pressed(KEY_UP))):
-			_menu_up = _menu_up + 1;
-		else:
-			_menu_up = BUTTON_STATE.IDLE;
-		
-		if ((left_tmp.y > 0.7) or (Input.is_joy_button_pressed(0, JOY_DPAD_DOWN)) or (Input.is_key_pressed(KEY_DOWN))):
-			_menu_down = _menu_down + 1;
-		else:
-			_menu_down = BUTTON_STATE.IDLE;
-	  
-		if (Input.is_joy_button_pressed(0, JOY_XBOX_A) or (Input.is_joy_button_pressed(0, JOY_START)) or (Input.is_key_pressed(KEY_SPACE)) or (Input.is_key_pressed(KEY_ENTER))):
-			_menu_accept = _menu_accept + 1;
-			_menu_accept = int(clamp(_menu_accept,0,2.0));
-		else:
-			_menu_accept = BUTTON_STATE.IDLE;
 
 	
 		#--- BUTTONS ----------------------------------
@@ -351,6 +374,9 @@ func _ready():
 #-------------------------------------------------------------------------------
 
 func _process(_ignored):
+	# --- adjust bgm volume
+	stream_player.volume_db = get_music_vol_in_db();
+
 	# --- gather input
 	poll_joystick();
 	
@@ -404,13 +430,11 @@ func new_scene_screenwipe_start():
 #==============================================================================
 
 # Background Music Management Variables
-const BGM_FADE_PER_TICK = 0.01;
+const BGM_FADE_PER_TICK = 0.95;
 
 var curr_bgm        = 0;     # start with nothing playing
 var next_bgm        = 0;
-var user_bgm_vol    = 1.0;   # this is the music volume the user sets in the menu
-var bgm_vol         = 1.0;   # this is the actual music volume; we start at user_bgm_vol, then subtract a little until hitting 0.0
-var bgm_fade_done   = true;  # checks whether we're still fading
+var music_fadeout_clock : int = 0;
 
 # the fount from which all music floweth forth...
 var stream_player   = AudioStreamPlayer.new(); 
@@ -427,7 +451,7 @@ func bgm_switch_helper_priv():
 	var tmp = load("res://bgm/%03d.ogg" % curr_bgm);
    
 	if (tmp != null):
-		stream_player.volume_db = user_bgm_vol;
+		stream_player.volume_db = get_music_vol_in_db();
 		stream_player.set_stream(tmp);
 		stream_player.play();
 	
@@ -453,15 +477,13 @@ func set_bgm(song_index, should_fade = true):
 		# the actual fade logic is handled elsewhere in a func
 		# called from process()
 		next_bgm = song_index;
-		bgm_fade_done = false;
-		bgm_vol = user_bgm_vol;
+		music_fadeout_clock = 0;
 	else:
 		# no fade needed - stop old music immediately.
 		self.curr_bgm = song_index;
 		self.next_bgm = song_index;
-		bgm_fade_done = true;
+		music_fadeout_clock = SCREENWIPE_MAX_TICKS + 1;
 		stream_player.stop();
-		print("here 2");
 	
 	# are we asked to go silent?
 	if (song_index == 0):
@@ -480,13 +502,13 @@ func set_bgm(song_index, should_fade = true):
 #   immediately if it has nothing to do.
 #
 func handle_bgm_fading():
-	if (bgm_fade_done):
+	if (music_fadeout_clock > SCREENWIPE_MAX_TICKS):
 		return;
 	
 	# is there NO music playing at the moment? 
 	if (curr_bgm == 0):
 		# start the next song straightaway
-		bgm_fade_done = true;
+		music_fadeout_clock = SCREENWIPE_MAX_TICKS + 1;
 		curr_bgm = next_bgm;
 		
 		# is the next song _also_ silence?
@@ -499,15 +521,14 @@ func handle_bgm_fading():
 	else:
 		# no, there's active music still.
 		# done fading yet?
-		if (bgm_vol > 0.0):
+		if (music_fadeout_clock < SCREENWIPE_MAX_TICKS):
 			# no - subtract a 'smidgen' from current volume
-			bgm_vol = stream_player.get_volume() - BGM_FADE_PER_TICK;
-			stream_player.set_volume(bgm_vol);
+			music_fadeout_clock += 1;
 			return;
 		else:
 			# yes - start next track
 			curr_bgm = next_bgm;
-			bgm_fade_done = true;
+			music_fadeout_clock = SCREENWIPE_MAX_TICKS + 1;
 
 		if (next_bgm == 0):
 			stream_player.stop();
