@@ -11,7 +11,7 @@ config_version=4
 [application]
 
 config/name="below"
-run/main_scene="res://application_root.tscn"
+run/main_scene="res://splash_and_legal.tscn"
 run/frame_delay_msec=5
 config/icon="res://icon.png"
 

@@ -30,10 +30,53 @@
 # This file based upon pre-existing work by C. Rogers.                                              
 #                                              
 
+
 extends Node2D
 
 const DEBUG_MODE : bool = true;
 const ANALOGUE_DEAD_ZONE : float = 0.25;
+
+#---- MAIN MENU and DATA VARS --------------------------------------------------
+const game_data_base : String = "user://below_data";
+const options_path 		= game_data_base + "-options";
+const achievements_path = game_data_base + "-trophies";
+
+const GAME_SUPPORTS_SAVING 			: bool = true;
+const GAME_SUPPORTS_HIGH_SCORES		: bool = false;
+const GAME_SUPPORTS_TROPHIES			: bool = true;
+
+var sfx_vol 		: int 	= 255;
+var music_vol 		: int 	= 255;
+
+#-------------------------------------------------------------------------------
+
+func save_options_data():
+	var fout : File = File.new();
+
+	fout.open(options_path, fout.WRITE);
+	sfx_vol = int(clamp(sfx_vol,0, 255));
+	fout.store_8(sfx_vol);
+	music_vol = int(clamp(music_vol, 0, 255));
+	fout.store_8(music_vol);
+	fout.store_8(use_joystick);
+	fout.close();
+	
+	return;
+	
+#-------------------------------------------------------------------------------
+
+func load_options_data():
+	var fin : File = File.new();
+		
+	if (fin.file_exists(options_path)):
+		fin.open(options_path, fin.READ);
+		sfx_vol = fin.get_8();
+		music_vol = fin.get_8();
+		use_joystick = fin.get_8();
+		fin.close();
+	else:
+		save_options_data();
+	return;
 
 #---- POTATO PERFORMANCE VARS  -------------------------------------------------
 var resolution_scale 		:	float 	= 1.0; 		# between .5 and 1
@@ -43,7 +86,7 @@ var nearest_or_trilinear	:	bool	= false;	# true to reduce texture filter quality
 #---- SCREEN TRANSITION VARS  --------------------------------------------------
 # these are here as a workaround for gdscript not having static vars
 
-const SCREENWIPE_MAX_TICKS	: int = 80;
+const SCREENWIPE_MAX_TICKS	: int = 85;
 
 var screenwipe_anim_clock	: int;
 var screenwipe_direction	: bool; # true for out, false for in
@@ -70,6 +113,8 @@ var _right_stick_y 			: float;
 
 var _menu_up : int = BUTTON_STATE.IDLE;
 var _menu_down : int = BUTTON_STATE.IDLE;
+var _menu_accept : int = BUTTON_STATE.IDLE;
+
 
 var _button_start : int = BUTTON_STATE.IDLE;
 var _button_select : int = BUTTON_STATE.IDLE;
@@ -101,6 +146,7 @@ func poll_joystick():
 		_button_y  = BUTTON_STATE.IDLE;		
 		_menu_up  = BUTTON_STATE.IDLE;
 		_menu_down  = BUTTON_STATE.IDLE;
+		_menu_accept = BUTTON_STATE.IDLE;
 		return;
 	
 	if (use_joystick):
@@ -118,18 +164,25 @@ func poll_joystick():
 		#_right_stick_x = Input.get_joy_axis(0,JOY_ANALOG_RX);
 		#_right_stick_y = Input.get_joy_axis(0,JOY_ANALOG_RY);
 		
-		#--- affordance for navigating menus ----------
+		#--- ugly hack for navigating menus ----------
 	  
-		if ((left_tmp.y < -0.7) or (Input.is_joy_button_pressed(0, JOY_DPAD_UP))):
+		if ((left_tmp.y < -0.7) or (Input.is_joy_button_pressed(0, JOY_DPAD_UP)) or (Input.is_key_pressed(KEY_UP))):
 			_menu_up = _menu_up + 1;
 		else:
 			_menu_up = BUTTON_STATE.IDLE;
 		
-		if ((left_tmp.y > 0.7) or (Input.is_joy_button_pressed(0, JOY_DPAD_DOWN))):
+		if ((left_tmp.y > 0.7) or (Input.is_joy_button_pressed(0, JOY_DPAD_DOWN)) or (Input.is_key_pressed(KEY_DOWN))):
 			_menu_down = _menu_down + 1;
 		else:
 			_menu_down = BUTTON_STATE.IDLE;
 	  
+		if (Input.is_joy_button_pressed(0, JOY_XBOX_A) or (Input.is_joy_button_pressed(0, JOY_START)) or (Input.is_key_pressed(KEY_SPACE)) or (Input.is_key_pressed(KEY_ENTER))):
+			_menu_accept = _menu_accept + 1;
+			_menu_accept = int(clamp(_menu_accept,0,2.0));
+		else:
+			_menu_accept = BUTTON_STATE.IDLE;
+
+	
 		#--- BUTTONS ----------------------------------
 		#----------
 		
@@ -282,10 +335,11 @@ func _ready():
 	# this makes it a little big at high resolutions,
 	# but easily readable on a handheld or a tv across the room...	
 	ui_font = DynamicFont.new();
-	# ui_font.font_data = preload("res://fonts/sazanami-mincho.ttf");
+	ui_font.font_data = preload("res://font/uifont.ttf");
 	ui_font.outline_color = Color.black;
 	ui_font.outline_size = 1;
-
+	stream_player   = AudioStreamPlayer.new();
+	
 	var _ignored = get_tree().get_root().connect("size_changed", self, "ui_font_window_resize_handler");
 	ui_font_window_resize_handler();
 	
@@ -370,7 +424,6 @@ func bgm_switch_helper_priv():
 	if (not stream_player.is_inside_tree()):
 		add_child(stream_player);
 
-	stream_player.set_loop(true);
 	var tmp = load("res://bgm/%03d.ogg" % curr_bgm);
    
 	if (tmp != null):

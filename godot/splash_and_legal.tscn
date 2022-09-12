@@ -1,0 +1,75 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://splash_and_legal/legal.png" type="Texture" id=1]
+
+[sub_resource type="GDScript" id=1]
+script/source = "# 
+#  _the terror_               
+# | |        | |              
+# | |__   ___| | _____      __
+# | '_ \\ / _ \\ |/ _ \\ \\ /\\ / /
+# | |_) |  __/ | (_) \\ V  V / 
+# |_.__/ \\___|_|\\___/ \\_/\\_/ 
+#
+# Copyright 2022 Oregon Institute of Technology
+# 
+# Permission is hereby granted, free of charge, to any person obtaining 
+# a copy of this software and associated documentation files (the 
+# \"Software\"), to deal in the Software without restriction, including 
+# without limitation the rights to use, copy, modify, merge, publish, 
+# distribute, sublicense, and/or sell copies of the Software, and to 
+# permit persons to whom the Software is furnished to do so, subject to 
+# the following conditions:
+# 
+# * The above copyright notice and this permission notice shall be 
+# 	included in all copies or substantial portions of the Software.
+# 
+# * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, 
+# 	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+# 	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+#	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+#	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+#	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+#	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#                                              
+
+extends Node2D
+
+var anim_clock : int = 0;
+
+const SPLASH_END  : int = 180; # in 'ticks'
+
+#-------------------------------------------------------------------------------
+
+func _ready():
+	set_process(true);
+		
+	var screenwipe = load(\"res://helper_screenwipe.tscn\");
+	add_child(screenwipe.instance());
+	Global.new_scene_screenwipe_start();
+	$Sprite.scale.x = (get_viewport().size.x / $Sprite.texture.get_size().x);  
+	$Sprite.scale.y = $Sprite.scale.x;
+
+	return;
+
+#-------------------------------------------------------------------------------
+
+func _process(_ignored):
+	# --- gracefully handle resize
+	$Sprite.scale.x = (get_viewport().size.x / $Sprite.texture.get_size().x);  
+	$Sprite.scale.y = $Sprite.scale.x;
+
+	# --- animate splash
+	anim_clock += 1;
+
+	if (anim_clock == SPLASH_END):
+		Global.change_scene_to((load(\"res://main_menu.tscn\")));	
+	return;
+"
+
+[node name="splash_and_legal" type="Node2D"]
+script = SubResource( 1 )
+
+[node name="Sprite" type="Sprite" parent="."]
+texture = ExtResource( 1 )
+centered = false

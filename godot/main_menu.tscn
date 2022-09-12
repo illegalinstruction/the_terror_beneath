@@ -1,0 +1,327 @@
+[gd_scene load_steps=9 format=2]
+
+[ext_resource path="res://mainmenu/background.jpeg" type="Texture" id=1]
+[ext_resource path="res://mainmenu/logo.png" type="Texture" id=2]
+[ext_resource path="res://mainmenu/cursor.png" type="Texture" id=3]
+[ext_resource path="res://mainmenu/appear.wav" type="AudioStream" id=4]
+
+[sub_resource type="GDScript" id=1]
+script/source = "# 
+#  _the terror_               
+# | |        | |              
+# | |__   ___| | _____      __
+# | '_ \\ / _ \\ |/ _ \\ \\ /\\ / /
+# | |_) |  __/ | (_) \\ V  V / 
+# |_.__/ \\___|_|\\___/ \\_/\\_/ 
+#
+# Copyright 2022 Oregon Institute of Technology
+# 
+# Permission is hereby granted, free of charge, to any person obtaining 
+# a copy of this software and associated documentation files (the 
+# \"Software\"), to deal in the Software without restriction, including 
+# without limitation the rights to use, copy, modify, merge, publish, 
+# distribute, sublicense, and/or sell copies of the Software, and to 
+# permit persons to whom the Software is furnished to do so, subject to 
+# the following conditions:
+# 
+# * The above copyright notice and this permission notice shall be 
+# 	included in all copies or substantial portions of the Software.
+# 
+# * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, 
+# 	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+# 	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+#	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+#	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+#	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+#	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# 
+
+extends Node2D
+
+#-------------------------------------------------------------------------------
+# sound effects
+var snd_move   : AudioStreamSample;
+var snd_choice : AudioStreamSample;
+
+#-------------------------------------------------------------------------------
+# cursor position & menu items
+var menu_items = [];
+var cursor_index : int = 0;
+
+#-------------------------------------------------------------------------------
+func _ready():
+	var screenwipe = load(\"res://helper_screenwipe.tscn\");
+	Global.new_scene_screenwipe_start();
+	
+	# --- load sounds
+	snd_choice 	= load(\"res://mainmenu/cursor_select.wav\");
+	snd_move 	= load(\"res://mainmenu/cursor_move.wav\");
+	$sfx_player.volume_db = (Global.sfx_vol / 128.0) - 1.0;
+	
+	# --- adjust backdrop
+	$background.scale.x = (get_viewport().size.x / $background.texture.get_size().x);  
+	$background.scale.y = $background.scale.x;
+
+	# --- center & adjust logo/header 
+	$logo.position.x = get_viewport().size.x / 2.0;
+	$logo.position.y = get_viewport().size.y / 4.0;
+	
+	$logo.scale.x = $background.scale.x;
+	$logo.scale.y = $background.scale.x;
+
+	# --- populate menu items
+	menu_items.append(Label.new());
+	menu_items.back().text = \"New Game\";
+
+	if (Global.GAME_SUPPORTS_SAVING):
+		menu_items.append(Label.new());
+		menu_items.back().text = \"Continue\";
+
+	if (Global.GAME_SUPPORTS_HIGH_SCORES):
+		menu_items.append(Label.new());
+		menu_items.back().text = \"High Scores\";
+
+	if (Global.GAME_SUPPORTS_TROPHIES):
+		menu_items.append(Label.new());
+		menu_items.back().text = \"Trophies\";
+		
+	menu_items.append(Label.new());
+	menu_items.back().text = \"Options\";
+
+	menu_items.append(Label.new()); 
+	menu_items.back().text = \"Quit\";
+
+	# --- add them to screen
+	for i in range( 0, menu_items.size()):
+		menu_items[i].add_font_override(\"font\",Global.ui_font);
+		
+		add_child(menu_items[i]);
+		menu_items[i].set_align(1); # centred
+		menu_items[i].rect_position.x = 0;
+		menu_items[i].rect_size.x = get_viewport().size.x;
+		menu_items[i].rect_position.y = i * menu_items[i].rect_size.y + get_viewport().size.y / 2.0;
+
+	# --- add last so it's on top
+	add_child(screenwipe.instance());
+	
+	# --- test whether bgm is working
+	Global.set_bgm(1);
+	
+	set_process(true);
+	return;
+
+#-------------------------------------------------------------------------------
+
+func _process(delta):
+	
+	# === HANDLE SCREEN RESIZES ================================================
+	# --- adjust cursor height
+	$cursor.scale.y = (2.0 * (OS.window_size.x / $background.texture.get_size().x));
+
+	# --- adjust backdrop
+	$background.scale.x = (OS.window_size.x / $background.texture.get_size().x);  
+	$background.scale.y = $background.scale.x;
+
+	# --- center & adjust logo/header 
+	$logo.position.x = OS.window_size.x / 2.0;
+	$logo.position.y = OS.window_size.y / 4.0;
+	
+	$logo.scale.x = $background.scale.x;
+	$logo.scale.y = $background.scale.x;	
+
+	# --- adjust menu items
+	for i in range( 0, menu_items.size()):
+		menu_items[i].set_align(1); # centred
+		menu_items[i].rect_position.x = 0;
+		menu_items[i].rect_size.x = get_viewport().size.x;
+		menu_items[i].rect_position.y = (i * Global.ui_font.get_height()) + get_viewport().size.y / 2.0;
+	
+	# === HANDLE KEY INPUT =====================================================
+	# -------------- UP
+	if (Global._menu_up == Global.BUTTON_STATE.PRESSED):
+		cursor_index -= 1;
+		
+		if (cursor_index < 0):
+			cursor_index = menu_items.size() - 1;
+			
+		$sfx_player.stop();
+		$sfx_player.stream = snd_move;		
+		$sfx_player.play();
+	
+	# ------------	DOWN	
+	if (Global._menu_down == Global.BUTTON_STATE.PRESSED):
+		cursor_index += 1;
+		
+		if (cursor_index > (menu_items.size()-1)):
+			cursor_index = 0;
+			
+		$sfx_player.stop();
+		$sfx_player.stream = snd_move;
+		$sfx_player.play();
+
+	# ------------	START, A, or ENTER	
+	if ((Global._menu_accept == Global.BUTTON_STATE.PRESSED)):
+		$sfx_player.stop();
+		$sfx_player.stream = snd_choice;
+		$sfx_player.play();
+
+		# this is kind of a janky way of handling this
+		# and makes translation into other langs harder than
+		# it needs to be - FIXME
+		if (menu_items[cursor_index].get_text() == \"Quit\"):
+			Global.change_scene_to(null);
+			Global.set_bgm(0);
+		if (menu_items[cursor_index].get_text() == \"Options\"):
+			Global.change_scene_to(load(\"res://options.tscn\"));
+		if (menu_items[cursor_index].get_text() == \"Trophies\"):
+			Global.change_scene_to(load(\"res://trophies.tscn\"));
+		if (menu_items[cursor_index].get_text() == \"Continue\"):
+			Global.change_scene_to(load(\"res://savegames.tscn\"));
+		if (menu_items[cursor_index].get_text() == \"High Scores\"):
+			Global.change_scene_to(load(\"res://high_scores.tscn\"));
+		if (menu_items[cursor_index].get_text() == \"New Game\"):
+			Global.change_scene_to(load(\"res://gameplay.tscn\"));
+
+
+		
+	# --- adjust cursor
+	$cursor.position.x = OS.window_size.x / 2.0;	# horz center
+	$cursor.position.y = menu_items[0].rect_position.y + ((cursor_index + 0.5) * Global.ui_font.get_height());
+	
+	
+	return;
+"
+
+[sub_resource type="CanvasItemMaterial" id=2]
+blend_mode = 1
+
+[sub_resource type="GDScript" id=3]
+script/source = "# 
+#  _the terror_               
+# | |        | |              
+# | |__   ___| | _____      __
+# | '_ \\ / _ \\ |/ _ \\ \\ /\\ / /
+# | |_) |  __/ | (_) \\ V  V / 
+# |_.__/ \\___|_|\\___/ \\_/\\_/ 
+#
+# Copyright 2022 Oregon Institute of Technology
+# 
+# Permission is hereby granted, free of charge, to any person obtaining 
+# a copy of this software and associated documentation files (the 
+# \"Software\"), to deal in the Software without restriction, including 
+# without limitation the rights to use, copy, modify, merge, publish, 
+# distribute, sublicense, and/or sell copies of the Software, and to 
+# permit persons to whom the Software is furnished to do so, subject to 
+# the following conditions:
+# 
+# * The above copyright notice and this permission notice shall be 
+# 	included in all copies or substantial portions of the Software.
+# 
+# * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, 
+# 	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+# 	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+#	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+#	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+#	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+#	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#                                              
+
+extends Label
+
+func _ready():
+	set_text(Timestamp.BUILD_DATE + \"\\n\" + Timestamp.BUILD_STAMP);
+	if (Global.DEBUG_MODE):
+		show();
+	else:
+		hide();
+"
+
+[sub_resource type="GDScript" id=4]
+script/source = "
+# 
+#  _the terror_               
+# | |        | |              
+# | |__   ___| | _____      __
+# | '_ \\ / _ \\ |/ _ \\ \\ /\\ / / 
+# | |_) |  __/ | (_) \\ V  V / 
+# |_.__/ \\___|_|\\___/ \\_/\\_/ 
+#
+# Copyright 2022 Oregon Institute of Technology
+# 
+# Permission is hereby granted, free of charge, to any person obtaining 
+# a copy of this software and associated documentation files (the 
+# \"Software\"), to deal in the Software without restriction, including 
+# without limitation the rights to use, copy, modify, merge, publish, 
+# distribute, sublicense, and/or sell copies of the Software, and to 
+# permit persons to whom the Software is furnished to do so, subject to 
+# the following conditions:
+# 
+# * The above copyright notice and this permission notice shall be 
+# 	included in all copies or substantial portions of the Software.
+# 
+# * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, 
+# 	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+# 	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+#	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+#	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+#	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+#	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#                                              
+
+extends Label
+
+#----------------------------------------------------------------------------
+
+func _ready():
+	if (Global.DEBUG_MODE):
+		set_process(true);
+		show();
+	else:
+		hide();
+	return;
+
+#----------------------------------------------------------------------------
+
+func _process(_ignore):
+	self.set_text(\"input: left stick  deflection:\" + str(Global._left_stick_distance) + \" angle:\" + str(rad2deg(Global._left_stick_angle)) + \"  A: \" + str(Global._button_a) + \"  B: \" + str(Global._button_b)+ \"  X: \" + str(Global._button_x)+ \"  Y: \" + str(Global._button_y) + \" use joypad? \" + str(Global.use_joystick));	
+"
+
+[node name="main_menu" type="Node2D"]
+script = SubResource( 1 )
+
+[node name="background" type="Sprite" parent="."]
+texture = ExtResource( 1 )
+centered = false
+
+[node name="logo" type="Sprite" parent="."]
+texture = ExtResource( 2 )
+
+[node name="cursor" type="Sprite" parent="."]
+material = SubResource( 2 )
+scale = Vector2( 32, 2 )
+texture = ExtResource( 3 )
+
+[node name="debug_git" type="Label" parent="."]
+margin_left = 32.0
+margin_top = 32.0
+margin_right = 72.0
+margin_bottom = 46.0
+custom_colors/font_color = Color( 0.686275, 1, 0, 1 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_as_outline = 0
+script = SubResource( 3 )
+
+[node name="debug_input" type="Label" parent="."]
+margin_left = 32.0
+margin_top = 64.0
+margin_right = 72.0
+margin_bottom = 78.0
+custom_colors/font_color = Color( 1, 0.498039, 0, 1 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_as_outline = 0
+script = SubResource( 4 )
+
+[node name="sfx_player" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 4 )
+volume_db = 17.479
+autoplay = true
