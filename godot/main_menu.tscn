@@ -105,6 +105,7 @@ func _ready():
 	add_child(screenwipe.instance());
 	
 	# --- test whether bgm is working
+	print(\"here 1\");
 	Global.set_bgm(1);
 	
 	set_process(true);
@@ -323,5 +324,4 @@ script = SubResource( 4 )
 
 [node name="sfx_player" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 4 )
-volume_db = 17.479
 autoplay = true

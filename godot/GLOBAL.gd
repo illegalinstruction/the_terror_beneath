@@ -427,7 +427,7 @@ func bgm_switch_helper_priv():
 	var tmp = load("res://bgm/%03d.ogg" % curr_bgm);
    
 	if (tmp != null):
-		stream_player.set_volume(user_bgm_vol);
+		stream_player.volume_db = user_bgm_vol;
 		stream_player.set_stream(tmp);
 		stream_player.play();
 	
@@ -448,7 +448,7 @@ func set_bgm(song_index, should_fade = true):
 	if (song_index == curr_bgm):
 		return; # it's already playing, nothing to do here
 	
-	if (should_fade):
+	if ((should_fade) and (self.curr_bgm != 0)):
 		# we need to fade out, so the music change is deferred
 		# the actual fade logic is handled elsewhere in a func
 		# called from process()
@@ -461,6 +461,7 @@ func set_bgm(song_index, should_fade = true):
 		self.next_bgm = song_index;
 		bgm_fade_done = true;
 		stream_player.stop();
+		print("here 2");
 	
 	# are we asked to go silent?
 	if (song_index == 0):
