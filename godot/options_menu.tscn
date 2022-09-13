@@ -93,7 +93,7 @@ func _ready():
 	menu_items.back().text = (\"Resolution scale: \" + str(Global.resolution_scale * 100.0) + \"%\"); 
 
 	menu_items.append(Label.new());
-	menu_items.back().text = (\"Fullscreen? \" + str(Global.fullscreen)); 
+	menu_items.back().text = (\"Use fullscreen? \" + str(Global.fullscreen)); 
 	
 	menu_items.append(Label.new());
 	menu_items.back().text = (\"Back\");
@@ -194,7 +194,7 @@ func _process(_ignore):
 
 		if (cursor_index == OPTIONS_MENU_ITEMS.FULLSCREEN):
 			Global.fullscreen = (not Global.fullscreen);
-			menu_items[cursor_index].text = (\"Use fullscree? \" + str(Global.fullscreen));
+			menu_items[cursor_index].text = (\"Use fullscreen? \" + str(Global.fullscreen));
 			OS.window_fullscreen = Global.fullscreen;
 
 		if (cursor_index == OPTIONS_MENU_ITEMS.JOY_OR_KEY):
