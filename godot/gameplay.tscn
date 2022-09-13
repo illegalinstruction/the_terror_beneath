@@ -1,12 +1,163 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://submarine/SUBMARINE_VISIBLE.tscn" type="PackedScene" id=1]
 [ext_resource path="res://ocean/ocean-impostor.tscn" type="PackedScene" id=2]
+[ext_resource path="res://entities/jelly_01/jelly_01.tscn" type="PackedScene" id=3]
+
+[sub_resource type="GDScript" id=2]
+script/source = "# 
+#  _the terror_               
+# | |        | |              
+# | |__   ___| | _____      __
+# | '_ \\ / _ \\ |/ _ \\ \\ /\\ / /
+# | |_) |  __/ | (_) \\ V  V / 
+# |_.__/ \\___|_|\\___/ \\_/\\_/ 
+#
+# Copyright 2022 Oregon Institute of Technology
+# 
+# Permission is hereby granted, free of charge, to any person obtaining 
+# a copy of this software and associated documentation files (the 
+# \"Software\"), to deal in the Software without restriction, including 
+# without limitation the rights to use, copy, modify, merge, publish, 
+# distribute, sublicense, and/or sell copies of the Software, and to 
+# permit persons to whom the Software is furnished to do so, subject to 
+# the following conditions:
+# 
+# * The above copyright notice and this permission notice shall be 
+# 	included in all copies or substantial portions of the Software.
+# 
+# * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, 
+# 	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+# 	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+#	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+#	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+#	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+#	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#                                 
+
+extends Spatial;
+
+#----------------------------------------------------------------------------
+
+const MIN_X : float = 16.0;
+const MAX_X : float = 10240.0;
+const MIN_Y : float = -7200.0; # in meters
+const MAX_Y : float = 0.0; # surface
+
+const SUNLIGHT_ZONE_DEPTH : float = -200.0;
+const TWILIGHT_ZONE_DEPTH : float = -800.0;
+const MIDNIGHT_ZONE_DEPTH : float = -2400.0;
+const ABYSSAL_ZONE_DEPTH : float = -5500.0;
+
+#----------------------------------------------------------------------------
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	Global.set_bgm(990);
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+#func _process(delta):
+#	pass
+"
 
 [sub_resource type="CapsuleShape" id=1]
 height = 2.15938
 
+[sub_resource type="GDScript" id=3]
+script/source = "# 
+#  _the terror_               
+# | |        | |              
+# | |__   ___| | _____      __
+# | '_ \\ / _ \\ |/ _ \\ \\ /\\ / /
+# | |_) |  __/ | (_) \\ V  V / 
+# |_.__/ \\___|_|\\___/ \\_/\\_/ 
+#
+# Copyright 2022 Oregon Institute of Technology
+# 
+# Permission is hereby granted, free of charge, to any person obtaining 
+# a copy of this software and associated documentation files (the 
+# \"Software\"), to deal in the Software without restriction, including 
+# without limitation the rights to use, copy, modify, merge, publish, 
+# distribute, sublicense, and/or sell copies of the Software, and to 
+# permit persons to whom the Software is furnished to do so, subject to 
+# the following conditions:
+# 
+# * The above copyright notice and this permission notice shall be 
+# 	included in all copies or substantial portions of the Software.
+# 
+# * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, 
+# 	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+# 	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+#	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+#	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+#	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+#	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#                                              
+
+extends Label
+
+func _ready():
+	set_text(Timestamp.BUILD_DATE + \"\\n\" + Timestamp.BUILD_STAMP);
+	if (Global.DEBUG_MODE):
+		show();
+	else:
+		hide();
+"
+
+[sub_resource type="GDScript" id=4]
+script/source = "
+# 
+#  _the terror_               
+# | |        | |              
+# | |__   ___| | _____      __
+# | '_ \\ / _ \\ |/ _ \\ \\ /\\ / / 
+# | |_) |  __/ | (_) \\ V  V / 
+# |_.__/ \\___|_|\\___/ \\_/\\_/ 
+#
+# Copyright 2022 Oregon Institute of Technology
+# 
+# Permission is hereby granted, free of charge, to any person obtaining 
+# a copy of this software and associated documentation files (the 
+# \"Software\"), to deal in the Software without restriction, including 
+# without limitation the rights to use, copy, modify, merge, publish, 
+# distribute, sublicense, and/or sell copies of the Software, and to 
+# permit persons to whom the Software is furnished to do so, subject to 
+# the following conditions:
+# 
+# * The above copyright notice and this permission notice shall be 
+# 	included in all copies or substantial portions of the Software.
+# 
+# * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, 
+# 	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+# 	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+#	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+#	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+#	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+#	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#                                              
+
+extends Label
+
+#----------------------------------------------------------------------------
+
+func _ready():
+	if (Global.DEBUG_MODE):
+		set_process(true);
+		show();
+	else:
+		hide();
+	return;
+
+#----------------------------------------------------------------------------
+
+func _process(_ignore):
+	self.set_text(\"input: left stick  deflection:\" + str(Global._left_stick_distance) + \" angle:\" + str(rad2deg(Global._left_stick_angle)) + \"  A: \" + str(Global._button_a) + \"  B: \" + str(Global._button_b)+ \"  X: \" + str(Global._button_x)+ \"  Y: \" + str(Global._button_y) + \" use joypad? \" + str(Global.use_joystick));	
+"
+
 [node name="gameplay" type="Spatial"]
+script = SubResource( 2 )
 
 [node name="kinbody_SUBMARINE" type="KinematicBody" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0380764, 0, 0 )
@@ -14,13 +165,37 @@ axis_lock_motion_x = true
 move_lock_x = true
 
 [node name="SUBMARINE_VISIBLE_ROOT" parent="kinbody_SUBMARINE" instance=ExtResource( 1 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.28746, 0.78911, 7.26593 )
 
 [node name="CollisionShape" type="CollisionShape" parent="kinbody_SUBMARINE"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.518984 )
 shape = SubResource( 1 )
 
 [node name="Camera" type="Camera" parent="."]
-transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 10.7993, 0, 0 )
+transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 14.7175, 0, 0 )
 
 [node name="ocean-impostor" parent="." instance=ExtResource( 2 )]
 transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0 )
+
+[node name="jelly_01" parent="." instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 8.33724, -1.80128, -1.42355 )
+
+[node name="debug_git" type="Label" parent="."]
+margin_left = 32.0
+margin_top = 32.0
+margin_right = 72.0
+margin_bottom = 46.0
+custom_colors/font_color = Color( 0.686275, 1, 0, 1 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_as_outline = 0
+script = SubResource( 3 )
+
+[node name="debug_input" type="Label" parent="."]
+margin_left = 32.0
+margin_top = 64.0
+margin_right = 72.0
+margin_bottom = 78.0
+custom_colors/font_color = Color( 1, 0.498039, 0, 1 )
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_as_outline = 0
+script = SubResource( 4 )
