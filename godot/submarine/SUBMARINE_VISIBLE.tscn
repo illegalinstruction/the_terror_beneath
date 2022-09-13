@@ -49,12 +49,6 @@ export var MOTOR_VOLUME_SCALE_ADJ : float = 35.5;
 # used to apply force over time, such as ocean currents, to the sub
 export var CURRENT_FORCE : Vector3 = Vector3.ZERO;
 
-# tuneable gameplay variables
-export var MAX_O2 : float = 100.0;
-export var MAX_ELECTRICITY : float = 100.0;
-export var FLASH_CHARGE_TIME : float = 8.0; # in seconds
-export var MAX_SULFUR : float = 2000.0;
-
 var prop_curr_pos : float;
 var prop_curr_speed : float;
 export var prop_desired_speed : float;
@@ -104,7 +98,7 @@ func _process(delta):
 			prop_curr_speed = prop_desired_speed;
 			
 	# motor noise		
-	$\"SUBMARINE motor sound\".pitch_scale = 1 + ((prop_curr_speed / MAX_PROP_SPEED) / MOTOR_PITCH_SCALE_ADJ);
+	$\"SUBMARINE motor sound\".pitch_scale = 1 + ((abs(prop_curr_speed) / MAX_PROP_SPEED) / MOTOR_PITCH_SCALE_ADJ);
 	$\"SUBMARINE motor sound\".unit_db = MOTOR_BASE_VOLUME + ((prop_curr_speed / MAX_PROP_SPEED) * MOTOR_VOLUME_SCALE_ADJ);
 	
 	# animate prop
@@ -190,6 +184,8 @@ surfaces/0 = {
 
 [node name="SUBMARINE_VISIBLE_ROOT" type="Spatial"]
 script = SubResource( 4 )
+PROP_SPINUP = 0.45
+MOTOR_PITCH_SCALE_ADJ = 11.5
 
 [node name="SUBMARINE body" type="MeshInstance" parent="."]
 mesh = SubResource( 1 )

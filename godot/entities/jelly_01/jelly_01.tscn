@@ -55,8 +55,8 @@ func _ready():
 	set_process(true);
 	
 	# spawn in random allowed location
-	translation.x = clamp(randi(), get_parent().MIN_X, get_parent().MAX_X);
-	translation.y = clamp(randi(), 5, get_parent().SUNLIGHT_ZONE_DEPTH);
+	#translation.x = clamp(randi(), get_parent().MIN_X, get_parent().MAX_X);
+	#translation.y = clamp(randi(), 5, get_parent().SUNLIGHT_ZONE_DEPTH);
 	
 	return;
 

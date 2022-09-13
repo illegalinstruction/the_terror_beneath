@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://submarine/SUBMARINE_VISIBLE.tscn" type="PackedScene" id=1]
 [ext_resource path="res://ocean/ocean-impostor.tscn" type="PackedScene" id=2]
@@ -51,19 +51,195 @@ const ABYSSAL_ZONE_DEPTH : float = -5500.0;
 
 #----------------------------------------------------------------------------
 
-# Called when the node enters the scene tree for the first time.
 func _ready():
-	Global.set_bgm(990);
-	pass # Replace with function body.
+	# load savegame here, position discoveries and sub
+	
+	set_process(true);
 
+	Global.set_bgm(990); # test code, please fix
+	return; 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
+#----------------------------------------------------------------------------
+
+func _process(delta):
+	Global.poll_joystick();
+	return;
+"
+
+[sub_resource type="GDScript" id=5]
+script/source = "# 
+#  _the terror_               
+# | |        | |              
+# | |__   ___| | _____      __
+# | '_ \\ / _ \\ |/ _ \\ \\ /\\ / / 
+# | |_) |  __/ | (_) \\ V  V / 
+# |_.__/ \\___|_|\\___/ \\_/\\_/ 
+#
+# Copyright 2022 Oregon Institute of Technology
+# 
+# Permission is hereby granted, free of charge, to any person obtaining 
+# a copy of this software and associated documentation files (the 
+# \"Software\"), to deal in the Software without restriction, including 
+# without limitation the rights to use, copy, modify, merge, publish, 
+# distribute, sublicense, and/or sell copies of the Software, and to 
+# permit persons to whom the Software is furnished to do so, subject to 
+# the following conditions:
+# 
+# * The above copyright notice and this permission notice shall be 
+# 	included in all copies or substantial portions of the Software.
+# 
+# * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, 
+# 	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+# 	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+#	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+#	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+#	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+#	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#                                              
+#----------------------------------------------------------------------------
+
+extends KinematicBody
+
+#--- tuneable local vars ----------------------------------------------------
+
+export var DISCOVERY_RADIUS : float = 10.5; # how far the sub can be from a discovery and still daguerreotype it
+export var DISCOVERY_RADIUS_ATTENUATION_WITH_DEPTH : float = 0.0025; # multiply sub depth by this, then add it to discovery radius to make it shrink at depth
+export var SUBMARINE_MAX_VELOCITY : float = 2.25;
+export var SUBMARINE_ACCELERATION : float = 0.00125;
+export var SUBMARINE_DRAG_MULT_FACTOR : float = 0.995;
+export var SUBMARINE_IDLE_BUOYANCY : float = 0.00000125;
+export var SUBMARINE_TURN_SPEED : float = 0.75;
+
+export var SUBMARINE_MAX_ELECTRICITY : float = 100;
+export var SUBMARINE_MAX_O2 : float = 100;
+export var SUBMARINE_MAX_SULFUR : float = 100.0;
+
+#--- private local vars -----------------------------------------------------
+
+var curr_electricity : float;
+var curr_o2 : float;
+var curr_sulfur : float;
+
+var flash_bulb : float;
+
+var is_facing_left : bool;
+
+var curr_velocity : Vector3;
+
+#----------------------------------------------------------------------------
+
+func _ready():
+	set_process(true);
+	return; # Replace with function body.
+
+#----------------------------------------------------------------------------
+
+func _process(_ignore):
+	#=========================================================================
+	if (Global._left_stick_distance >= Global.ANALOGUE_DEAD_ZONE):
+		# navigation
+		var veloc_add : Vector3;
+		veloc_add.z = Global._left_stick_x * -SUBMARINE_ACCELERATION;
+		veloc_add.y = Global._left_stick_y * -SUBMARINE_ACCELERATION;
+		
+		curr_velocity += veloc_add;
+		
+		# make submarine turn around if traveling left or right
+		if (Global._left_stick_x > 0):
+			is_facing_left = false;
+		else:
+			if (Global._left_stick_x < 0):
+				is_facing_left = true;
+	#=========================================================================
+	
+	# smooth anim of the sub turning around
+	if (is_facing_left):
+		if (rotation_degrees.y > 0.1):
+			rotation_degrees.y -= SUBMARINE_TURN_SPEED * abs(0.1 - rotation_degrees.y) / 100.0;
+	else:
+		if (rotation_degrees.y < 179.9):
+			rotation_degrees.y += SUBMARINE_TURN_SPEED * abs(179.9 - rotation_degrees.y) / 100.0;
+		
+	# sub prop and fins anim
+	$SUBMARINE_VISIBLE_ROOT.prop_desired_speed = (Global._left_stick_distance * 15.0); 
+	$SUBMARINE_VISIBLE_ROOT.elevon_desired_angle = Global._left_stick_y * 35;
+		
+	# speed cap
+	if (curr_velocity.length() > SUBMARINE_MAX_VELOCITY):
+		curr_velocity = (curr_velocity.normalized() * SUBMARINE_MAX_VELOCITY);
+		
+	# buoyancy
+	curr_velocity.y += SUBMARINE_IDLE_BUOYANCY;
+
+	# drag
+	curr_velocity *= SUBMARINE_DRAG_MULT_FACTOR;
+	
+	# let the physics run
+	move_and_collide(curr_velocity);
+	
+	# are we above the surface? clamp to 0, bounce downwards
+	if (translation.y > 0):
+		curr_velocity.y = -(curr_velocity.y / 2.0);
+		translation.y = 0; 
+	
+	return;
 "
 
 [sub_resource type="CapsuleShape" id=1]
 height = 2.15938
+
+[sub_resource type="GDScript" id=6]
+script/source = "# 
+#  _the terror_               
+# | |        | |              
+# | |__   ___| | _____      __
+# | '_ \\ / _ \\ |/ _ \\ \\ /\\ / /
+# | |_) |  __/ | (_) \\ V  V / 
+# |_.__/ \\___|_|\\___/ \\_/\\_/ 
+#
+# Copyright 2022 Oregon Institute of Technology
+# 
+# Permission is hereby granted, free of charge, to any person obtaining 
+# a copy of this software and associated documentation files (the 
+# \"Software\"), to deal in the Software without restriction, including 
+# without limitation the rights to use, copy, modify, merge, publish, 
+# distribute, sublicense, and/or sell copies of the Software, and to 
+# permit persons to whom the Software is furnished to do so, subject to 
+# the following conditions:
+# 
+# * The above copyright notice and this permission notice shall be 
+# 	included in all copies or substantial portions of the Software.
+# 
+# * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, 
+# 	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+# 	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+#	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+#	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+#	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+#	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#                                              
+
+extends Camera
+
+export var CAMERA_ACCELERATION : float = 0.125;
+
+#----------------------------------------------------------------------------
+
+func _ready():
+	set_process(true);
+	return;
+
+#----------------------------------------------------------------------------
+
+func _process(_ignore):
+	var speed : Vector3;
+	speed.z = (translation.z - $\"../kinbody_SUBMARINE\".translation.z) * CAMERA_ACCELERATION;	
+	speed.y = (translation.y - $\"../kinbody_SUBMARINE\".translation.y) * CAMERA_ACCELERATION;
+
+	translation.z -= speed.z;
+	translation.y -= speed.y;
+	return;
+"
 
 [sub_resource type="GDScript" id=3]
 script/source = "# 
@@ -153,26 +329,33 @@ func _ready():
 #----------------------------------------------------------------------------
 
 func _process(_ignore):
-	self.set_text(\"input: left stick  deflection:\" + str(Global._left_stick_distance) + \" angle:\" + str(rad2deg(Global._left_stick_angle)) + \"  A: \" + str(Global._button_a) + \"  B: \" + str(Global._button_b)+ \"  X: \" + str(Global._button_x)+ \"  Y: \" + str(Global._button_y) + \" use joypad? \" + str(Global.use_joystick));	
+	self.set_text(\"input: left stick  deflection:\" + str(Global._left_stick_distance) + \" angle:\" + str(rad2deg(Global._left_stick_angle)) + 
+		\"\\n  A: \" + str(Global._button_a) + \"  B: \" + str(Global._button_b)+ \"  X: \" + str(Global._button_x)+ \"  Y: \" + str(Global._button_y) + 
+		\"\\n use joypad? \" + str(Global.use_joystick) + \"\\n \" +
+		\"submarine angle: \" + str($\"../kinbody_SUBMARINE\".rotation_degrees.y) + \"\\n\" +
+		\"submarine pos: \" + str($\"../kinbody_SUBMARINE\".translation) + \"\\n\" +
+		\"submarine vel: \" + str($\"../kinbody_SUBMARINE\".get(\"curr_velocity\")));
 "
 
 [node name="gameplay" type="Spatial"]
 script = SubResource( 2 )
 
 [node name="kinbody_SUBMARINE" type="KinematicBody" parent="."]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0380764, 0, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 7.12431, -27.1066, 0 )
 axis_lock_motion_x = true
 move_lock_x = true
+script = SubResource( 5 )
+SUBMARINE_TURN_SPEED = 3.9
 
 [node name="SUBMARINE_VISIBLE_ROOT" parent="kinbody_SUBMARINE" instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5.28746, 0.78911, 7.26593 )
 
 [node name="CollisionShape" type="CollisionShape" parent="kinbody_SUBMARINE"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.518984 )
 shape = SubResource( 1 )
 
 [node name="Camera" type="Camera" parent="."]
-transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 14.7175, 0, 0 )
+transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 15.8524, 0, 0 )
+script = SubResource( 6 )
 
 [node name="ocean-impostor" parent="." instance=ExtResource( 2 )]
 transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0 )
@@ -190,11 +373,11 @@ custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
 custom_constants/shadow_as_outline = 0
 script = SubResource( 3 )
 
-[node name="debug_input" type="Label" parent="."]
+[node name="debug_sub" type="Label" parent="."]
 margin_left = 32.0
-margin_top = 64.0
+margin_top = 96.0
 margin_right = 72.0
-margin_bottom = 78.0
+margin_bottom = 110.0
 custom_colors/font_color = Color( 1, 0.498039, 0, 1 )
 custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
 custom_constants/shadow_as_outline = 0
