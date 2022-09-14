@@ -6,6 +6,7 @@
 [ext_resource path="res://submarine/images/SUBMARINE_metallic.png" type="Texture" id=4]
 
 [resource]
+flags_disable_ambient_light = true
 albedo_texture = ExtResource( 1 )
 metallic = 0.78
 metallic_texture = ExtResource( 4 )
@@ -14,5 +15,5 @@ normal_enabled = true
 normal_scale = 1.0
 normal_texture = ExtResource( 3 )
 rim_enabled = true
-rim = 1.0
+rim = 0.6
 rim_tint = 0.5
