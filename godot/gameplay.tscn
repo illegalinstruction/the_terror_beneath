@@ -1,7 +1,7 @@
 [gd_scene load_steps=19 format=2]
 
 [ext_resource path="res://submarine/SUBMARINE_VISIBLE.tscn" type="PackedScene" id=1]
-[ext_resource path="res://ocean/ocean-impostor.tscn" type="PackedScene" id=2]
+[ext_resource path="res://ocean/ocean-impostor_fix_2.tscn" type="PackedScene" id=2]
 [ext_resource path="res://entities/jelly_01/jelly_01.tscn" type="PackedScene" id=3]
 [ext_resource path="res://backdrop/wavy_coral/coral_02d.tscn" type="PackedScene" id=4]
 [ext_resource path="res://backdrop/test_rocks/test_rocks.tscn" type="PackedScene" id=5]
@@ -64,7 +64,7 @@ const TWILIGHT_ZONE_DEPTH : float = -800.0;
 const MIDNIGHT_ZONE_DEPTH : float = -2400.0;
 const ABYSSAL_ZONE_DEPTH : float = -5500.0;
 
-const OCEAN_IMPOSTOR_DROPDOWN_DEPTH = -37.0;
+const OCEAN_IMPOSTOR_DROPDOWN_DEPTH = -65.0;
 #----------------------------------------------------------------------------
 
 func _ready():
@@ -109,11 +109,11 @@ func _process(delta):
 	Global.poll_joystick();
 	
 	# move the ocean imposter alongside the ship
-	$\"ocean-impostor\".translation.z = $kinbody_SUBMARINE.translation.z;
+	$\"ocean-impostor_fix_2\".translation.z = $kinbody_SUBMARINE.translation.z;
 	if ($kinbody_SUBMARINE.translation.y < OCEAN_IMPOSTOR_DROPDOWN_DEPTH):
-		$\"ocean-impostor\".translation.y = ($kinbody_SUBMARINE.translation.y - OCEAN_IMPOSTOR_DROPDOWN_DEPTH);
+		$\"ocean-impostor_fix_2\".translation.y = ($kinbody_SUBMARINE.translation.y - OCEAN_IMPOSTOR_DROPDOWN_DEPTH);
 	else:
-		$\"ocean-impostor\".translation.y = 0.0;
+		$\"ocean-impostor_fix_2\".translation.y = 0.0;
 	
 	adjust_sun_by_sub_depth();
 	
@@ -429,9 +429,6 @@ shape = SubResource( 1 )
 transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 15.8524, 0, 0 )
 script = SubResource( 6 )
 
-[node name="ocean-impostor" parent="." instance=ExtResource( 2 )]
-transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0 )
-
 [node name="jelly_01" parent="." instance=ExtResource( 3 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 8.33724, -1.80128, -1.42355 )
 
@@ -541,6 +538,114 @@ transform = Transform( 0.979768, -0.152745, 0.129322, 0.200137, 0.747757, -0.633
 [node name="test_rocks2" parent="test_background_root/test_rocks/test_rocks20" instance=ExtResource( 5 )]
 transform = Transform( 0.929375, -0.180307, 0.322105, 0.345743, 0.119491, -0.93069, 0.129322, 0.976325, 0.173392, 8.1217, -62.2911, -47.2068 )
 
+[node name="test_rocks25" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 0.330717, 0.682156, -0.652142, -0.210647, 0.726951, 0.653583, 0.919921, -0.078779, 0.384109, -7.09437, -35.7338, -190.912 )
+
+[node name="test_rocks26" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 0.28828, 0, -0.957546, 0, 1, 0, 0.957546, 0, 0.28828, -17.761, -59.3904, -194.123 )
+
+[node name="test_rocks27" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 0.223338, 0.514769, -0.827728, -0.1341, 0.857329, 0.496995, 0.965473, 0, 0.260505, -17.761, -65.2789, -202.733 )
+
+[node name="test_rocks28" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 0.740192, 0.420117, -0.524993, -0.1341, 0.857329, 0.496995, 0.658888, -0.29747, 0.690925, -11.7815, -58.2765, -307.229 )
+
+[node name="test_rocks29" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 0.421205, 0.216371, -0.880778, -0.247505, 0.961688, 0.117886, 0.872541, 0.168343, 0.458621, -14.2495, -64.5329, -258.363 )
+
+[node name="test_rocks30" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 1, 0, 0, 0, 0.985022, -0.172428, 0, 0.172428, 0.985022, -9.71562, -46.3165, -247.148 )
+
+[node name="test_rocks" parent="test_background_root/test_rocks/test_rocks30" instance=ExtResource( 5 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -23.1208 )
+
+[node name="test_rocks" parent="test_background_root/test_rocks/test_rocks30/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 0.979768, -0.152745, 0.129322, 0.200137, 0.747757, -0.633091, 0, 0.646164, 0.763199, -1.36914, -62.951, 9.40944 )
+
+[node name="test_rocks2" parent="test_background_root/test_rocks/test_rocks30" instance=ExtResource( 5 )]
+transform = Transform( 0.929375, -0.180307, 0.322105, 0.345743, 0.119491, -0.93069, 0.129322, 0.976325, 0.173392, 8.1217, -62.2911, -47.2068 )
+
+[node name="test_rocks31" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 0.330717, 0.682156, -0.652142, -0.210647, 0.726951, 0.653583, 0.919921, -0.078779, 0.384109, -7.09437, -130.557, -410.467 )
+
+[node name="test_rocks32" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 0.28828, 0, -0.957546, 0, 1, 0, 0.957546, 0, 0.28828, -8.98569, -154.214, -413.678 )
+
+[node name="test_rocks33" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 0.223338, 0.514769, -0.827728, -0.1341, 0.857329, 0.496995, 0.965473, 0, 0.260505, -17.761, -160.102, -422.288 )
+
+[node name="test_rocks34" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 0.740192, 0.420117, -0.524993, -0.1341, 0.857329, 0.496995, 0.658888, -0.29747, 0.690925, -11.7815, -153.1, -526.784 )
+
+[node name="test_rocks35" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 0.421205, 0.216371, -0.880778, -0.247505, 0.961688, 0.117886, 0.872541, 0.168343, 0.458621, -14.2495, -159.356, -477.917 )
+
+[node name="test_rocks36" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 1, 0, 0, 0, 0.985022, -0.172428, 0, 0.172428, 0.985022, -9.71562, -141.14, -466.703 )
+
+[node name="test_rocks" parent="test_background_root/test_rocks/test_rocks36" instance=ExtResource( 5 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -23.1208 )
+
+[node name="test_rocks" parent="test_background_root/test_rocks/test_rocks36/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 0.979768, -0.152745, 0.129322, 0.200137, 0.747757, -0.633091, 0, 0.646164, 0.763199, -1.36914, -62.951, 9.40944 )
+
+[node name="test_rocks2" parent="test_background_root/test_rocks/test_rocks36" instance=ExtResource( 5 )]
+transform = Transform( 0.929375, -0.180307, 0.322105, 0.345743, 0.119491, -0.93069, 0.129322, 0.976325, 0.173392, 8.1217, -62.2911, -47.2068 )
+
+[node name="test_rocks37" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( -0.378584, 0.367779, -0.84936, 0.801522, 0.589177, -0.102143, 0.462857, -0.719451, -0.517836, -52.0618, -100.351, -245.086 )
+
+[node name="test_rocks38" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( -0.477712, -0.208022, -0.853533, 0.835503, 0.192705, -0.514587, 0.271525, -0.958953, 0.0817456, -52.1305, -114.827, -223.311 )
+
+[node name="test_rocks39" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( -0.499526, 0.171484, -0.849157, 0.767186, 0.542845, -0.34168, 0.402368, -0.822139, -0.402726, -44.8486, -121.573, -220.105 )
+
+[node name="test_rocks40" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 0.0673973, 0.316427, -0.946219, 0.946552, 0.279551, 0.160906, 0.315432, -0.90649, -0.280674, 31.27, -183.936, -256.451 )
+
+[node name="test_rocks41" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( -0.276092, -0.171437, -0.945718, 0.829924, 0.453759, -0.324544, 0.484767, -0.874478, 0.0170007, -3.48282, -155.106, -236.595 )
+
+[node name="test_rocks42" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 0.679582, -0.326207, -0.657082, 0.733599, 0.302187, 0.608699, 0, -0.895696, 0.444666, -12.0805, -140.961, -250.884 )
+
+[node name="test_rocks" parent="test_background_root/test_rocks/test_rocks42" instance=ExtResource( 5 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -23.1208 )
+
+[node name="test_rocks" parent="test_background_root/test_rocks/test_rocks42/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 0.979768, -0.152745, 0.129322, 0.200137, 0.747757, -0.633091, 0, 0.646164, 0.763199, -1.36914, -62.951, 9.40944 )
+
+[node name="test_rocks2" parent="test_background_root/test_rocks/test_rocks42" instance=ExtResource( 5 )]
+transform = Transform( 0.929375, -0.180307, 0.322105, 0.345743, 0.119491, -0.93069, 0.129322, 0.976325, 0.173392, 8.1217, -62.2911, -47.2068 )
+
+[node name="test_rocks43" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( -0.378584, 0.367779, -0.84936, 0.801522, 0.589177, -0.102143, 0.462857, -0.719451, -0.517836, -91.3766, -100.351, -357.151 )
+
+[node name="test_rocks44" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( -0.477712, -0.208022, -0.853533, 0.835503, 0.192705, -0.514587, 0.271525, -0.958953, 0.0817456, -91.4454, -114.827, -335.376 )
+
+[node name="test_rocks45" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( -0.499526, 0.171484, -0.849157, 0.767186, 0.542845, -0.34168, 0.402368, -0.822139, -0.402726, -84.1634, -121.573, -332.171 )
+
+[node name="test_rocks46" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 0.0673973, 0.316427, -0.946219, 0.946552, 0.279551, 0.160906, 0.315432, -0.90649, -0.280674, -0.159555, -183.936, -368.517 )
+
+[node name="test_rocks47" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( -0.276092, -0.171437, -0.945718, 0.829924, 0.453759, -0.324544, 0.484767, -0.874478, 0.0170007, -42.7977, -155.106, -348.661 )
+
+[node name="test_rocks48" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 0.679582, -0.326207, -0.657082, 0.733599, 0.302187, 0.608699, 0, -0.895696, 0.444666, -51.3953, -140.961, -362.949 )
+
+[node name="test_rocks" parent="test_background_root/test_rocks/test_rocks48" instance=ExtResource( 5 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -23.1208 )
+
+[node name="test_rocks" parent="test_background_root/test_rocks/test_rocks48/test_rocks" instance=ExtResource( 5 )]
+transform = Transform( 0.979768, -0.152745, 0.129322, 0.200137, 0.747757, -0.633091, 0, 0.646164, 0.763199, -1.36914, -62.951, 9.40944 )
+
+[node name="test_rocks2" parent="test_background_root/test_rocks/test_rocks48" instance=ExtResource( 5 )]
+transform = Transform( 0.929375, -0.180307, 0.322105, 0.345743, 0.119491, -0.93069, 0.129322, 0.976325, 0.173392, 8.1217, -62.2911, -47.2068 )
+
 [node name="test_rocks21" parent="test_background_root/test_rocks" instance=ExtResource( 5 )]
 transform = Transform( 0.421205, 0.216371, -0.880778, -0.093348, 0.976311, 0.195199, 0.902149, 0, 0.431425, -4.53384, -72.326, -110.608 )
 
@@ -633,3 +738,6 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -5.18574, -5.0786, 0 )
 
 [node name="coral_01a" parent="test_background_root/coral_01a3" instance=ExtResource( 6 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -6.77247, -3.97513, 0 )
+
+[node name="ocean-impostor_fix_2" parent="." instance=ExtResource( 2 )]
+transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -2.08096, 0, 0 )
