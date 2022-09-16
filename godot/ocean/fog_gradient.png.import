@@ -2,21 +2,19 @@
 
 importer="texture"
 type="StreamTexture"
-path.s3tc="res://.import/fog_gradient.png-62cabe147734f5ee978f685e795da55c.s3tc.stex"
-path.etc2="res://.import/fog_gradient.png-62cabe147734f5ee978f685e795da55c.etc2.stex"
+path="res://.import/fog_gradient.png-62cabe147734f5ee978f685e795da55c.stex"
 metadata={
-"imported_formats": [ "s3tc", "etc2" ],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://ocean/fog_gradient.png"
-dest_files=[ "res://.import/fog_gradient.png-62cabe147734f5ee978f685e795da55c.s3tc.stex", "res://.import/fog_gradient.png-62cabe147734f5ee978f685e795da55c.etc2.stex" ]
+dest_files=[ "res://.import/fog_gradient.png-62cabe147734f5ee978f685e795da55c.stex" ]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/lossy_quality=0.7
 compress/hdr_mode=0
 compress/bptc_ldr=0
