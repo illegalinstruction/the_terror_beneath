@@ -56,6 +56,8 @@ var music_vol 		: int 	= 8;
 func get_music_vol_in_db():
 	if (music_fadeout_clock < SCREENWIPE_MAX_TICKS):
 		return linear2db((Global.music_vol / float(MAX_VOLUME)) * pow(BGM_FADE_PER_TICK,music_fadeout_clock));
+	if (curr_bgm != next_bgm):
+		return linear2db(0);
 	return linear2db(Global.music_vol / float(MAX_VOLUME));
 
 #-------------------------------------------------------------------------------
@@ -375,6 +377,7 @@ func _ready():
 
 func _process(_ignored):
 	# --- adjust bgm volume
+	handle_bgm_fading();
 	stream_player.volume_db = get_music_vol_in_db();
 
 	# --- gather input
@@ -450,7 +453,7 @@ func bgm_switch_helper_priv():
 
 	var tmp = load("res://bgm/%03d.ogg" % curr_bgm);
    
-	if (tmp != null):
+	if ((tmp != null) && (music_fadeout_clock >= SCREENWIPE_MAX_TICKS)) :
 		stream_player.volume_db = get_music_vol_in_db();
 		stream_player.set_stream(tmp);
 		stream_player.play();
@@ -484,7 +487,7 @@ func set_bgm(song_index, should_fade = true):
 		self.next_bgm = song_index;
 		music_fadeout_clock = SCREENWIPE_MAX_TICKS + 1;
 		stream_player.stop();
-	
+
 	# are we asked to go silent?
 	if (song_index == 0):
 		# yep, we're done here
@@ -492,6 +495,7 @@ func set_bgm(song_index, should_fade = true):
 		
 	# if we got down here, we need to start the req'd song
 	bgm_switch_helper_priv();
+
 	return;
 
 ##############################################################################
