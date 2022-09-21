@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=2]
+[gd_scene load_steps=26 format=2]
 
 [ext_resource path="res://submarine/SUBMARINE_VISIBLE.tscn" type="PackedScene" id=1]
 [ext_resource path="res://ocean/ocean-impostor.tscn" type="PackedScene" id=2]
@@ -12,6 +12,7 @@
 [ext_resource path="res://backdrop/wavy_coral/coral_02c.tscn" type="PackedScene" id=10]
 [ext_resource path="res://backdrop/test-undersea-cave/black unshaded.material" type="Material" id=11]
 [ext_resource path="res://backdrop/test-undersea-cave/rock.material" type="Material" id=12]
+[ext_resource path="res://HUD/HUD.tscn" type="PackedScene" id=13]
 
 [sub_resource type="GDScript" id=2]
 script/source = "# 
@@ -102,6 +103,8 @@ func adjust_sun_by_sub_depth():
 	$WorldEnvironment.environment.background_sky.sky_energy = sky_darken_factor;
 	$WorldEnvironment.environment.background_sky.ground_energy = sky_darken_factor;
 	
+	$HUD.SUB_MAX_DEPTH = -750.0;
+	
 	return;
 
 #----------------------------------------------------------------------------
@@ -118,6 +121,8 @@ func _process(delta):
 		$\"ocean-impostor\".translation.y = 0.0;
 	
 	adjust_sun_by_sub_depth();
+	
+	$HUD.SUB_DEPTH = $kinbody_SUBMARINE.translation.y / 2.0;
 	
 	return;
 "
@@ -765,3 +770,5 @@ mesh = SubResource( 12 )
 [node name="Cube2" type="MeshInstance" parent="test_background_root"]
 transform = Transform( -4.37114e-08, 0, 1, 0.909287, 0.41617, 3.97462e-08, -0.41617, 0.909287, -1.81914e-08, -0.239471, -78.9908, -265.64 )
 mesh = SubResource( 12 )
+
+[node name="HUD" parent="." instance=ExtResource( 13 )]
