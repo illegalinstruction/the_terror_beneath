@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=2]
+[gd_scene load_steps=27 format=2]
 
 [ext_resource path="res://submarine/SUBMARINE_VISIBLE.tscn" type="PackedScene" id=1]
 [ext_resource path="res://ocean/ocean-impostor.tscn" type="PackedScene" id=2]
@@ -13,6 +13,7 @@
 [ext_resource path="res://backdrop/test-undersea-cave/black unshaded.material" type="Material" id=11]
 [ext_resource path="res://backdrop/test-undersea-cave/rock.material" type="Material" id=12]
 [ext_resource path="res://HUD/HUD.tscn" type="PackedScene" id=13]
+[ext_resource path="res://entities/humpback/humpback.glb" type="PackedScene" id=14]
 
 [sub_resource type="GDScript" id=2]
 script/source = "# 
@@ -772,3 +773,12 @@ transform = Transform( -4.37114e-08, 0, 1, 0.909287, 0.41617, 3.97462e-08, -0.41
 mesh = SubResource( 12 )
 
 [node name="HUD" parent="." instance=ExtResource( 13 )]
+
+[node name="humpback" parent="." instance=ExtResource( 14 )]
+transform = Transform( -0.0532771, 0, 0.99858, 0, 1, 0, -0.99858, 0, -0.0532771, 5.41834, -52.9938, 17.1058 )
+
+[node name="humpback2" parent="." instance=ExtResource( 14 )]
+transform = Transform( -0.567989, -0.324871, 0.756206, -0.524088, 0.851205, -0.0279616, -0.634602, -0.4122, -0.653736, 4.97567, -53.149, -18.1822 )
+
+[node name="humpback3" parent="." instance=ExtResource( 14 )]
+transform = Transform( -0.325693, 0.630269, -0.704758, 0.593759, 0.716427, 0.366308, 0.735781, -0.299153, -0.607564, 7.9932, -53.149, -48.317 )
