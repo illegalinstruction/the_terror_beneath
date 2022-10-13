@@ -69,6 +69,7 @@ const MIDNIGHT_ZONE_DEPTH : float = -2400.0;
 const ABYSSAL_ZONE_DEPTH : float = -5500.0;
 
 const OCEAN_IMPOSTOR_DROPDOWN_DEPTH = -65.0;
+
 #----------------------------------------------------------------------------
 
 func _ready():
@@ -126,6 +127,14 @@ func _process(delta):
 	$HUD.SUB_DEPTH = $kinbody_SUBMARINE.translation.y / 2.0;
 	
 	return;
+
+#----------------------------------------------------------------------------
+
+func _on_player_died():
+	var screenwipe = load(\"res://helper_screenwipe.tscn\");
+	Global.change_scene_to(load(\"res://drowned.tscn\"));
+	Global.new_scene_screenwipe_start();
+	
 "
 
 [sub_resource type="GDScript" id=5]
@@ -173,8 +182,17 @@ export var SUBMARINE_IDLE_BUOYANCY : float = 0.00000125;
 export var SUBMARINE_TURN_SPEED : float = 0.75;
 
 export var SUBMARINE_MAX_ELECTRICITY : float = 100;
-export var SUBMARINE_MAX_O2 : float = 100;
+export var SUBMARINE_MAX_O2 : float = 100.0;
 export var SUBMARINE_MAX_SULFUR : float = 100.0;
+
+export var SUBMARINE_SONAR_COST : float = 11.5;
+export var SUBMARINE_CAMERA_COST : float = 27.25;
+export var SUBMARINE_CAMERA_CHARGE_TIME : float = 1.5; # in seconds
+export var SUBMARINE_ELEC_COST_PER_SECOND : float = 0.5; 
+export var SUBMARINE_ELEC_RECHARGE_PER_SECOND : float = 0.6;
+
+export var SUBMARINE_O2_COST_PER_SECOND : float = 0.625;
+export var SUBMARINE_O2_RECHARGE_PER_SECOND : float = 2.75;
 
 #--- private local vars -----------------------------------------------------
 
@@ -192,28 +210,34 @@ var curr_velocity : Vector3;
 
 func _ready():
 	set_process(true);
+	curr_electricity = SUBMARINE_MAX_ELECTRICITY;
+	curr_o2 = SUBMARINE_MAX_O2;
 	return; # Replace with function body.
 
 #----------------------------------------------------------------------------
 
-func _process(_ignore):
-	#=========================================================================
+func _process(time_elapsed):
+	#== respond to input ======================================================
 	if (Global._left_stick_distance >= Global.ANALOGUE_DEAD_ZONE):
-		# navigation
-		var veloc_add : Vector3;
-		veloc_add.z = Global._left_stick_x * -SUBMARINE_ACCELERATION;
-		veloc_add.y = Global._left_stick_y * -SUBMARINE_ACCELERATION;
+		# do we have charge to run the motor?
+		if (curr_electricity > 0.0):
+			# yes
+
+			# navigation
+			var veloc_add : Vector3;
+			veloc_add.z = Global._left_stick_x * -SUBMARINE_ACCELERATION;
+			veloc_add.y = Global._left_stick_y * -SUBMARINE_ACCELERATION;
 		
-		curr_velocity += veloc_add;
+			curr_velocity += veloc_add;
 		
-		# make submarine turn around if traveling left or right
-		if (Global._left_stick_x > 0):
-			is_facing_left = false;
-		else:
-			if (Global._left_stick_x < 0):
-				is_facing_left = true;
-	#=========================================================================
+			# make submarine turn around if traveling left or right
+			if (Global._left_stick_x > 0):
+				is_facing_left = false;
+			else:
+				if (Global._left_stick_x < 0):
+					is_facing_left = true;
 	
+	#=  animation & physics ==================================================
 	# smooth anim of the sub turning around
 	if (is_facing_left):
 		if (rotation_degrees.y > 0.1):
@@ -223,8 +247,13 @@ func _process(_ignore):
 			rotation_degrees.y += SUBMARINE_TURN_SPEED * abs(179.9 - rotation_degrees.y) / 100.0;
 		
 	# sub prop and fins anim
-	$SUBMARINE_VISIBLE_ROOT.prop_desired_speed = (Global._left_stick_distance * 15.0); 
-	$SUBMARINE_VISIBLE_ROOT.elevon_desired_angle = Global._left_stick_y * 35;
+	# again, do we have charge to run the motor?
+	if (curr_electricity > 0.0):
+		$SUBMARINE_VISIBLE_ROOT.prop_desired_speed = (Global._left_stick_distance * 15.0); 
+		$SUBMARINE_VISIBLE_ROOT.elevon_desired_angle = Global._left_stick_y * 35;
+	else:
+		$SUBMARINE_VISIBLE_ROOT.prop_desired_speed = 0.0; 
+		$SUBMARINE_VISIBLE_ROOT.elevon_desired_angle = 0.0;
 		
 	# speed cap
 	if (curr_velocity.length() > SUBMARINE_MAX_VELOCITY):
@@ -241,7 +270,7 @@ func _process(_ignore):
 	
 	# are we above the surface? clamp to 0, bounce downwards
 	if (translation.y > get_parent().MAX_Y):
-		curr_velocity.y = -(curr_velocity.y / 2.0);
+		curr_velocity.y = -(curr_velocity.y / 1.25);
 		translation.y = get_parent().MAX_Y; 
 		
 	# don't go out of bounds, either
@@ -252,6 +281,40 @@ func _process(_ignore):
 	if (translation.z > -get_parent().MIN_X):
 		translation.z = -get_parent().MIN_X;
 		curr_velocity.z = -(curr_velocity.z / 2.0);
+
+	#== update  battery  =====================================================
+	# are we accelerating?
+	if (Global._left_stick_distance >= Global.ANALOGUE_DEAD_ZONE):
+		# yes - assess motor electricity cost
+		curr_electricity -= SUBMARINE_ELEC_COST_PER_SECOND * time_elapsed;
+	else:
+		# no - recharging
+		curr_electricity += SUBMARINE_ELEC_RECHARGE_PER_SECOND * time_elapsed;
+		
+	if (curr_electricity < 0.0):
+		curr_electricity = 0.0;
+		
+	# don't allow charging over 100%
+	if (curr_electricity > SUBMARINE_MAX_ELECTRICITY):
+		curr_electricity = SUBMARINE_MAX_ELECTRICITY;
+		
+	#== update o2 ============================================================
+	# are we on the surface?
+	if (translation.y > -0.5):
+		curr_o2 += SUBMARINE_O2_RECHARGE_PER_SECOND * time_elapsed;
+	else:
+		curr_o2 -= SUBMARINE_O2_COST_PER_SECOND * time_elapsed;
+		
+	if (curr_o2 < 0.0):
+		curr_o2 = 0.0;
+		get_parent()._on_player_died();
+
+	if (curr_o2 > SUBMARINE_MAX_O2):
+		curr_o2 = SUBMARINE_MAX_O2;
+
+	#== update hud ============================================================
+	$\"../HUD\".BATT_PERCENT = (curr_electricity / SUBMARINE_MAX_ELECTRICITY) * 100.0;
+	$\"../HUD\".O2_PERCENT = (curr_o2 / SUBMARINE_MAX_O2) * 100.0;
 	
 	return;
 "
@@ -523,6 +586,11 @@ axis_lock_motion_x = true
 move_lock_x = true
 script = SubResource( 5 )
 SUBMARINE_TURN_SPEED = 3.9
+SUBMARINE_MAX_ELECTRICITY = 16.0
+SUBMARINE_MAX_O2 = 5.235
+SUBMARINE_ELEC_COST_PER_SECOND = 0.35
+SUBMARINE_ELEC_RECHARGE_PER_SECOND = 0.65
+SUBMARINE_O2_COST_PER_SECOND = 0.163
 
 [node name="SUBMARINE_VISIBLE_ROOT" parent="kinbody_SUBMARINE" instance=ExtResource( 1 )]
 

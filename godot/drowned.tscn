@@ -1,0 +1,39 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://drown/drowned_placeholder.png" type="Texture" id=1]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Node2D
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	set_process(true);
+	var screenwipe = load(\"res://helper_screenwipe.tscn\");
+	Global.new_scene_screenwipe_start();
+	Global.load_options_data();
+	Global.set_bgm(100);
+	return;
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	# gather input (will also get keys)
+	Global.poll_joystick();
+	
+	print(Global._menu_accept);
+	
+	if (Global._menu_accept != 0):
+		Global.change_scene_to(load(\"res://main_menu.tscn\"));	
+		Global.new_scene_screenwipe_start();
+	return;
+			
+	
+"
+
+[node name="drowned_root" type="Node2D"]
+script = SubResource( 1 )
+
+[node name="DrownedPlaceholder" type="Sprite" parent="."]
+position = Vector2( 378, 254 )
+texture = ExtResource( 1 )

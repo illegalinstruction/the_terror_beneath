@@ -17,8 +17,6 @@ export var SUB_MAX_DEPTH : float = -750.0;
 export var O2_PERCENT : float = 0.0;
 export var BATT_PERCENT : float = 0.0;
 
-
-
 const NEEDLE_START = -129.0;
 const NEEDLE_END = 129.5;
 
@@ -35,7 +33,7 @@ func _ready():
 	$DepthGaugeBase/DepthGaugeNeedle.rotation_degrees = -129.0;
 
 	$Label.add_font_override(\"font\",Global.ui_font);
-		
+
 	set_process(true);
 	return;
 
@@ -64,10 +62,13 @@ func _process(_ignored):
 	
 	# --- animate depth gauge
 	$DepthGaugeBase/DepthGaugeNeedle.rotation_degrees = ((NEEDLE_END - NEEDLE_START) * (SUB_DEPTH / SUB_MAX_DEPTH)) + NEEDLE_START;
-	$Label.set_text(\"O2: \"+ str(O2_PERCENT) + \"%  \\n\" + \"Battery: \"+ str(O2_PERCENT) + \"%  \\n\" +\"Depth: \"+str(int(0 - SUB_DEPTH)) + \"M  \\n\");
-	$Label.rect_position.x = get_viewport().size.x - $Label.rect_size.x; 
-	$Label.rect_position.y = get_viewport().size.y - $Label.rect_size.y; 
 	
+	# --- update text 
+	var tmp = \"O2: %.1f %% \\n Battery: %.1f %% \\n Depth: %d M\" %  [O2_PERCENT, BATT_PERCENT, int(0 - SUB_DEPTH)];
+	$Label.set_text(tmp);
+	$Label.anchor_right = int(get_viewport().size.x);
+	$Label.anchor_bottom = int(get_viewport().size.y);
+
 "
 
 [node name="HUD" type="Node2D"]
@@ -95,10 +96,8 @@ rotation = -2.25846
 texture = ExtResource( 4 )
 
 [node name="Label" type="Label" parent="."]
-margin_left = 960.0
-margin_top = 208.0
-margin_right = 1280.0
-margin_bottom = 528.0
+margin_right = 1264.0
+margin_bottom = 704.0
 align = 2
 valign = 2
 
