@@ -501,7 +501,7 @@ func set_bgm(song_index, should_fade = true):
 ##############################################################################
 
 func is_bgm_done():
-	return (stream_player.playing);
+	return (not(stream_player.playing));
 
 ##############################################################################
 # handle_bgm_fading()
