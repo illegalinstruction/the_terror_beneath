@@ -499,6 +499,11 @@ func set_bgm(song_index, should_fade = true):
 	return;
 
 ##############################################################################
+
+func is_bgm_done():
+	return (stream_player.playing);
+
+##############################################################################
 # handle_bgm_fading()
 #   if there's an active music fadeout going, handle it here by reducing the
 #   bgm volume slightly until it reaches 0, then, switch BGM at that time.
