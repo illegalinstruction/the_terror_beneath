@@ -472,21 +472,21 @@ func bgm_switch_helper_priv():
 #   number, followed by the extension '.ogg'
 #
 func set_bgm(song_index, should_fade = true):
-	if (song_index == curr_bgm):
+	if ((song_index == curr_bgm) and (not is_bgm_done())):
 		return; # it's already playing, nothing to do here
 	
-	if ((should_fade) and (self.curr_bgm != 0)):
-		# we need to fade out, so the music change is deferred
-		# the actual fade logic is handled elsewhere in a func
-		# called from process()
-		next_bgm = song_index;
-		music_fadeout_clock = 0;
-	else:
+	if ((not should_fade) or (is_bgm_done()) or (self.curr_bgm == 0)):
 		# no fade needed - stop old music immediately.
 		self.curr_bgm = song_index;
 		self.next_bgm = song_index;
 		music_fadeout_clock = SCREENWIPE_MAX_TICKS + 1;
 		stream_player.stop();
+	else:
+		# we need to fade out, so the music change is deferred
+		# the actual fade logic is handled elsewhere in a func
+		# called from process()
+		next_bgm = song_index;
+		music_fadeout_clock = 0;
 
 	# are we asked to go silent?
 	if (song_index == 0):
