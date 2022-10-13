@@ -70,14 +70,17 @@ const ABYSSAL_ZONE_DEPTH : float = -5500.0;
 
 const OCEAN_IMPOSTOR_DROPDOWN_DEPTH = -65.0;
 
+const IN_GAME_SONG_MAX_INDEX = 2; # please fix when there are more tracks submitted!
+
 #----------------------------------------------------------------------------
 
 func _ready():
 	# load savegame here, position discoveries and sub
 	
 	set_process(true);
+	rand_seed(OS.get_ticks_msec());
 
-	Global.set_bgm(1); # test code, please fix
+	Global.set_bgm(int(rand_range(1,IN_GAME_SONG_MAX_INDEX + 0.5))); 
 	return; 
 
 #----------------------------------------------------------------------------
@@ -125,6 +128,13 @@ func _process(delta):
 	adjust_sun_by_sub_depth();
 	
 	$HUD.SUB_DEPTH = $kinbody_SUBMARINE.translation.y / 2.0;
+	
+	# did the current song end?  start a new one.
+	if (Global.is_bgm_done()):
+		print(\"tryna play next song\");
+		Global.set_bgm(int(rand_range(1,IN_GAME_SONG_MAX_INDEX + 0.5)), false); 
+
+	
 	
 	return;
 
