@@ -1,4 +1,5 @@
 ./godot/timestamp.gd
+./godot/export_presets.cfg
 *.exe
 *.elf
 *.x86_64
