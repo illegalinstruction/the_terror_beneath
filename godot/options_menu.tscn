@@ -110,6 +110,10 @@ func _ready():
 	# --- add last so it's on top
 	add_child(screenwipe.instance());
 	
+	# -- ticket 33: force this to false if no joypad's plugged in on entry to the menu screen
+	if (Global.is_joystick_connected == false):
+		Global.use_joystick = false;
+	
 	set_process(true);
 	return;
 
@@ -138,6 +142,17 @@ func _process(_ignore):
 		menu_items[i].rect_position.x = 0;
 		menu_items[i].rect_size.x = get_viewport().size.x;
 		menu_items[i].rect_position.y = (i * Global.ui_font.get_height()) + get_viewport().size.y / 2.0;
+		
+	# --- ticket 33 - grey out 'use joypad' if none are detected custom_colors/font_color
+	Global.handle_joystick_connect(); # <--- signal not firing...?
+	
+	if (Global.is_joystick_connected == false):
+		menu_items[OPTIONS_MENU_ITEMS.JOY_OR_KEY].set(\"custom_colors/font_color\", Color(0.5,0.5,0.5,1.0));
+		menu_items[OPTIONS_MENU_ITEMS.JOY_OR_KEY].text = \"Joypad not plugged in\";
+		Global.use_joystick = false;
+	else:
+		menu_items[OPTIONS_MENU_ITEMS.JOY_OR_KEY].set(\"custom_colors/font_color\", Color(1.0,1.0,1.0,1.0));
+		menu_items[OPTIONS_MENU_ITEMS.JOY_OR_KEY].text = (\"Use joypad? \" + str(Global.use_joystick));
 
 	# === HANDLE KEY INPUT =====================================================
 	# -------------- UP
@@ -168,7 +183,7 @@ func _process(_ignore):
 		$sfx_player.stop();
 		$sfx_player.stream = snd_choice;
 		$sfx_player.play();
-		
+
 		if (cursor_index == OPTIONS_MENU_ITEMS.BACK):
 			Global.save_options_data();
 			Global.change_scene_to(load(\"res://main_menu.tscn\"));
@@ -199,7 +214,15 @@ func _process(_ignore):
 
 		if (cursor_index == OPTIONS_MENU_ITEMS.JOY_OR_KEY):
 			Global.use_joystick = (not Global.use_joystick);
+
+			# --- ticket 33 - force to safe value if
+			# user tries to change joypad
+			# setting w/ no joypad plugged in
+			if (Global.is_joystick_connected == false):
+				Global.use_joystick = false;
+
 			menu_items[cursor_index].text = (\"Use joypad? \" + str(Global.use_joystick));
+
 
 	# --- adjust cursor
 	$cursor.position.x = OS.window_size.x / 2.0;	# horz center
