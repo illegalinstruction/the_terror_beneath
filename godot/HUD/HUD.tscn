@@ -7,7 +7,7 @@
 [ext_resource path="res://HUD/elec_gauge/elec_gauge.png" type="Texture" id=5]
 
 [sub_resource type="GDScript" id=1]
-script/source = "extends Node2D
+script/source = "extends Node2D;
 
 export var BATTERY_SCALE : float = 0.65;
 export var GAUGE_SCALE : float = 0.48;
@@ -20,7 +20,60 @@ export var BATT_PERCENT : float = 0.0;
 const NEEDLE_START = -129.0;
 const NEEDLE_END = 129.5;
 
+#===============================================================================
 #-------------------------------------------------------------------------------
+# 16: sonar
+export var SONAR_EXPANSION_SPEED : float = 2.75;
+export var SONAR_OPACITY_START : float =  0.8;
+export var SONAR_OPACITY_ATTENUATE : float =  0.95;
+
+var array_size_tmp = \"\";
+
+#------
+class SONAR_EFFECT:
+	var centre : Vector2;
+	var size : float;
+	var alpha : float;
+
+var sonar_effect_array = [];
+#------
+
+#-------------------------------------------------------------------------------
+
+func sonar_spawn_effect(coords:Vector2, is_echo:bool = false):
+	var tmp : SONAR_EFFECT = SONAR_EFFECT.new();
+	tmp.centre = coords;
+	tmp.size = 0.0;
+	tmp.alpha = SONAR_OPACITY_START;
+	sonar_effect_array.append(tmp);
+	return;
+
+#-------------------------------------------------------------------------------
+
+func sonar_paint_all():
+	for idx in range (0, (sonar_effect_array.size())):
+		draw_circle(sonar_effect_array[idx].centre, 
+					sonar_effect_array[idx].size,
+					Color(1.0, 1.0, 1.0, sonar_effect_array[idx].alpha));
+	return;
+
+#-------------------------------------------------------------------------------
+
+func sonar_animate_all():
+	array_size_tmp = (\"ary size: \"+str(sonar_effect_array.size()));
+	
+	if (sonar_effect_array.size() == 0):
+		return;
+	for idx in range (0, (sonar_effect_array.size())):
+		if (idx <= (sonar_effect_array.size() -1)):
+			sonar_effect_array[idx].size  = (sonar_effect_array[idx].size + SONAR_EXPANSION_SPEED);
+			sonar_effect_array[idx].alpha = (sonar_effect_array[idx].alpha * SONAR_OPACITY_ATTENUATE);
+			if (sonar_effect_array[idx].alpha < 0.001):
+				sonar_effect_array.remove(idx);
+	return;
+
+#-------------------------------------------------------------------------------
+#===============================================================================
 
 func _ready():
 	if (Global.use_joystick):
@@ -68,12 +121,24 @@ func _process(_ignored):
 	$Label.set_text(tmp);
 	$Label.anchor_right = int(get_viewport().size.x);
 	$Label.anchor_bottom = int(get_viewport().size.y);
+	
+	# 16 - sonar visual effect
+	sonar_animate_all();
+	update(); # required to force a repaint
 
+#----------------------------------------------------------------------------
+
+func _draw():
+	# 16 - sonar visual effect
+	sonar_paint_all();
+
+#----------------------------------------------------------------------------
 "
 
 [node name="HUD" type="Node2D"]
 script = SubResource( 1 )
 SUB_MAX_DEPTH = -2500.0
+SONAR_EXPANSION_SPEED = 3.944
 
 [node name="LowerLeftJoyp" type="Sprite" parent="."]
 position = Vector2( 0, 720 )

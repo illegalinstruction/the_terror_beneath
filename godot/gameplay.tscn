@@ -113,31 +113,31 @@ func adjust_sun_by_sub_depth():
 	return;
 
 #----------------------------------------------------------------------------
+var idx : int = 0;
+#----------------------------------------------------------------------------
 
 func _process(delta):
 	# gather input (will also get keys)
 	# ticket 33 - this will do the right thing, but it might be nice 
 	# if we warned the user that the joypad had dropped off...
 	Global.poll_joystick();
-	
+
 	# move the ocean imposter alongside the ship
 	$\"ocean-impostor\".translation.z = $kinbody_SUBMARINE.translation.z;
 	if ($kinbody_SUBMARINE.translation.y < OCEAN_IMPOSTOR_DROPDOWN_DEPTH):
 		$\"ocean-impostor\".translation.y = ($kinbody_SUBMARINE.translation.y - OCEAN_IMPOSTOR_DROPDOWN_DEPTH);
 	else:
 		$\"ocean-impostor\".translation.y = 0.0;
-	
+
 	adjust_sun_by_sub_depth();
 	
 	$HUD.SUB_DEPTH = $kinbody_SUBMARINE.translation.y / 2.0;
-	
+
 	# did the current song end?  start a new one.
 	if (Global.is_bgm_done()):
 		print(\"tryna play next song\");
 		Global.set_bgm(int(rand_range(1,IN_GAME_SONG_MAX_INDEX + 0.5)), false); 
 
-	
-	
 	return;
 
 #----------------------------------------------------------------------------
@@ -852,8 +852,6 @@ mesh = SubResource( 12 )
 transform = Transform( -4.37114e-08, 0, 1, 0.909287, 0.41617, 3.97462e-08, -0.41617, 0.909287, -1.81914e-08, -0.239471, -78.9908, -265.64 )
 mesh = SubResource( 12 )
 
-[node name="HUD" parent="." instance=ExtResource( 13 )]
-
 [node name="humpback" parent="." instance=ExtResource( 14 )]
 transform = Transform( -0.0532771, 0, 0.99858, 0, 1, 0, -0.99858, 0, -0.0532771, 5.41834, -52.9938, 17.1058 )
 
@@ -862,3 +860,5 @@ transform = Transform( -0.567989, -0.324871, 0.756206, -0.524088, 0.851205, -0.0
 
 [node name="humpback3" parent="." instance=ExtResource( 14 )]
 transform = Transform( -0.325693, 0.630269, -0.704758, 0.593759, 0.716427, 0.366308, 0.735781, -0.299153, -0.607564, 7.9932, -53.149, -48.317 )
+
+[node name="HUD" parent="." instance=ExtResource( 13 )]
