@@ -117,10 +117,6 @@ var idx : int = 0;
 #----------------------------------------------------------------------------
 
 func _process(delta):
-	# gather input (will also get keys)
-	# ticket 33 - this will do the right thing, but it might be nice 
-	# if we warned the user that the joypad had dropped off...
-	Global.poll_joystick();
 
 	# move the ocean imposter alongside the ship
 	$\"ocean-impostor\".translation.z = $kinbody_SUBMARINE.translation.z;
