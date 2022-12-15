@@ -25,7 +25,7 @@ const NEEDLE_END = 129.5;
 # 16: sonar
 export var SONAR_EXPANSION_SPEED : float = 2.75;
 export var SONAR_OPACITY_START : float =  0.8;
-export var SONAR_OPACITY_ATTENUATE : float =  0.95;
+export var SONAR_OPACITY_ATTENUATE : float =  0.975;
 
 var array_size_tmp = \"\";
 
@@ -44,7 +44,7 @@ func sonar_spawn_effect(coords:Vector2, is_echo:bool = false):
 	var tmp : SONAR_EFFECT = SONAR_EFFECT.new();
 	tmp.centre = coords;
 	tmp.size = 0.0;
-	tmp.alpha = SONAR_OPACITY_START;
+	tmp.alpha = SONAR_OPACITY_START / (1.0+int(is_echo));
 	sonar_effect_array.append(tmp);
 	return;
 

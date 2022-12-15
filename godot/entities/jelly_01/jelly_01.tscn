@@ -40,7 +40,7 @@ extends Spatial
 const DISCOVERY_NAME : String = \" Giant Jelly\";
 const DISCOVERY_FLAVOUR_TEXT : String = \" Pony ipsum dolor sit amet suri Polomare Apple Jack Cheerilee elit. Lightning Dust est Daring Do, Donut Joe Steven Magnet Sweetie Belle Snails Photo Finish Shining Armor Goldie Delicious Big McIntosh ullamco moon. It needs to be about 20% cooler. Princess Luna Mr. Cake anim, reprehenderit cutie mark cloud Shadowbolts. Eiusmod Owlowiscious Snips in. Ea cupcake Derpy, dolore elements of harmony Silver Spoon aliqua mane id do moon unicorn.\\nIncididunt muffin Flim, Matilda cupidatat Featherweight fugiat pony Seabreeze Flash Sentry Angel hoof Fancy Pants apples minim. Friends laboris rainbow tempor fugiat Gummy Lord Tirek Seabreeze quis Suri Polomare Maud Pie Lightning Dust Pipsqueak Adagio Dazzle. Flank hooves fugiat duis Twilight Sparkle. Elit Granny Smith Shining Armor Princess Luna dolore Dr Hooves commodo ullamco. Ex qui consectetur Photo Finish aliqua Flam.\";
 const DISCOVERY_PORTRAIT_PATH : String = \"\"; #fix me
-const DISCOVERY_SONAR_VISIBLE : bool = false;
+const DISCOVERY_SONAR_VISIBLE : bool = true;
 export var has_been_discovered : bool = false;
 
 #----------------------------------------------------------------------------

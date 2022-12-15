@@ -99,7 +99,7 @@ func _process(delta):
 			
 	# motor noise		
 	$\"SUBMARINE motor sound\".pitch_scale = 1 + ((abs(prop_curr_speed) / MAX_PROP_SPEED) / MOTOR_PITCH_SCALE_ADJ);
-	$\"SUBMARINE motor sound\".unit_db = MOTOR_BASE_VOLUME + ((prop_curr_speed / MAX_PROP_SPEED) * MOTOR_VOLUME_SCALE_ADJ);
+	$\"SUBMARINE motor sound\".unit_db = (MOTOR_BASE_VOLUME + ((prop_curr_speed / MAX_PROP_SPEED) * MOTOR_VOLUME_SCALE_ADJ)) *  Global.get_sfx_vol_in_db();
 	
 	# animate prop
 	$\"SUBMARINE prop\".rotate_z(prop_curr_speed * PI / 180.0);

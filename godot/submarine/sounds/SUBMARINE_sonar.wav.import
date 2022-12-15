@@ -1,0 +1,23 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/SUBMARINE_sonar.wav-f3df1e7f555aed853443e8227ccb7028.sample"
+
+[deps]
+
+source_file="res://submarine/sounds/SUBMARINE_sonar.wav"
+dest_files=[ "res://.import/SUBMARINE_sonar.wav-f3df1e7f555aed853443e8227ccb7028.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

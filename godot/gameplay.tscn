@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=2]
+[gd_scene load_steps=28 format=2]
 
 [ext_resource path="res://submarine/SUBMARINE_VISIBLE.tscn" type="PackedScene" id=1]
 [ext_resource path="res://ocean/ocean-impostor.tscn" type="PackedScene" id=2]
@@ -14,6 +14,7 @@
 [ext_resource path="res://backdrop/test-undersea-cave/rock.material" type="Material" id=12]
 [ext_resource path="res://HUD/HUD.tscn" type="PackedScene" id=13]
 [ext_resource path="res://entities/humpback/humpback.glb" type="PackedScene" id=14]
+[ext_resource path="res://submarine/sounds/SUBMARINE_sonar.wav" type="AudioStream" id=15]
 
 [sub_resource type="GDScript" id=2]
 script/source = "# 
@@ -143,6 +144,9 @@ func _on_player_died():
 	Global.change_scene_to(load(\"res://drowned.tscn\"));
 	Global.new_scene_screenwipe_start();
 	
+#----------------------------------------------------------------------------
+
+
 "
 
 [sub_resource type="GDScript" id=5]
@@ -224,6 +228,17 @@ func _ready():
 
 #----------------------------------------------------------------------------
 
+func fire_sonar():
+	# does the player have enough electricity for this?
+	if (curr_electricity >= SUBMARINE_SONAR_COST):
+		$\"../HUD\".sonar_spawn_effect($\"../Camera\".unproject_position(self.translation), false);
+		curr_electricity = curr_electricity - SUBMARINE_SONAR_COST;
+		$SONAR_ping.unit_db =  Global.get_sfx_vol_in_db();
+		$SONAR_ping.play();
+	
+
+#----------------------------------------------------------------------------
+
 func _process(time_elapsed):
 	#== respond to input ======================================================
 	if (Global._left_stick_distance >= Global.ANALOGUE_DEAD_ZONE):
@@ -244,6 +259,9 @@ func _process(time_elapsed):
 			else:
 				if (Global._left_stick_x < 0):
 					is_facing_left = true;
+	
+	if (Global._button_y == Global.BUTTON_STATE.PRESSED):
+		fire_sonar();
 	
 	#=  animation & physics ==================================================
 	# smooth anim of the sub turning around
@@ -596,6 +614,7 @@ script = SubResource( 5 )
 SUBMARINE_TURN_SPEED = 3.9
 SUBMARINE_MAX_ELECTRICITY = 16.0
 SUBMARINE_MAX_O2 = 5.235
+SUBMARINE_SONAR_COST = 3.335
 SUBMARINE_ELEC_COST_PER_SECOND = 0.35
 SUBMARINE_ELEC_RECHARGE_PER_SECOND = 0.65
 SUBMARINE_O2_COST_PER_SECOND = 0.163
@@ -605,6 +624,9 @@ SUBMARINE_O2_COST_PER_SECOND = 0.163
 [node name="CollisionShape" type="CollisionShape" parent="kinbody_SUBMARINE"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.518984 )
 shape = SubResource( 1 )
+
+[node name="SONAR_ping" type="AudioStreamPlayer3D" parent="kinbody_SUBMARINE"]
+stream = ExtResource( 15 )
 
 [node name="Camera" type="Camera" parent="."]
 transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 15.8524, 0, 0 )
@@ -619,7 +641,7 @@ origin_offset = Vector3( 0, 0, 14.278 )
 transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0 )
 
 [node name="jelly_01" parent="." instance=ExtResource( 3 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 8.33724, -1.80128, -1.42355 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 8.33724, -1.80128, -23.7987 )
 
 [node name="debug_git" type="Label" parent="."]
 margin_left = 32.0
