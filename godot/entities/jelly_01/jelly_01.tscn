@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://entities/jelly_01/jelly.material" type="Material" id=1]
+[ext_resource path="res://submarine/sounds/SUBMARINE_sonarBounce.wav" type="AudioStream" id=2]
 
 [sub_resource type="GDScript" id=4]
 script/source = "# 
@@ -47,10 +48,12 @@ export var has_been_discovered : bool = false;
 
 var angle : float;
 var anim_clock : int = 0;
+var echo;
 
 #----------------------------------------------------------------------------
 
 func _ready():
+	echo = $echo;
 	$AnimationPlayer.play(\"Action\");
 	set_process(true);
 	
@@ -228,3 +231,6 @@ skin = SubResource( 2 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 anims/Action = SubResource( 3 )
+
+[node name="echo" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource( 2 )

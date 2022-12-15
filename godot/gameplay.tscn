@@ -235,7 +235,36 @@ func fire_sonar():
 		curr_electricity = curr_electricity - SUBMARINE_SONAR_COST;
 		$SONAR_ping.unit_db =  Global.get_sfx_vol_in_db();
 		$SONAR_ping.play();
+		sonar_echo_clock = 100;
+		
+		# get array of entities (TODO)
+		sonar_echos_in_range.append($\"../jelly_01\");
+		
+
+#----------------------------------------------------------------------------
+
+var sonar_echo_clock : int = 0;
+var sonar_echos_in_range = [];
+
+func handle_sonar_echos():
+	if (sonar_echo_clock > 0):
+		sonar_echo_clock = sonar_echo_clock - 1;
+		
+		if(sonar_echos_in_range.size() == 0):
+			return;		
+		
+		for index in range (0,sonar_echos_in_range.size()):
+			var dist : Vector3 = translation - sonar_echos_in_range[index].translation;
+			
+			var x2 = dist.x * dist.x;
+			var y2 = dist.y * dist.y;
 	
+			var dist_as_int : int = int(sqrt(x2+y2));
+			
+			if (dist_as_int == (100 - sonar_echo_clock)):
+				sonar_echos_in_range[index].get(\"echo\").play();
+				$\"../HUD\".sonar_spawn_effect($\"../Camera\".unproject_position(sonar_echos_in_range[index].translation),true);
+		
 
 #----------------------------------------------------------------------------
 
@@ -337,6 +366,9 @@ func _process(time_elapsed):
 
 	if (curr_o2 > SUBMARINE_MAX_O2):
 		curr_o2 = SUBMARINE_MAX_O2;
+
+	#== update sonar ==========================================================
+	handle_sonar_echos();
 
 	#== update hud ============================================================
 	$\"../HUD\".BATT_PERCENT = (curr_electricity / SUBMARINE_MAX_ELECTRICITY) * 100.0;
@@ -641,7 +673,7 @@ origin_offset = Vector3( 0, 0, 14.278 )
 transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0 )
 
 [node name="jelly_01" parent="." instance=ExtResource( 3 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 8.33724, -1.80128, -23.7987 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 7.61907, -11.6993, -27.999 )
 
 [node name="debug_git" type="Label" parent="."]
 margin_left = 32.0
