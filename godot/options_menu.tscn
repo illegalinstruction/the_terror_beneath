@@ -51,7 +51,7 @@ enum OPTIONS_MENU_ITEMS {
 	JOY_OR_KEY,
 	SOUND_VOL,
 	MUSIC_VOL,
-	RES_SCALE,
+	#RES_SCALE,
 	FULLSCREEN,
 	BACK
 };
@@ -89,8 +89,9 @@ func _ready():
 	menu_items.append(Label.new());
 	menu_items.back().text = (\"Music volume: \" + str(Global.music_vol));
 
-	menu_items.append(Label.new());
-	menu_items.back().text = (\"Resolution scale: \" + str(Global.resolution_scale * 100.0) + \"%\"); 
+	# not gonna make 1.0
+	#menu_items.append(Label.new());
+	#menu_items.back().text = (\"Resolution scale: \" + str(Global.resolution_scale * 100.0) + \"%\"); 
 
 	menu_items.append(Label.new());
 	menu_items.back().text = (\"Use fullscreen? \" + str(Global.fullscreen)); 
@@ -188,11 +189,12 @@ func _process(_ignore):
 			Global.save_options_data();
 			Global.change_scene_to(load(\"res://main_menu.tscn\"));
 
-		if (cursor_index == OPTIONS_MENU_ITEMS.RES_SCALE):
-			Global.resolution_scale += 0.1;
-			if (Global.resolution_scale > Global.RES_SCALE_MAX):
-				Global.resolution_scale = Global.RES_SCALE_MIN;
-			menu_items[cursor_index].text = (\"Resolution scale: \" + str(Global.resolution_scale * 100.0) + \"%\"); 
+		# this feature is not going to be in 1.0
+		#if (cursor_index == OPTIONS_MENU_ITEMS.RES_SCALE):
+		#	Global.resolution_scale += 0.1;
+		#	if (Global.resolution_scale > Global.RES_SCALE_MAX):
+		#		Global.resolution_scale = Global.RES_SCALE_MIN;
+		#	menu_items[cursor_index].text = (\"Resolution scale: \" + str(Global.resolution_scale * 100.0) + \"%\"); 
 
 		if (cursor_index == OPTIONS_MENU_ITEMS.SOUND_VOL):
 			Global.sfx_vol += 1;
