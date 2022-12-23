@@ -75,6 +75,40 @@ const IN_GAME_SONG_MAX_INDEX = 2; # please fix when there are more tracks submit
 
 #----------------------------------------------------------------------------
 
+class DISCOVERY:
+	extends Node2D;
+	var pos : Vector2;
+	var found_yet : bool;
+	var flavour_text : String;
+	var collider : Spatial;
+
+	var sonar_ticks_to_wait : int = 0;
+	var sonar_clock : int = 0;
+
+	#----------------------------------------------------------------------------
+	
+	func on_sonar_fired(player_pos : Vector2):
+		var dist : float;
+		
+		var x_dist = abs(self.pos.x - player_pos.x);
+		var y_dist = abs(self.pos.y - player_pos.y);
+		
+		dist = sqrt((x_dist * x_dist) + (y_dist * y_dist));
+		sonar_ticks_to_wait = int(dist);
+		sonar_clock = 0;
+		
+		return;
+
+	#----------------------------------------------------------------------------
+
+	func tick():
+		if (sonar_clock < sonar_ticks_to_wait):
+			sonar_clock = sonar_clock + 1;
+			return;
+		$HUD.sonar_spawn_echo(pos, true);
+	
+#----------------------------------------------------------------------------
+
 func _ready():
 	# load savegame here, position discoveries and sub
 	
