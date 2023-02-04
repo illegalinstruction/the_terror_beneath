@@ -75,78 +75,78 @@ const IN_GAME_SONG_MAX_INDEX = 2; # please fix when there are more tracks submit
 #----------------------------------------------------------------------------
 
 func _ready():
-	# load savegame here, position discoveries and sub
-	
-	set_process(true);
-	rand_seed(OS.get_ticks_msec());
+    # load savegame here, position discoveries and sub
+    
+    set_process(true);
+    rand_seed(OS.get_ticks_msec());
 
-	Global.set_bgm(int(rand_range(1,IN_GAME_SONG_MAX_INDEX + 0.5))); 
-	return; 
+    Global.set_bgm(int(rand_range(1,IN_GAME_SONG_MAX_INDEX + 0.5))); 
+    return; 
 
 #----------------------------------------------------------------------------
 
 func adjust_sun_by_sub_depth():
-	var tmp : Color;
-	tmp.r = pow(SUN_DEPTH_ATTENUATOR.r, -$kinbody_SUBMARINE.translation.y / 2.0);
-	tmp.g = pow(SUN_DEPTH_ATTENUATOR.g, -$kinbody_SUBMARINE.translation.y / 2.0);
-	tmp.b = pow(SUN_DEPTH_ATTENUATOR.b, -$kinbody_SUBMARINE.translation.y / 2.0);
-	
-	$DirectionalLight.light_color.r = SUN_SURFACE_COLOUR.r * tmp.r;
-	$DirectionalLight.light_color.g = SUN_SURFACE_COLOUR.g * tmp.g;
-	$DirectionalLight.light_color.b = SUN_SURFACE_COLOUR.b * tmp.b;
-	
-	#--- handle midnight zone
-	var sky_darken_factor : float = clamp(
-		(-SUNLIGHT_ZONE_DEPTH + $kinbody_SUBMARINE.translation.y) / 150.0,
-		0.0, 
-		1.0);
-	$WorldEnvironment.environment.background_sky.sky_top_color = SKY_TOP_COLOUR * sky_darken_factor;
-	$WorldEnvironment.environment.background_sky.sky_horizon_color = SKY_HORZ_COLOUR * sky_darken_factor;
-	$WorldEnvironment.environment.background_sky.ground_horizon_color = GND_HORZ_COLOUR * sky_darken_factor;
-	$WorldEnvironment.environment.background_sky.ground_bottom_color = GND_BOT_COLOUR * sky_darken_factor;
-		
-	$WorldEnvironment.environment.background_sky.sky_energy = sky_darken_factor;
-	$WorldEnvironment.environment.background_sky.ground_energy = sky_darken_factor;
-	
-	$HUD.SUB_MAX_DEPTH = -750.0;
-	
-	return;
+    var tmp : Color;
+    tmp.r = pow(SUN_DEPTH_ATTENUATOR.r, -$kinbody_SUBMARINE.translation.y / 2.0);
+    tmp.g = pow(SUN_DEPTH_ATTENUATOR.g, -$kinbody_SUBMARINE.translation.y / 2.0);
+    tmp.b = pow(SUN_DEPTH_ATTENUATOR.b, -$kinbody_SUBMARINE.translation.y / 2.0);
+    
+    $DirectionalLight.light_color.r = SUN_SURFACE_COLOUR.r * tmp.r;
+    $DirectionalLight.light_color.g = SUN_SURFACE_COLOUR.g * tmp.g;
+    $DirectionalLight.light_color.b = SUN_SURFACE_COLOUR.b * tmp.b;
+    
+    #--- handle midnight zone
+    var sky_darken_factor : float = clamp(
+        (-SUNLIGHT_ZONE_DEPTH + $kinbody_SUBMARINE.translation.y) / 150.0,
+        0.0, 
+        1.0);
+    $WorldEnvironment.environment.background_sky.sky_top_color = SKY_TOP_COLOUR * sky_darken_factor;
+    $WorldEnvironment.environment.background_sky.sky_horizon_color = SKY_HORZ_COLOUR * sky_darken_factor;
+    $WorldEnvironment.environment.background_sky.ground_horizon_color = GND_HORZ_COLOUR * sky_darken_factor;
+    $WorldEnvironment.environment.background_sky.ground_bottom_color = GND_BOT_COLOUR * sky_darken_factor;
+        
+    $WorldEnvironment.environment.background_sky.sky_energy = sky_darken_factor;
+    $WorldEnvironment.environment.background_sky.ground_energy = sky_darken_factor;
+    
+    $HUD.SUB_MAX_DEPTH = -750.0;
+    
+    return;
 
 #----------------------------------------------------------------------------
 
 func _process(delta):
-	# gather input (will also get keys)
-	# ticket 33 - this will do the right thing, but it might be nice 
-	# if we warned the user that the joypad had dropped off...
-	Global.poll_joystick();
-	
-	# move the ocean imposter alongside the ship
-	$\"ocean-impostor\".translation.z = $kinbody_SUBMARINE.translation.z;
-	if ($kinbody_SUBMARINE.translation.y < OCEAN_IMPOSTOR_DROPDOWN_DEPTH):
-		$\"ocean-impostor\".translation.y = ($kinbody_SUBMARINE.translation.y - OCEAN_IMPOSTOR_DROPDOWN_DEPTH);
-	else:
-		$\"ocean-impostor\".translation.y = 0.0;
-	
-	adjust_sun_by_sub_depth();
-	
-	$HUD.SUB_DEPTH = $kinbody_SUBMARINE.translation.y / 2.0;
-	
-	# did the current song end?  start a new one.
-	if (Global.is_bgm_done()):
-		print(\"tryna play next song\");
-		Global.set_bgm(int(rand_range(1,IN_GAME_SONG_MAX_INDEX + 0.5)), false); 
+    # gather input (will also get keys)
+    # ticket 33 - this will do the right thing, but it might be nice 
+    # if we warned the user that the joypad had dropped off...
+    Global.poll_joystick();
+    
+    # move the ocean imposter alongside the ship
+    $\"ocean-impostor\".translation.z = $kinbody_SUBMARINE.translation.z;
+    if ($kinbody_SUBMARINE.translation.y < OCEAN_IMPOSTOR_DROPDOWN_DEPTH):
+        $\"ocean-impostor\".translation.y = ($kinbody_SUBMARINE.translation.y - OCEAN_IMPOSTOR_DROPDOWN_DEPTH);
+    else:
+        $\"ocean-impostor\".translation.y = 0.0;
+    
+    adjust_sun_by_sub_depth();
+    
+    $HUD.SUB_DEPTH = $kinbody_SUBMARINE.translation.y / 2.0;
+    
+    # did the current song end?  start a new one.
+    if (Global.is_bgm_done()):
+        print(\"tryna play next song\");
+        Global.set_bgm(int(rand_range(1,IN_GAME_SONG_MAX_INDEX + 0.5)), false); 
 
-	
-	
-	return;
+    
+    
+    return;
 
 #----------------------------------------------------------------------------
 
 func _on_player_died():
-	var screenwipe = load(\"res://helper_screenwipe.tscn\");
-	Global.change_scene_to(load(\"res://drowned.tscn\"));
-	Global.new_scene_screenwipe_start();
-	
+    var screenwipe = load(\"res://helper_screenwipe.tscn\");
+    Global.change_scene_to(load(\"res://drowned.tscn\"));
+    Global.new_scene_screenwipe_start();
+    
 "
 
 [sub_resource type="GDScript" id=5]
@@ -183,29 +183,6 @@ script/source = "#
 
 extends KinematicBody
 
-#--- tuneable local vars ----------------------------------------------------
-
-export var DISCOVERY_RADIUS : float = 10.5; # how far the sub can be from a discovery and still daguerreotype it
-export var DISCOVERY_RADIUS_ATTENUATION_WITH_DEPTH : float = 0.0025; # multiply sub depth by this, then add it to discovery radius to make it shrink at depth
-export var SUBMARINE_MAX_VELOCITY : float = 2.25;
-export var SUBMARINE_ACCELERATION : float = 0.00125;
-export var SUBMARINE_DRAG_MULT_FACTOR : float = 0.995;
-export var SUBMARINE_IDLE_BUOYANCY : float = 0.00000125;
-export var SUBMARINE_TURN_SPEED : float = 0.75;
-
-export var SUBMARINE_MAX_ELECTRICITY : float = 100;
-export var SUBMARINE_MAX_O2 : float = 100.0;
-export var SUBMARINE_MAX_SULFUR : float = 100.0;
-
-export var SUBMARINE_SONAR_COST : float = 11.5;
-export var SUBMARINE_CAMERA_COST : float = 27.25;
-export var SUBMARINE_CAMERA_CHARGE_TIME : float = 1.5; # in seconds
-export var SUBMARINE_ELEC_COST_PER_SECOND : float = 0.5; 
-export var SUBMARINE_ELEC_RECHARGE_PER_SECOND : float = 0.6;
-
-export var SUBMARINE_O2_COST_PER_SECOND : float = 0.625;
-export var SUBMARINE_O2_RECHARGE_PER_SECOND : float = 2.75;
-
 #--- private local vars -----------------------------------------------------
 
 var curr_electricity : float;
@@ -221,114 +198,115 @@ var curr_velocity : Vector3;
 #----------------------------------------------------------------------------
 
 func _ready():
-	set_process(true);
-	curr_electricity = SUBMARINE_MAX_ELECTRICITY;
-	curr_o2 = SUBMARINE_MAX_O2;
-	return; # Replace with function body.
+    set_process(true);
+    curr_electricity = Global.SUBMARINE_MAX_ELECTRICITY;
+    curr_o2 = Global.SUBMARINE_MAX_O2;
+    return; # Replace with function body.
 
 #----------------------------------------------------------------------------
 
 func _process(time_elapsed):
-	#== respond to input ======================================================
-	if (Global._left_stick_distance >= Global.ANALOGUE_DEAD_ZONE):
-		# do we have charge to run the motor?
-		if (curr_electricity > 0.0):
-			# yes
+    #== respond to input ======================================================
+    if (Global._left_stick_distance >= Global.ANALOGUE_DEAD_ZONE):
+        # do we have charge to run the motor?
+        if (curr_electricity > 0.0):
+            # yes
 
-			# navigation
-			var veloc_add : Vector3;
-			veloc_add.z = Global._left_stick_x * -SUBMARINE_ACCELERATION;
-			veloc_add.y = Global._left_stick_y * -SUBMARINE_ACCELERATION;
-		
-			curr_velocity += veloc_add;
-		
-			# make submarine turn around if traveling left or right
-			if (Global._left_stick_x > 0):
-				is_facing_left = false;
-			else:
-				if (Global._left_stick_x < 0):
-					is_facing_left = true;
-	
-	#=  animation & physics ==================================================
-	# smooth anim of the sub turning around
-	if (is_facing_left):
-		if (rotation_degrees.y > 0.1):
-			rotation_degrees.y -= SUBMARINE_TURN_SPEED * abs(0.1 - rotation_degrees.y) / 100.0;
-	else:
-		if (rotation_degrees.y < 179.9):
-			rotation_degrees.y += SUBMARINE_TURN_SPEED * abs(179.9 - rotation_degrees.y) / 100.0;
-		
-	# sub prop and fins anim
-	# again, do we have charge to run the motor?
-	if (curr_electricity > 0.0):
-		$SUBMARINE_VISIBLE_ROOT.prop_desired_speed = (Global._left_stick_distance * 15.0); 
-		$SUBMARINE_VISIBLE_ROOT.elevon_desired_angle = Global._left_stick_y * 35;
-	else:
-		$SUBMARINE_VISIBLE_ROOT.prop_desired_speed = 0.0; 
-		$SUBMARINE_VISIBLE_ROOT.elevon_desired_angle = 0.0;
-		
-	# speed cap
-	if (curr_velocity.length() > SUBMARINE_MAX_VELOCITY):
-		curr_velocity = (curr_velocity.normalized() * SUBMARINE_MAX_VELOCITY);
-		
-	# buoyancy
-	curr_velocity.y += SUBMARINE_IDLE_BUOYANCY;
+            # navigation
+            var veloc_add : Vector3 = Vector3.ZERO;
+            veloc_add.z = Global._left_stick_x * -Global.SUBMARINE_ACCELERATION;
+            veloc_add.y = Global._left_stick_y * -Global.SUBMARINE_ACCELERATION;
+        
+            curr_velocity += veloc_add;
+        
+            # make submarine turn around if traveling left or right
+            if (Global._left_stick_x > 0):
+                is_facing_left = false;
+            else:
+                if (Global._left_stick_x < 0):
+                    is_facing_left = true;
+    
+    #=  animation & physics ==================================================
+    # smooth anim of the sub turning around
+    if (is_facing_left):
+        if (rotation_degrees.y > 0.1):
+            rotation_degrees.y -= Global.SUBMARINE_TURN_SPEED * abs(0.1 - rotation_degrees.y) / 100.0;
+    else:
+        if (rotation_degrees.y < 179.9):
+            rotation_degrees.y += Global.SUBMARINE_TURN_SPEED * abs(179.9 - rotation_degrees.y) / 100.0;
+        
+    # sub prop and fins anim
+    # again, do we have charge to run the motor?
+    if (curr_electricity > 0.0):
+        $SUBMARINE_VISIBLE_ROOT.prop_desired_speed = (Global._left_stick_distance * 15.0); 
+        $SUBMARINE_VISIBLE_ROOT.elevon_desired_angle = Global._left_stick_y * 35;
+    else:
+        $SUBMARINE_VISIBLE_ROOT.prop_desired_speed = 0.0; 
+        $SUBMARINE_VISIBLE_ROOT.elevon_desired_angle = 0.0;
+        
+    # speed cap
+    if (curr_velocity.length() > Global.SUBMARINE_MAX_VELOCITY):
+        curr_velocity = (curr_velocity.normalized() * Global.SUBMARINE_MAX_VELOCITY);
+        
+    # buoyancy
+    curr_velocity.y += Global.SUBMARINE_IDLE_BUOYANCY;
 
-	# drag
-	curr_velocity *= SUBMARINE_DRAG_MULT_FACTOR;
-	
-	# let the physics run
-	move_and_collide(curr_velocity);
-	
-	# are we above the surface? clamp to 0, bounce downwards
-	if (translation.y > get_parent().MAX_Y):
-		curr_velocity.y = -(curr_velocity.y / 1.25);
-		translation.y = get_parent().MAX_Y; 
-		
-	# don't go out of bounds, either
-	if (translation.z < -get_parent().MAX_X):
-		translation.z = -get_parent().MAX_X;
-		curr_velocity.z = -(curr_velocity.z / 2.0);
+    # drag
+    curr_velocity *= Global.SUBMARINE_DRAG_MULT_FACTOR;
+    
+    # let the physics run
+    # warning-ignore:return_value_discarded
+    move_and_collide(curr_velocity);
+    
+    # are we above the surface? clamp to 0, bounce downwards
+    if (translation.y > get_parent().MAX_Y):
+        curr_velocity.y = -(curr_velocity.y / 1.25);
+        translation.y = get_parent().MAX_Y; 
+        
+    # don't go out of bounds, either
+    if (translation.z < -get_parent().MAX_X):
+        translation.z = -get_parent().MAX_X;
+        curr_velocity.z = -(curr_velocity.z / 2.0);
 
-	if (translation.z > -get_parent().MIN_X):
-		translation.z = -get_parent().MIN_X;
-		curr_velocity.z = -(curr_velocity.z / 2.0);
+    if (translation.z > -get_parent().MIN_X):
+        translation.z = -get_parent().MIN_X;
+        curr_velocity.z = -(curr_velocity.z / 2.0);
 
-	#== update  battery  =====================================================
-	# are we accelerating?
-	if (Global._left_stick_distance >= Global.ANALOGUE_DEAD_ZONE):
-		# yes - assess motor electricity cost
-		curr_electricity -= SUBMARINE_ELEC_COST_PER_SECOND * time_elapsed;
-	else:
-		# no - recharging
-		curr_electricity += SUBMARINE_ELEC_RECHARGE_PER_SECOND * time_elapsed;
-		
-	if (curr_electricity < 0.0):
-		curr_electricity = 0.0;
-		
-	# don't allow charging over 100%
-	if (curr_electricity > SUBMARINE_MAX_ELECTRICITY):
-		curr_electricity = SUBMARINE_MAX_ELECTRICITY;
-		
-	#== update o2 ============================================================
-	# are we on the surface?
-	if (translation.y > -0.5):
-		curr_o2 += SUBMARINE_O2_RECHARGE_PER_SECOND * time_elapsed;
-	else:
-		curr_o2 -= SUBMARINE_O2_COST_PER_SECOND * time_elapsed;
-		
-	if (curr_o2 < 0.0):
-		curr_o2 = 0.0;
-		get_parent()._on_player_died();
+    #== update  battery  =====================================================
+    # are we accelerating?
+    if (Global._left_stick_distance >= Global.ANALOGUE_DEAD_ZONE):
+        # yes - assess motor electricity cost
+        curr_electricity -= Global.SUBMARINE_ELEC_COST_PER_SECOND * time_elapsed;
+    else:
+        # no - recharging
+        curr_electricity += Global.SUBMARINE_ELEC_RECHARGE_PER_SECOND * time_elapsed;
+        
+    if (curr_electricity < 0.0):
+        curr_electricity = 0.0;
+        
+    # don't allow charging over 100%
+    if (curr_electricity > Global.SUBMARINE_MAX_ELECTRICITY):
+        curr_electricity = Global.SUBMARINE_MAX_ELECTRICITY;
+        
+    #== update o2 ============================================================
+    # are we on the surface?
+    if (translation.y > -0.5):
+        curr_o2 += Global.SUBMARINE_O2_RECHARGE_PER_SECOND * time_elapsed;
+    else:
+        curr_o2 -= Global.SUBMARINE_O2_COST_PER_SECOND * time_elapsed;
+        
+    if (curr_o2 < 0.0):
+        curr_o2 = 0.0;
+        get_parent()._on_player_died();
 
-	if (curr_o2 > SUBMARINE_MAX_O2):
-		curr_o2 = SUBMARINE_MAX_O2;
+    if (curr_o2 > Global.SUBMARINE_MAX_O2):
+        curr_o2 = Global.SUBMARINE_MAX_O2;
 
-	#== update hud ============================================================
-	$\"../HUD\".BATT_PERCENT = (curr_electricity / SUBMARINE_MAX_ELECTRICITY) * 100.0;
-	$\"../HUD\".O2_PERCENT = (curr_o2 / SUBMARINE_MAX_O2) * 100.0;
-	
-	return;
+    #== update hud ============================================================
+    $\"../HUD\".BATT_PERCENT = (curr_electricity / Global.SUBMARINE_MAX_ELECTRICITY) * 100.0;
+    $\"../HUD\".O2_PERCENT = (curr_o2 / Global.SUBMARINE_MAX_O2) * 100.0;
+    
+    return;
 "
 
 [sub_resource type="CapsuleShape" id=1]
@@ -597,12 +575,6 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 7.12431, -27.1066, 0 )
 axis_lock_motion_x = true
 move_lock_x = true
 script = SubResource( 5 )
-SUBMARINE_TURN_SPEED = 3.9
-SUBMARINE_MAX_ELECTRICITY = 16.0
-SUBMARINE_MAX_O2 = 5.235
-SUBMARINE_ELEC_COST_PER_SECOND = 0.35
-SUBMARINE_ELEC_RECHARGE_PER_SECOND = 0.65
-SUBMARINE_O2_COST_PER_SECOND = 0.163
 
 [node name="SUBMARINE_VISIBLE_ROOT" parent="kinbody_SUBMARINE" instance=ExtResource( 1 )]
 
