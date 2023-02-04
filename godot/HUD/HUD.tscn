@@ -17,57 +17,108 @@ export var SUB_MAX_DEPTH : float = -750.0;
 export var O2_PERCENT : float = 0.0;
 export var BATT_PERCENT : float = 0.0;
 
-const NEEDLE_START = -129.0;
+const NEEDLE_START = -129.0; # FIXME - the whole HUD needs redoing
 const NEEDLE_END = 129.5;
+
+const SONAR_LIFETIME_TICKS : int = 90;
+
+
+
+#-------------------------------------------------------------------------------
+# helper class to let the visible representation of sonar reflections manage 
+# themselves.
+
+var sonar_shock_ring_array = [];
+
+class SONAR_SHOCK_RING:
+    extends Object;
+    
+    var pos         : Vector2;
+    var col         : Color = Color.white;
+    var anim_clock  : int = SONAR_LIFETIME_TICKS;
+    var parent      : Node2D;
+    var dest        : Array;
+    
+    #==========================
+    
+    func _init(in_pos: Vector2, in_dest: Array ):
+        self.pos    = in_pos;
+        self.dest   = in_dest; 
+        in_dest.append(self);
+        return;
+
+    #==========================
+    
+    func tick():
+        # expand over time
+        anim_clock = anim_clock - 1;
+        
+        # paint the shock ring
+        parent.draw_circle(pos, (SONAR_LIFETIME_TICKS - anim_clock)*Global.SONAR_WAVE_SPEED, col);
+        
+        # grow fainter over time
+        col.a = col.a * float(anim_clock / SONAR_LIFETIME_TICKS);
+        
+        # are we dead/invisible now? delete ourselves
+        if (anim_clock > 1):
+            dest.erase(self);    
+            self.free();
 
 #-------------------------------------------------------------------------------
 
 func _ready():
-	if (Global.use_joystick):
-		$LowerLeftKeyb.hide();
-		$LowerLeftJoyp.show();
-	else:
-		$LowerLeftKeyb.show();
-		$LowerLeftJoyp.hide();
-	
-	$DepthGaugeBase/DepthGaugeNeedle.rotation_degrees = -129.0;
+    if (Global.use_joystick):
+        $LowerLeftKeyb.hide();
+        $LowerLeftJoyp.show();
+    else:
+        $LowerLeftKeyb.show();
+        $LowerLeftJoyp.hide();
+    
+    $DepthGaugeBase/DepthGaugeNeedle.rotation_degrees = -129.0;
 
-	$Label.add_font_override(\"font\",Global.ui_font);
+    $Label.add_font_override(\"font\",Global.ui_font);
 
-	set_process(true);
-	return;
+    set_process(true);
+    return;
 
 #-------------------------------------------------------------------------------
 
 func _process(_ignored):
-	# --- gracefully handle resize
-	$LowerLeftJoyp.scale.x = (get_viewport().size.x / 1280.0) * CALLOUT_SCALE;  
-	$LowerLeftJoyp.scale.y = $LowerLeftJoyp.scale.x;
-	$LowerLeftJoyp.position.y = get_viewport().size.y;
+    # --- gracefully handle resize
+    $LowerLeftJoyp.scale.x = (get_viewport().size.x / 1280.0) * CALLOUT_SCALE;  
+    $LowerLeftJoyp.scale.y = $LowerLeftJoyp.scale.x;
+    $LowerLeftJoyp.position.y = get_viewport().size.y;
 
-	$LowerLeftKeyb.scale.x = (get_viewport().size.x / 1280.0) * CALLOUT_SCALE;  
-	$LowerLeftKeyb.scale.y = $LowerLeftKeyb.scale.x;
-	$LowerLeftKeyb.position.y = get_viewport().size.y;
+    $LowerLeftKeyb.scale.x = (get_viewport().size.x / 1280.0) * CALLOUT_SCALE;  
+    $LowerLeftKeyb.scale.y = $LowerLeftKeyb.scale.x;
+    $LowerLeftKeyb.position.y = get_viewport().size.y;
 
-	$DepthGaugeBase.scale.x = (get_viewport().size.x / 1280.0) * GAUGE_SCALE;
-	$DepthGaugeBase.scale.y = $DepthGaugeBase.scale.x;
-	$DepthGaugeBase.position.x = get_viewport().size.x - (($DepthGaugeBase.texture.get_size().x / 2.0) * $DepthGaugeBase.scale.x);
-	$DepthGaugeBase.position.y = get_viewport().size.y - (($DepthGaugeBase.texture.get_size().y / 2.0) * $DepthGaugeBase.scale.y);
+    $DepthGaugeBase.scale.x = (get_viewport().size.x / 1280.0) * GAUGE_SCALE;
+    $DepthGaugeBase.scale.y = $DepthGaugeBase.scale.x;
+    $DepthGaugeBase.position.x = get_viewport().size.x - (($DepthGaugeBase.texture.get_size().x / 2.0) * $DepthGaugeBase.scale.x);
+    $DepthGaugeBase.position.y = get_viewport().size.y - (($DepthGaugeBase.texture.get_size().y / 2.0) * $DepthGaugeBase.scale.y);
 
 
-	$ElecGauge.scale.x = (get_viewport().size.x / 1280.0) * BATTERY_SCALE;
-	$ElecGauge.scale.y = $ElecGauge.scale.x;
-	$ElecGauge.position.x = get_viewport().size.x - (($ElecGauge.texture.get_size().x / 2.0) * $ElecGauge.scale.x);
-	$ElecGauge.position.y = get_viewport().size.y /2.0;
-	
-	# --- animate depth gauge
-	$DepthGaugeBase/DepthGaugeNeedle.rotation_degrees = ((NEEDLE_END - NEEDLE_START) * (SUB_DEPTH / SUB_MAX_DEPTH)) + NEEDLE_START;
-	
-	# --- update text 
-	var tmp = \"O2: %.1f %% \\n Battery: %.1f %% \\n Depth: %d M\" %  [O2_PERCENT, BATT_PERCENT, int(0 - SUB_DEPTH)];
-	$Label.set_text(tmp);
-	$Label.anchor_right = int(get_viewport().size.x);
-	$Label.anchor_bottom = int(get_viewport().size.y);
+    $ElecGauge.scale.x = (get_viewport().size.x / 1280.0) * BATTERY_SCALE;
+    $ElecGauge.scale.y = $ElecGauge.scale.x;
+    $ElecGauge.position.x = get_viewport().size.x - (($ElecGauge.texture.get_size().x / 2.0) * $ElecGauge.scale.x);
+    $ElecGauge.position.y = get_viewport().size.y /2.0;
+    
+    # --- animate depth gauge
+    $DepthGaugeBase/DepthGaugeNeedle.rotation_degrees = ((NEEDLE_END - NEEDLE_START) * (SUB_DEPTH / SUB_MAX_DEPTH)) + NEEDLE_START;
+    
+    # --- update text 
+    var tmp = \"O2: %.1f %% \\n Battery: %.1f %% \\n Depth: %d M\" %  [O2_PERCENT, BATT_PERCENT, int(0 - SUB_DEPTH)];
+    $Label.set_text(tmp);
+    $Label.anchor_right = int(get_viewport().size.x);
+    $Label.anchor_bottom = int(get_viewport().size.y);
+    
+    # --- update sonar ping waves, if any
+    for index in range(0,sonar_shock_ring_array.length):
+        if (sonar_shock_ring_array[index] != null):
+            sonar_shock_ring_array[index].tick();
+            
+         
 
 "
 

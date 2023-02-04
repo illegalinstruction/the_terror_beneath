@@ -45,17 +45,31 @@ var aggro_range      : float = 1.0;
 var must_breathe     : bool = false;
 var air_timer        : float = 0.0;
 var max_air          : float = 100.0;
+var noise_idle       : AudioStreamPlayer = null;
+var noise_swim       : AudioStreamPlayer = null;
+var noise_attack     : AudioStreamPlayer = null;
 
 var collision_shape  : CollisionShape = null; 
 var velocity         : Vector3 = Vector3.ZERO;
 
+var was_inited       : bool = false;
+
+var HUD                     = null; # TODO: should be typed
+
 #--------------------------------------------------------------------------------------------------
 
 func _ready():
+    # we need to be able to communicate directly with the HUD, so check
+    # that we can access it, and throw a tantrum if not. 
+    self.HUD = get_node_or_null("../HUD");
+    assert(self.HUD != null);
+    self.was_inited = false;
     return;
 
 #--------------------------------------------------------------------------------------------------
 func init_from_json(filename : String):
+    assert (was_inited == false);
+        
     var f_in = File.new();
     f_in.open(filename);
     var dict = parse_json(f_in.get_as_text());
@@ -72,11 +86,18 @@ func init_from_json(filename : String):
     self.disc_name     = dict.get("disc_name") as String;
     self.flavour_text  = dict.get("disc_name") as String;
     
+    # make the model visible in the world
     add_child(self.visual);
-    $visual.anim_player.play();
     
+    # if the model is animated, start playing its anims.
+    # this behaviour will need overriding for the whales,
+    # the sharks, the coelacanth, and the Nautilus
+    var anim_player = get_node_or_null("visual/anim_player");
+    if (anim_player != null):
+        assert(anim_player is AnimationPlayer);
+        anim_player.play();
+        
     f_in.close();
-
 
 #--------------------------------------------------------------------------------------------------
 # check if we're close enough to the player for the echo to hit us.
@@ -87,7 +108,7 @@ func init_from_json(filename : String):
 func on_sonar(player_pos : Vector3):
     var pythag_distance : float = sqrt(pow(self.translation.x - player_pos.x,2) + pow(self.translation.y - player_pos.y,2));
     if (pythag_distance > Global.MAX_SONAR_PING_DISTANCE):
-        # out of range
+        # out of range - do nothing.
         sonar_echo_timer = -1;
         return;
     else:
@@ -110,16 +131,16 @@ func on_photographed():
 #--------------------------------------------------------------------------------------------------
 
 func _process(delta):
-    
+    if not (was_inited):
+        return;
+       
     # handle sonar pings
     if (sonar_echo_timer > -1):
         sonar_echo_timer = sonar_echo_timer - 1;
     if (sonar_echo_timer == 0):
-        # HUD.spawn_sonar_ping_effect(translation.x, translation.y);
-        var tmp = 0;
+        HUD.spawn_sonar_ping_effect(translation.x, translation.y);
     
     if (can_move):
         move_and_collide(self.velocity);
-    
-    
+        
     return;
