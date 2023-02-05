@@ -20,9 +20,9 @@ export var BATT_PERCENT : float = 0.0;
 const NEEDLE_START = -129.0; # FIXME - the whole HUD needs redoing
 const NEEDLE_END = 129.5;
 
-const SONAR_LIFETIME_TICKS : int = 90;
+const SONAR_LIFETIME_TICKS : int = 100;
 
-
+var actual_sonar_array_length : int = 0; # Ha! Take THAT, weird threading issue.
 
 #-------------------------------------------------------------------------------
 # helper class to let the visible representation of sonar reflections manage 
@@ -41,9 +41,10 @@ class SONAR_SHOCK_RING:
     
     #==========================
     
-    func _init(in_pos: Vector2, in_dest: Array ):
+    func _init(in_pos: Vector2, in_dest: Array, in_parent:Node2D):
         self.pos    = in_pos;
         self.dest   = in_dest; 
+        self.parent = in_parent;
         in_dest.append(self);
         return;
 
@@ -53,18 +54,24 @@ class SONAR_SHOCK_RING:
         # expand over time
         anim_clock = anim_clock - 1;
         
-        # paint the shock ring
-        parent.draw_circle(pos, (SONAR_LIFETIME_TICKS - anim_clock)*Global.SONAR_WAVE_SPEED, col);
-        
         # grow fainter over time
-        col.a = col.a * float(anim_clock / SONAR_LIFETIME_TICKS);
+        col.a =  float(anim_clock / float( SONAR_LIFETIME_TICKS));
         
         # are we dead/invisible now? delete ourselves
-        if (anim_clock > 1):
-            dest.erase(self);    
-            self.free();
+        #if (anim_clock < 1):
+        #    dest.erase(self);
+        # moved to outer class' _draw() method - please see discord discussion
+        # for why (possible thread-safety problem)    
 
 #-------------------------------------------------------------------------------
+
+func spawn_sonar_ping_effect(in_pos : Vector2):
+    var _unused: SONAR_SHOCK_RING = SONAR_SHOCK_RING.new(in_pos,sonar_shock_ring_array,self);
+    actual_sonar_array_length += 1;    
+
+
+#-------------------------------------------------------------------------------
+
 
 func _ready():
     if (Global.use_joystick):
@@ -77,7 +84,6 @@ func _ready():
     $DepthGaugeBase/DepthGaugeNeedle.rotation_degrees = -129.0;
 
     $Label.add_font_override(\"font\",Global.ui_font);
-
     set_process(true);
     return;
 
@@ -113,11 +119,35 @@ func _process(_ignored):
     $Label.anchor_right = int(get_viewport().size.x);
     $Label.anchor_bottom = int(get_viewport().size.y);
     
+    # force repaint
+    update();
+
+#-------------------------------------------------------------------------------
+
+func _draw():
     # --- update sonar ping waves, if any
-    for index in range(0,sonar_shock_ring_array.length):
-        if (sonar_shock_ring_array[index] != null):
+    for index in range(0,actual_sonar_array_length):
+        
+        if ((index < actual_sonar_array_length) and (sonar_shock_ring_array[index] != null)):
+            draw_arc(sonar_shock_ring_array[index].pos,
+                (SONAR_LIFETIME_TICKS - sonar_shock_ring_array[index].anim_clock)*Global.SONAR_WAVE_SPEED,
+                0,
+                6.283185308,
+                64, 
+                sonar_shock_ring_array[index].col,
+                3.0);
             sonar_shock_ring_array[index].tick();
             
+            # moved from SONAR_SHOCK_RING.tick()
+            if (sonar_shock_ring_array[index].anim_clock < 1):
+                actual_sonar_array_length -= 1;
+                var tmp = sonar_shock_ring_array[index];
+                sonar_shock_ring_array.remove(index);
+                tmp.free();
+
+                                
+    
+             
          
 
 "

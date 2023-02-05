@@ -101,7 +101,7 @@ func load_options_data():
     return;
 
 #---- POTATO PERFORMANCE VARS  -------------------------------------------------
-var resolution_scale 		:	float 	= 1.0; 		# between .5 and 1
+var resolution_scale 		:	float 	= 1.0; 		# between .5 and 1 - not implemented yet
 var shadow_atlas_size 		:	int 	= 10;  		# between 1 & 10, gets multiplied by 256
 var nearest_or_trilinear	:	bool	= false;	# true to reduce texture filter quality
 var fullscreen				:	bool	= false;
@@ -117,9 +117,9 @@ var screenwipe_active		: bool;
 var screenwipe_next_scene;
 
 #---- GAMEPLAY VARS ------------------------------------------------------------
-export var MAX_SONAR_PING_DISTANCE : float = 120.0; # in meters, where the sub is about 9m long
+export var MAX_SONAR_PING_DISTANCE : float = 1280.0; # in PIXELS (relative to 1280x720)
 
-export var SONAR_WAVE_SPEED : float = 1.25; # in meters per frame
+export var SONAR_WAVE_SPEED : float = 11.25; # in PIXELS (relative to 1280x720) 
 
 export var DISCOVERY_PHOTO_RADIUS : float = 10.5; # how far the sub can be from a discovery and still daguerreotype it
 export var DISCOVERY_PHOTO_RADIUS_ATTENUATION_WITH_DEPTH : float = 0.0025; # multiply sub depth by this, then add it to discovery radius to make it shrink at depth
@@ -127,7 +127,7 @@ export var SUBMARINE_MAX_VELOCITY : float = 2.25;
 export var SUBMARINE_ACCELERATION : float = 0.00125;
 export var SUBMARINE_DRAG_MULT_FACTOR : float = 0.995;
 export var SUBMARINE_IDLE_BUOYANCY : float = 0.00000125;
-export var SUBMARINE_TURN_SPEED : float = 0.75;
+export var SUBMARINE_TURN_SPEED : float = 4.75;
 
 export var SUBMARINE_MAX_ELECTRICITY : float = 100;
 export var SUBMARINE_MAX_O2 : float = 100.0;
@@ -370,7 +370,7 @@ func poll_joystick():
 var ui_font : DynamicFont = null;
 
 func ui_font_window_resize_handler():
-    ui_font.size = int(OS.window_size.y / 24.0);
+    ui_font.size = int(get_viewport().size.y / 24.0);
     if (ui_font.size < 8):
         ui_font.size = 8;		
     return;

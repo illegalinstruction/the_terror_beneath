@@ -61,7 +61,10 @@ const ABYSSAL_ZONE_DEPTH : float = -5500.0;
 
 const OCEAN_IMPOSTOR_DROPDOWN_DEPTH = -65.0;
 
-const IN_GAME_SONG_MAX_INDEX = 2; # please fix when there are more tracks submitted!
+const IN_GAME_SONG_MAX_INDEX = 3; # please fix when there are more tracks submitted!
+
+var test_disc : Discovery;
+var test_disc2 : Discovery;
 
 #----------------------------------------------------------------------------
 
@@ -72,7 +75,15 @@ func _ready():
     rand_seed(OS.get_ticks_msec());
 
     Global.set_bgm(int(rand_range(1,IN_GAME_SONG_MAX_INDEX + 0.5))); 
+    var tmp = preload(\"res://DISCOVERY.gd\");
+    test_disc = tmp.new();
+    test_disc2 = tmp.new();
+    test_disc.init_from_json_at_pos(\"res://entities/json/001.json\",20,-5,$HUD,$Camera);
+    test_disc2.init_from_json_at_pos(\"res://entities/json/001.json\",50,-10,$HUD,$Camera);
+    add_child(test_disc);
     return; 
+    
+    
 
 #----------------------------------------------------------------------------
 
@@ -106,11 +117,11 @@ func adjust_sun_by_sub_depth():
 #----------------------------------------------------------------------------
 
 func _process(delta):
-    # gather input (will also get keys)
-    # ticket 33 - this will do the right thing, but it might be nice 
-    # if we warned the user that the joypad had dropped off...
-    Global.poll_joystick();
     
+    if (Global._button_a == 1):
+        test_disc.on_sonar($kinbody_SUBMARINE.translation);
+        $HUD.spawn_sonar_ping_effect($Camera.unproject_position($kinbody_SUBMARINE.translation));
+
     # move the ocean imposter alongside the ship
     $\"ocean-impostor\".translation.z = $kinbody_SUBMARINE.translation.z;
     if ($kinbody_SUBMARINE.translation.y < OCEAN_IMPOSTOR_DROPDOWN_DEPTH):

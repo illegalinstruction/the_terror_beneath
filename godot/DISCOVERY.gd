@@ -52,27 +52,42 @@ var noise_attack     : AudioStreamPlayer = null;
 var collision_shape  : CollisionShape = null; 
 var velocity         : Vector3 = Vector3.ZERO;
 
-var was_inited       : bool = false;
-
 var HUD                     = null; # TODO: should be typed
+var CAM                     = null;
+
+#--------------------------------------------------------------------------------------------------
+
+func _init():
+    # TIL Godot doesn't have a default constructor
+    return;
 
 #--------------------------------------------------------------------------------------------------
 
 func _ready():
     # we need to be able to communicate directly with the HUD, so check
     # that we can access it, and throw a tantrum if not. 
-    self.HUD = get_node_or_null("../HUD");
-    assert(self.HUD != null);
-    self.was_inited = false;
+    #self.HUD = get_tree().get_root().find_node("HUD");
+    #assert(self.HUD != null);
+    set_process(true);
     return;
 
 #--------------------------------------------------------------------------------------------------
-func init_from_json(filename : String):
-    assert (was_inited == false);
+func init_from_json(filename : String, in_hud : Node2D, in_cam : Camera):
         
     var f_in = File.new();
-    f_in.open(filename);
-    var dict = parse_json(f_in.get_as_text());
+    assert(f_in.open(filename,File.READ) == OK);
+    
+    var txt = f_in.get_as_text();
+    assert(txt != null)
+    
+    var dict = parse_json(txt);
+    assert(dict != null);
+    
+    HUD = in_hud;
+    CAM = in_cam;
+    
+    assert(HUD != null);
+    assert(CAM != null);
     
     # checks to make sure the discovery description file isn't malformed
     # if we're missing a vital field, we throw a tantrum and soft-crash.
@@ -81,7 +96,7 @@ func init_from_json(filename : String):
     assert("flavour_text" in dict);        #string
     assert("portrait" in dict);            #asset path, relative to "res://"
     
-    self.visual        = load(dict.get("visual")).instance;
+    self.visual        = load(dict.get("visual")).instance();
     self.portrait      = load(dict.get("portrait")) as Texture;
     self.disc_name     = dict.get("disc_name") as String;
     self.flavour_text  = dict.get("disc_name") as String;
@@ -89,15 +104,19 @@ func init_from_json(filename : String):
     # make the model visible in the world
     add_child(self.visual);
     
-    # if the model is animated, start playing its anims.
-    # this behaviour will need overriding for the whales,
-    # the sharks, the coelacanth, and the Nautilus
-    var anim_player = get_node_or_null("visual/anim_player");
-    if (anim_player != null):
-        assert(anim_player is AnimationPlayer);
-        anim_player.play();
+    
+    # test code - remove
+    print("Discovery name: " + self.disc_name);
+    print("Discovery flavour text: " + self.flavour_text);
         
     f_in.close();
+
+#--------------------------------------------------------------------------------------------------
+func init_from_json_at_pos(filename : String, x : float, y : float, in_hud : Node2D, in_cam : Camera):
+    init_from_json(filename,in_hud,in_cam);
+    translation.z = -x;
+    translation.y = y;
+    return;
 
 #--------------------------------------------------------------------------------------------------
 # check if we're close enough to the player for the echo to hit us.
@@ -106,13 +125,18 @@ func init_from_json(filename : String):
 # appropriate.
 
 func on_sonar(player_pos : Vector3):
-    var pythag_distance : float = sqrt(pow(self.translation.x - player_pos.x,2) + pow(self.translation.y - player_pos.y,2));
+    var my_2D_pos = CAM.unproject_position(self.translation);
+    var sub_2D_pos = CAM.unproject_position(player_pos);
+    
+    var pythag_distance : float = sqrt(pow(my_2D_pos.x - sub_2D_pos.x,2) + pow(my_2D_pos.y - sub_2D_pos.y,2));
     if (pythag_distance > Global.MAX_SONAR_PING_DISTANCE):
         # out of range - do nothing.
         sonar_echo_timer = -1;
+        
         return;
     else:
-        sonar_echo_timer = pythag_distance / Global.SONAR_WAVE_SPEED;
+        sonar_echo_timer = (pythag_distance / Global.SONAR_WAVE_SPEED);
+        
     return;
 
 #--------------------------------------------------------------------------------------------------
@@ -131,14 +155,12 @@ func on_photographed():
 #--------------------------------------------------------------------------------------------------
 
 func _process(delta):
-    if not (was_inited):
-        return;
        
     # handle sonar pings
     if (sonar_echo_timer > -1):
         sonar_echo_timer = sonar_echo_timer - 1;
     if (sonar_echo_timer == 0):
-        HUD.spawn_sonar_ping_effect(translation.x, translation.y);
+        HUD.spawn_sonar_ping_effect(CAM.unproject_position(self.translation));
     
     if (can_move):
         move_and_collide(self.velocity);

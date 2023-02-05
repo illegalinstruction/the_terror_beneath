@@ -65,58 +65,58 @@ var curr_sulfur : float;
 #-------------------------------------------------------------------------------
 
 func _ready():
-	set_process(true);
-	prop_curr_pos 		= 0.0;
-	prop_curr_speed 	= 0.0;
-	elevon_curr_angle 	= 0.0;
-	$\"SUBMARINE motor sound\".play();
-	$\"SUBMARINE motor sound\".stream.loop_mode = 2;
-	return;
+    set_process(true);
+    prop_curr_pos 		= 0.0;
+    prop_curr_speed 	= 0.0;
+    elevon_curr_angle 	= 0.0;
+    $\"SUBMARINE motor sound\".play();
+    $\"SUBMARINE motor sound\".stream.loop_mode = 2;
+    return;
 
 #-------------------------------------------------------------------------------
 
 func _process(delta):
-	
-	# prop animation clamping
-	if (PROP_SPINUP > MAX_PROP_SPEED):
-		PROP_SPINUP = MAX_PROP_SPEED;
-	
-	# engine throttled up, and prop too slow
-	if (prop_desired_speed > prop_curr_speed):
-		prop_curr_speed += PROP_SPINUP;
-		
-		# speed clamping
-		if (prop_curr_speed > prop_desired_speed):
-			prop_curr_speed = prop_desired_speed;
+    
+    # prop animation clamping
+    if (PROP_SPINUP > MAX_PROP_SPEED):
+        PROP_SPINUP = MAX_PROP_SPEED;
+    
+    # engine throttled up, and prop too slow
+    if (prop_desired_speed > prop_curr_speed):
+        prop_curr_speed += PROP_SPINUP;
+        
+        # speed clamping
+        if (prop_curr_speed > prop_desired_speed):
+            prop_curr_speed = prop_desired_speed;
 
-	# engine throttled back, and prop too fast
-	if (prop_desired_speed < prop_curr_speed):
-		prop_curr_speed -= PROP_SPINUP;
-		
-		# speed clamping
-		if (prop_curr_speed < prop_desired_speed):
-			prop_curr_speed = prop_desired_speed;
-			
-	# motor noise		
-	$\"SUBMARINE motor sound\".pitch_scale = 1 + ((abs(prop_curr_speed) / MAX_PROP_SPEED) / MOTOR_PITCH_SCALE_ADJ);
-	$\"SUBMARINE motor sound\".unit_db = MOTOR_BASE_VOLUME + ((prop_curr_speed / MAX_PROP_SPEED) * MOTOR_VOLUME_SCALE_ADJ);
-	
-	# animate prop
-	$\"SUBMARINE prop\".rotate_z(prop_curr_speed * PI / 180.0);
-	
-	# elevon animation
-	if (elevon_curr_angle < elevon_desired_angle):
-		elevon_curr_angle += ELEVON_SPEED;
-		if (elevon_curr_angle > elevon_desired_angle):
-			elevon_curr_angle = elevon_desired_angle;
-		
-	if (elevon_curr_angle > elevon_desired_angle):
-		elevon_curr_angle -= ELEVON_SPEED;
-		if (elevon_curr_angle < elevon_desired_angle):
-			elevon_curr_angle = elevon_desired_angle;
-	
-	$\"SUBMARINE fins\".rotation_degrees.x = elevon_curr_angle;
-	return;
+    # engine throttled back, and prop too fast
+    if (prop_desired_speed < prop_curr_speed):
+        prop_curr_speed -= PROP_SPINUP;
+        
+        # speed clamping
+        if (prop_curr_speed < prop_desired_speed):
+            prop_curr_speed = prop_desired_speed;
+            
+    # motor noise		
+    $\"SUBMARINE motor sound\".pitch_scale = 1 + ((abs(prop_curr_speed) / MAX_PROP_SPEED) / MOTOR_PITCH_SCALE_ADJ);
+    $\"SUBMARINE motor sound\".unit_db = MOTOR_BASE_VOLUME + ((prop_curr_speed / MAX_PROP_SPEED) * MOTOR_VOLUME_SCALE_ADJ);
+    
+    # animate prop
+    $\"SUBMARINE prop\".rotate_z(prop_curr_speed * PI / 180.0);
+    
+    # elevon animation
+    if (elevon_curr_angle < elevon_desired_angle):
+        elevon_curr_angle += ELEVON_SPEED;
+        if (elevon_curr_angle > elevon_desired_angle):
+            elevon_curr_angle = elevon_desired_angle;
+        
+    if (elevon_curr_angle > elevon_desired_angle):
+        elevon_curr_angle -= ELEVON_SPEED;
+        if (elevon_curr_angle < elevon_desired_angle):
+            elevon_curr_angle = elevon_desired_angle;
+    
+    $\"SUBMARINE fins\".rotation_degrees.x = elevon_curr_angle;
+    return;
 "
 
 [sub_resource type="SpatialMaterial" id=5]
