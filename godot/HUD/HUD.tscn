@@ -38,10 +38,11 @@ class SONAR_SHOCK_RING:
     var anim_clock  : int = SONAR_LIFETIME_TICKS;
     var parent      : Node2D;
     var dest        : Array;
+    var distance    : float;
     
     #==========================
     
-    func _init(in_pos: Vector2, in_dest: Array, in_parent:Node2D):
+    func _init(in_pos: Vector2, distance : float, in_dest: Array, in_parent:Node2D):
         self.pos    = in_pos;
         self.dest   = in_dest; 
         self.parent = in_parent;
@@ -65,13 +66,15 @@ class SONAR_SHOCK_RING:
 
 #-------------------------------------------------------------------------------
 
-func spawn_sonar_ping_effect(in_pos : Vector2):
-    var _unused: SONAR_SHOCK_RING = SONAR_SHOCK_RING.new(in_pos,sonar_shock_ring_array,self);
-    actual_sonar_array_length += 1;    
+func spawn_sonar_ping_effect(in_pos : Vector2, in_distance : float):
+    var _unused: SONAR_SHOCK_RING = SONAR_SHOCK_RING.new(in_pos, 
+        in_distance, 
+        sonar_shock_ring_array,
+        self);
 
-
+    actual_sonar_array_length += 1;
+    
 #-------------------------------------------------------------------------------
-
 
 func _ready():
     if (Global.use_joystick):
@@ -138,7 +141,18 @@ func _draw():
                 3.0);
             sonar_shock_ring_array[index].tick();
             
-            # moved from SONAR_SHOCK_RING.tick()
+            # is the source of the wave off-screen?
+            if (not(get_viewport_rect().has_point(sonar_shock_ring_array[index].pos))):
+                var vp_ctr : Vector2 = get_viewport_rect().get_center();
+                draw_line(vp_ctr, sonar_shock_ring_array[index].pos, sonar_shock_ring_array[index].col);
+                
+                # determine where the line to it crosses the edge of the display
+                var slope : float = float(sonar_shock_ring_array[index].pos.y-vp_ctr.y) / float(sonar_shock_ring_array[index].pos.x-vp_ctr.x);
+                var x_sign = sign(sonar_shock_ring_array[index].pos.x-vp_ctr.x);
+                var y_sign = sign(sonar_shock_ring_array[index].pos.y-vp_ctr.y);
+                #
+            
+            # moved from SONAR_SHOCK_RING.tick() to avoid a thread safety problem
             if (sonar_shock_ring_array[index].anim_clock < 1):
                 actual_sonar_array_length -= 1;
                 var tmp = sonar_shock_ring_array[index];

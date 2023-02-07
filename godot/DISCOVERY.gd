@@ -48,12 +48,19 @@ var max_air          : float = 100.0;
 var noise_idle       : AudioStreamPlayer = null;
 var noise_swim       : AudioStreamPlayer = null;
 var noise_attack     : AudioStreamPlayer = null;
+var should_show_arrow: bool = false;
+var dist_in_meters   : float = 0.0;
 
 var collision_shape  : CollisionShape = null; 
 var velocity         : Vector3 = Vector3.ZERO;
 
 var HUD                     = null; # TODO: should be typed
 var CAM                     = null;
+
+# distances from player at which we need to display an arrow pointing towards
+# ourselves when sonared 
+const HUD_ARROW_DISTANCE_MIN_X : int = 641;  
+const HUD_ARROW_DISTANCE_MIN_Y : int = 361;  
 
 #--------------------------------------------------------------------------------------------------
 
@@ -99,12 +106,11 @@ func init_from_json(filename : String, in_hud : Node2D, in_cam : Camera):
     self.visual        = load(dict.get("visual")).instance();
     self.portrait      = load(dict.get("portrait")) as Texture;
     self.disc_name     = dict.get("disc_name") as String;
-    self.flavour_text  = dict.get("disc_name") as String;
+    self.flavour_text  = dict.get("flavour_text") as String;
     
     # make the model visible in the world
     add_child(self.visual);
-    
-    
+        
     # test code - remove
     print("Discovery name: " + self.disc_name);
     print("Discovery flavour text: " + self.flavour_text);
@@ -125,6 +131,9 @@ func init_from_json_at_pos(filename : String, x : float, y : float, in_hud : Nod
 # appropriate.
 
 func on_sonar(player_pos : Vector3):
+    # reset this flag to its default
+    self.should_show_arrow = false;
+    
     var my_2D_pos = CAM.unproject_position(self.translation);
     var sub_2D_pos = CAM.unproject_position(player_pos);
     
@@ -135,7 +144,10 @@ func on_sonar(player_pos : Vector3):
         
         return;
     else:
+        # start a countdown to simulate the delay between the sound leaving
+        # the sub and the sound hitting us
         sonar_echo_timer = (pythag_distance / Global.SONAR_WAVE_SPEED);
+        self.dist_in_meters = sqrt(pow(self.translation.z - player_pos.z,2) + pow(self.translation.y - player_pos.y,2));
         
     return;
 
@@ -159,10 +171,11 @@ func _process(delta):
     # handle sonar pings
     if (sonar_echo_timer > -1):
         sonar_echo_timer = sonar_echo_timer - 1;
-    if (sonar_echo_timer == 0):
-        HUD.spawn_sonar_ping_effect(CAM.unproject_position(self.translation));
     
+    if (sonar_echo_timer == 0):
+        HUD.spawn_sonar_ping_effect(CAM.unproject_position(self.translation), self.dist_in_meters);
+
     if (can_move):
-        move_and_collide(self.velocity);
+        move_and_collide(self.velocity); # should we do this here, or should the child scene we load into self.visual do it?
         
     return;

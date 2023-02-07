@@ -120,7 +120,7 @@ func _process(delta):
     
     if (Global._button_a == 1):
         test_disc.on_sonar($kinbody_SUBMARINE.translation);
-        $HUD.spawn_sonar_ping_effect($Camera.unproject_position($kinbody_SUBMARINE.translation));
+        $HUD.spawn_sonar_ping_effect($Camera.unproject_position($kinbody_SUBMARINE.translation),0.000001);
 
     # move the ocean imposter alongside the ship
     $\"ocean-impostor\".translation.z = $kinbody_SUBMARINE.translation.z;
