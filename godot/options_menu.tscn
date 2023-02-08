@@ -48,185 +48,175 @@ var menu_items = [];
 var cursor_index : int = 0;
 
 enum OPTIONS_MENU_ITEMS {
-	JOY_OR_KEY,
-	SOUND_VOL,
-	MUSIC_VOL,
-	RES_SCALE,
-	FULLSCREEN,
-	BACK
+    JOY_OR_KEY,
+    SOUND_VOL,
+    MUSIC_VOL,
+    FULLSCREEN,
+    BACK
 };
 
 #-------------------------------------------------------------------------------
 func _ready():
-	var screenwipe = load(\"res://helper_screenwipe.tscn\");
-	Global.new_scene_screenwipe_start();
-	
-	# --- load sounds
-	snd_choice 	= load(\"res://mainmenu/cursor_select.wav\");
-	snd_move 	= load(\"res://mainmenu/cursor_move.wav\");
-	$sfx_player.volume_db = Global.get_sfx_vol_in_db();
-	
-	# --- adjust backdrop
-	$background.scale.x = (get_viewport().size.x / $background.texture.get_size().x);  
-	$background.scale.y = $background.scale.x;
+    var screenwipe = load(\"res://helper_screenwipe.tscn\");
+    Global.new_scene_screenwipe_start();
+    
+    # --- load sounds
+    snd_choice 	= load(\"res://mainmenu/cursor_select.wav\");
+    snd_move 	= load(\"res://mainmenu/cursor_move.wav\");
+    $sfx_player.volume_db = Global.get_sfx_vol_in_db();
+    
+    # --- adjust backdrop
+    $background.scale.x = (get_viewport().size.x / $background.texture.get_size().x);  
+    $background.scale.y = $background.scale.x;
 
-	# --- center & adjust logo/header 
-	$logo.position.x = get_viewport().size.x / 2.0;
-	$logo.position.y = get_viewport().size.y / 5.0;
-	
-	$logo.scale.x = $background.scale.x;
-	$logo.scale.y = $background.scale.x;
-	
-	# --- populate menu opts
-	# don't mess with the order of these - it's tied
-	# to the enum above
-	menu_items.append(Label.new());
-	menu_items.back().text = (\"Use joypad? \" + str(Global.use_joystick));
+    # --- center & adjust logo/header 
+    $logo.position.x = get_viewport().size.x / 2.0;
+    $logo.position.y = get_viewport().size.y / 5.0;
+    
+    $logo.scale.x = $background.scale.x;
+    $logo.scale.y = $background.scale.x;
+    
+    # --- populate menu opts
+    # don't mess with the order of these - it's tied
+    # to the enum above
+    menu_items.append(Label.new());
+    menu_items.back().text = (\"Use joypad? \" + str(Global.use_joystick));
 
-	menu_items.append(Label.new());
-	menu_items.back().text = (\"Sound volume: \" + str(Global.sfx_vol));
+    menu_items.append(Label.new());
+    menu_items.back().text = (\"Sound volume: \" + str(Global.sfx_vol));
 
-	menu_items.append(Label.new());
-	menu_items.back().text = (\"Music volume: \" + str(Global.music_vol));
+    menu_items.append(Label.new());
+    menu_items.back().text = (\"Music volume: \" + str(Global.music_vol));
 
-	menu_items.append(Label.new());
-	menu_items.back().text = (\"Resolution scale: \" + str(Global.resolution_scale * 100.0) + \"%\"); 
+    menu_items.append(Label.new());
+    menu_items.back().text = (\"Use fullscreen? \" + str(Global.fullscreen)); 
+    
+    menu_items.append(Label.new());
+    menu_items.back().text = (\"Back\");
+    
+    for i in range( 0, menu_items.size()):
+        menu_items[i].add_font_override(\"font\",Global.ui_font);
+        
+        add_child(menu_items[i]);
+        menu_items[i].set_align(1); # centred
+        menu_items[i].rect_position.x = 0;
+        menu_items[i].rect_size.x = get_viewport().size.x;
+        menu_items[i].rect_position.y = i * menu_items[i].rect_size.y + get_viewport().size.y / 2.0;	
 
-	menu_items.append(Label.new());
-	menu_items.back().text = (\"Use fullscreen? \" + str(Global.fullscreen)); 
-	
-	menu_items.append(Label.new());
-	menu_items.back().text = (\"Back\");
-	
-	for i in range( 0, menu_items.size()):
-		menu_items[i].add_font_override(\"font\",Global.ui_font);
-		
-		add_child(menu_items[i]);
-		menu_items[i].set_align(1); # centred
-		menu_items[i].rect_position.x = 0;
-		menu_items[i].rect_size.x = get_viewport().size.x;
-		menu_items[i].rect_position.y = i * menu_items[i].rect_size.y + get_viewport().size.y / 2.0;	
-
-	# --- add last so it's on top
-	add_child(screenwipe.instance());
-	
-	# -- ticket 33: force this to false if no joypad's plugged in on entry to the menu screen
-	if (Global.is_joystick_connected == false):
-		Global.use_joystick = false;
-	
-	set_process(true);
-	return;
+    # --- add last so it's on top
+    add_child(screenwipe.instance());
+    
+    # -- ticket 33: force this to false if no joypad's plugged in on entry to the menu screen
+    if (Global.is_joystick_connected == false):
+        Global.use_joystick = false;
+    
+    set_process(true);
+    return;
 
 #-------------------------------------------------------------------------------
 
 func _process(_ignore):
-	
-	# === HANDLE SCREEN RESIZES ================================================
-	# --- adjust cursor height
-	$cursor.scale.y = (2.0 * (OS.window_size.x / $background.texture.get_size().x));
+    
+    # === HANDLE SCREEN RESIZES ================================================
+    # --- adjust cursor height
+    $cursor.scale.y = (2.0 * (get_viewport().size.x / $background.texture.get_size().x));
 
-	# --- adjust backdrop
-	$background.scale.x = (OS.window_size.x / $background.texture.get_size().x);  
-	$background.scale.y = $background.scale.x;
+    # --- adjust backdrop
+    $background.scale.x = (get_viewport().size.x / $background.texture.get_size().x);  
+    $background.scale.y = $background.scale.x;
 
-	# --- center & adjust logo/header 
-	$logo.position.x = OS.window_size.x / 2.0;
-	$logo.position.y = OS.window_size.y / 4.0;
-	
-	$logo.scale.x = $background.scale.x;
-	$logo.scale.y = $background.scale.x;	
+    # --- center & adjust logo/header 
+    $logo.position.x = get_viewport_rect().size.x / 2.0;
+    $logo.position.y = get_viewport_rect().size.y / 4.0;
+    
+    $logo.scale.x = $background.scale.x;
+    $logo.scale.y = $background.scale.x;	
 
-	# --- adjust menu items
-	for i in range( 0, menu_items.size()):
-		menu_items[i].set_align(1); # centred
-		menu_items[i].rect_position.x = 0;
-		menu_items[i].rect_size.x = get_viewport().size.x;
-		menu_items[i].rect_position.y = (i * Global.ui_font.get_height()) + get_viewport().size.y / 2.0;
-		
-	# --- ticket 33 - grey out 'use joypad' if none are detected custom_colors/font_color
-	Global.handle_joystick_connect(); # <--- signal not firing...?
-	
-	if (Global.is_joystick_connected == false):
-		menu_items[OPTIONS_MENU_ITEMS.JOY_OR_KEY].set(\"custom_colors/font_color\", Color(0.5,0.5,0.5,1.0));
-		menu_items[OPTIONS_MENU_ITEMS.JOY_OR_KEY].text = \"Joypad not plugged in\";
-		Global.use_joystick = false;
-	else:
-		menu_items[OPTIONS_MENU_ITEMS.JOY_OR_KEY].set(\"custom_colors/font_color\", Color(1.0,1.0,1.0,1.0));
-		menu_items[OPTIONS_MENU_ITEMS.JOY_OR_KEY].text = (\"Use joypad? \" + str(Global.use_joystick));
+    # --- adjust menu items
+    for i in range( 0, menu_items.size()):
+        menu_items[i].set_align(1); # centred
+        menu_items[i].rect_position.x = 0;
+        menu_items[i].rect_size.x = get_viewport().size.x;
+        menu_items[i].rect_position.y = (i * Global.ui_font.get_height()) + get_viewport().size.y / 2.0;
+        
+    # --- ticket 33 - grey out 'use joypad' if none are detected custom_colors/font_color
+    Global.handle_joystick_connect(); # <--- signal not firing...?
+    
+    if (Global.is_joystick_connected == false):
+        menu_items[OPTIONS_MENU_ITEMS.JOY_OR_KEY].set(\"custom_colors/font_color\", Color(0.5,0.5,0.5,1.0));
+        menu_items[OPTIONS_MENU_ITEMS.JOY_OR_KEY].text = \"Joypad not plugged in\";
+        Global.use_joystick = false;
+    else:
+        menu_items[OPTIONS_MENU_ITEMS.JOY_OR_KEY].set(\"custom_colors/font_color\", Color(1.0,1.0,1.0,1.0));
+        menu_items[OPTIONS_MENU_ITEMS.JOY_OR_KEY].text = (\"Use joypad? \" + str(Global.use_joystick));
 
-	# === HANDLE KEY INPUT =====================================================
-	# -------------- UP
-	if (Global._menu_up == Global.BUTTON_STATE.PRESSED):
-		cursor_index -= 1;
-		
-		if (cursor_index < 0):
-			cursor_index = menu_items.size() - 1;
-			
-		$sfx_player.stop();
-		$sfx_player.stream = snd_move;		
-		$sfx_player.play();
-	
-	# ------------	DOWN	
-	if (Global._menu_down == Global.BUTTON_STATE.PRESSED):
-		cursor_index += 1;
-		
-		if (cursor_index > (menu_items.size()-1)):
-			cursor_index = 0;
-			
-		$sfx_player.stop();
-		$sfx_player.stream = snd_move;
-		$sfx_player.play();
+    # === HANDLE KEY INPUT =====================================================
+    # -------------- UP
+    if (Global._menu_up == Global.BUTTON_STATE.PRESSED):
+        cursor_index -= 1;
+        
+        if (cursor_index < 0):
+            cursor_index = menu_items.size() - 1;
+            
+        $sfx_player.stop();
+        $sfx_player.stream = snd_move;		
+        $sfx_player.play();
+    
+    # ------------	DOWN	
+    if (Global._menu_down == Global.BUTTON_STATE.PRESSED):
+        cursor_index += 1;
+        
+        if (cursor_index > (menu_items.size()-1)):
+            cursor_index = 0;
+            
+        $sfx_player.stop();
+        $sfx_player.stream = snd_move;
+        $sfx_player.play();
 
-	# ------------	START, A, SPACE, or ENTER	
-	if ((Global._menu_accept == Global.BUTTON_STATE.PRESSED)):
+    # ------------	START, A, SPACE, or ENTER	
+    if ((Global._menu_accept == Global.BUTTON_STATE.PRESSED)):
 
-		$sfx_player.stop();
-		$sfx_player.stream = snd_choice;
-		$sfx_player.play();
+        $sfx_player.stop();
+        $sfx_player.stream = snd_choice;
+        $sfx_player.play();
 
-		if (cursor_index == OPTIONS_MENU_ITEMS.BACK):
-			Global.save_options_data();
-			Global.change_scene_to(load(\"res://main_menu.tscn\"));
+        if (cursor_index == OPTIONS_MENU_ITEMS.BACK):
+            Global.save_options_data();
+            Global.change_scene_to(load(\"res://main_menu.tscn\"));
 
-		if (cursor_index == OPTIONS_MENU_ITEMS.RES_SCALE):
-			Global.resolution_scale += 0.1;
-			if (Global.resolution_scale > Global.RES_SCALE_MAX):
-				Global.resolution_scale = Global.RES_SCALE_MIN;
-			menu_items[cursor_index].text = (\"Resolution scale: \" + str(Global.resolution_scale * 100.0) + \"%\"); 
+        if (cursor_index == OPTIONS_MENU_ITEMS.SOUND_VOL):
+            Global.sfx_vol += 1;
+            if (Global.sfx_vol > Global.MAX_VOLUME):
+                Global.sfx_vol = 0;
+            $sfx_player.volume_db = Global.get_sfx_vol_in_db();
+            menu_items[cursor_index].text = (\"Sound volume: \" + str(Global.sfx_vol));
 
-		if (cursor_index == OPTIONS_MENU_ITEMS.SOUND_VOL):
-			Global.sfx_vol += 1;
-			if (Global.sfx_vol > Global.MAX_VOLUME):
-				Global.sfx_vol = 0;
-			$sfx_player.volume_db = Global.get_sfx_vol_in_db();
-			menu_items[cursor_index].text = (\"Sound volume: \" + str(Global.sfx_vol));
+        if (cursor_index == OPTIONS_MENU_ITEMS.MUSIC_VOL):
+            Global.music_vol += 1;
+            if (Global.music_vol > Global.MAX_VOLUME):
+                Global.music_vol = 0;
+            menu_items[cursor_index].text = (\"Music volume: \" + str(Global.music_vol));
 
-		if (cursor_index == OPTIONS_MENU_ITEMS.MUSIC_VOL):
-			Global.music_vol += 1;
-			if (Global.music_vol > Global.MAX_VOLUME):
-				Global.music_vol = 0;
-			menu_items[cursor_index].text = (\"Music volume: \" + str(Global.music_vol));
+        if (cursor_index == OPTIONS_MENU_ITEMS.FULLSCREEN):
+            Global.fullscreen = (not Global.fullscreen);
+            menu_items[cursor_index].text = (\"Use fullscreen? \" + str(Global.fullscreen));
+            OS.window_fullscreen = Global.fullscreen;
 
-		if (cursor_index == OPTIONS_MENU_ITEMS.FULLSCREEN):
-			Global.fullscreen = (not Global.fullscreen);
-			menu_items[cursor_index].text = (\"Use fullscreen? \" + str(Global.fullscreen));
-			OS.window_fullscreen = Global.fullscreen;
+        if (cursor_index == OPTIONS_MENU_ITEMS.JOY_OR_KEY):
+            Global.use_joystick = (not Global.use_joystick);
 
-		if (cursor_index == OPTIONS_MENU_ITEMS.JOY_OR_KEY):
-			Global.use_joystick = (not Global.use_joystick);
+            # --- ticket 33 - force to safe value if
+            # user tries to change joypad
+            # setting w/ no joypad plugged in
+            if (Global.is_joystick_connected == false):
+                Global.use_joystick = false;
 
-			# --- ticket 33 - force to safe value if
-			# user tries to change joypad
-			# setting w/ no joypad plugged in
-			if (Global.is_joystick_connected == false):
-				Global.use_joystick = false;
-
-			menu_items[cursor_index].text = (\"Use joypad? \" + str(Global.use_joystick));
+            menu_items[cursor_index].text = (\"Use joypad? \" + str(Global.use_joystick));
 
 
-	# --- adjust cursor
-	$cursor.position.x = OS.window_size.x / 2.0;	# horz center
-	$cursor.position.y = menu_items[0].rect_position.y + ((cursor_index + 0.5) * Global.ui_font.get_height());
+    # --- adjust cursor
+    $cursor.position.x = get_viewport().size.x / 2.0;	# horz center
+    $cursor.position.y = menu_items[0].rect_position.y + ((cursor_index + 0.5) * Global.ui_font.get_height());
 "
 
 [sub_resource type="CanvasItemMaterial" id=1]

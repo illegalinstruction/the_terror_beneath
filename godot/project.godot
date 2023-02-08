@@ -19,6 +19,7 @@ config/icon="res://icon.png"
 
 Timestamp="*res://timestamp.gd"
 Global="*res://GLOBAL.gd"
+Discovery="*res://DISCOVERY.gd"
 
 [debug]
 
@@ -28,6 +29,8 @@ settings/fps/force_fps=60
 
 window/size/width=1280
 window/size/height=720
+window/stretch/mode="viewport"
+window/stretch/aspect="keep_width"
 
 [gui]
 
