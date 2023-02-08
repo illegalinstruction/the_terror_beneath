@@ -77,13 +77,9 @@ func _ready():
     Global.set_bgm(int(rand_range(1,IN_GAME_SONG_MAX_INDEX + 0.5))); 
     var tmp = preload(\"res://DISCOVERY.gd\");
     test_disc = tmp.new();
-    test_disc2 = tmp.new();
-    test_disc.init_from_json_at_pos(\"res://entities/json/001.json\",20,-5,$HUD,$Camera);
-    test_disc2.init_from_json_at_pos(\"res://entities/json/001.json\",50,-10,$HUD,$Camera);
+    test_disc.init_from_json_at_pos(\"res://entities/json/001.json\",50,-25,$HUD,$Camera);
     add_child(test_disc);
     return; 
-    
-    
 
 #----------------------------------------------------------------------------
 

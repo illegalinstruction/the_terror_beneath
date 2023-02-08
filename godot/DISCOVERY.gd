@@ -133,7 +133,8 @@ func init_from_json_at_pos(filename : String, x : float, y : float, in_hud : Nod
 func on_sonar(player_pos : Vector3):
     # reset this flag to its default
     self.should_show_arrow = false;
-    
+
+    self.dist_in_meters = sqrt(pow(self.translation.z - player_pos.z,2) + pow(self.translation.y - player_pos.y,2));
     var my_2D_pos = CAM.unproject_position(self.translation);
     var sub_2D_pos = CAM.unproject_position(player_pos);
     
@@ -147,7 +148,6 @@ func on_sonar(player_pos : Vector3):
         # start a countdown to simulate the delay between the sound leaving
         # the sub and the sound hitting us
         sonar_echo_timer = (pythag_distance / Global.SONAR_WAVE_SPEED);
-        self.dist_in_meters = sqrt(pow(self.translation.z - player_pos.z,2) + pow(self.translation.y - player_pos.y,2));
         
     return;
 
@@ -173,7 +173,7 @@ func _process(delta):
         sonar_echo_timer = sonar_echo_timer - 1;
     
     if (sonar_echo_timer == 0):
-        HUD.spawn_sonar_ping_effect(CAM.unproject_position(self.translation), self.dist_in_meters);
+        HUD.spawn_sonar_ping_effect(CAM.unproject_position(self.translation), self.dist_in_meters, self.disc_name);
 
     if (can_move):
         move_and_collide(self.velocity); # should we do this here, or should the child scene we load into self.visual do it?
