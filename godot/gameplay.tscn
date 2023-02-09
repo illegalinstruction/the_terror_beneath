@@ -61,10 +61,12 @@ const ABYSSAL_ZONE_DEPTH : float = -5500.0;
 
 const OCEAN_IMPOSTOR_DROPDOWN_DEPTH = -65.0;
 
-const IN_GAME_SONG_MAX_INDEX = 3; # please fix when there are more tracks submitted!
+const IN_GAME_SONG_MAX_INDEX = 4; # please fix when there are more tracks submitted!
 
 var test_disc : Discovery;
 var test_disc2 : Discovery;
+var test_disc3 : Discovery;
+var test_disc4 : Discovery;
 
 #----------------------------------------------------------------------------
 
@@ -77,9 +79,29 @@ func _ready():
     Global.set_bgm(int(rand_range(1,IN_GAME_SONG_MAX_INDEX + 0.5))); 
     var tmp = preload(\"res://DISCOVERY.gd\");
     test_disc = tmp.new();
+    test_disc2 = tmp.new();
+    test_disc3 = tmp.new();
+    test_disc4 = tmp.new();
+
     test_disc.init_from_json_at_pos(\"res://entities/json/001.json\",50,-25,$HUD,$Camera);
+    test_disc2.init_from_json_at_pos(\"res://entities/json/001.json\",120,-60,$HUD,$Camera);
+    test_disc3.init_from_json_at_pos(\"res://entities/json/001.json\",90,-35,$HUD,$Camera);
+    test_disc4.init_from_json_at_pos(\"res://entities/json/001.json\",80,-40,$HUD,$Camera);
+
     add_child(test_disc);
+    add_child(test_disc2);
+    add_child(test_disc3);
+    add_child(test_disc4);
     return; 
+
+#----------------------------------------------------------------------------
+
+func on_sonar():
+    # to do - make discoveries an array and iterate through them
+    test_disc.on_sonar($kinbody_SUBMARINE.translation);
+    test_disc2.on_sonar($kinbody_SUBMARINE.translation);
+    test_disc3.on_sonar($kinbody_SUBMARINE.translation);
+    test_disc4.on_sonar($kinbody_SUBMARINE.translation);
 
 #----------------------------------------------------------------------------
 
@@ -113,10 +135,6 @@ func adjust_sun_by_sub_depth():
 #----------------------------------------------------------------------------
 
 func _process(delta):
-    
-    if (Global._button_a == 1):
-        test_disc.on_sonar($kinbody_SUBMARINE.translation);
-        $HUD.spawn_sonar_ping_effect($Camera.unproject_position($kinbody_SUBMARINE.translation),0.000001);
 
     # move the ocean imposter alongside the ship
     $\"ocean-impostor\".translation.z = $kinbody_SUBMARINE.translation.z;
@@ -193,12 +211,31 @@ var is_facing_left : bool;
 
 var curr_velocity : Vector3;
 
+var snd_sonar_charge : AudioStreamPlayer;
+var snd_sonar_fire : AudioStreamPlayer;
+
+const SONAR_CHARGE_TIME : int = 70; #in frames
+var sonar_charge_counter : int = -1;
+
 #----------------------------------------------------------------------------
 
 func _ready():
     set_process(true);
     curr_electricity = Global.SUBMARINE_MAX_ELECTRICITY;
     curr_o2 = Global.SUBMARINE_MAX_O2;
+    
+    snd_sonar_charge = AudioStreamPlayer.new();
+    snd_sonar_fire = AudioStreamPlayer.new();
+    
+    snd_sonar_charge.stream = load(\"res://HUD/sounds/sonar_charge.wav\");
+    snd_sonar_fire.stream = load(\"res://HUD/sounds/sonar_fire.wav\");
+
+    snd_sonar_charge.volume_db = Global.get_sfx_vol_in_db();
+    snd_sonar_fire.volume_db = Global.get_sfx_vol_in_db();
+    
+    add_child(snd_sonar_charge);
+    add_child(snd_sonar_fire);
+  
     return; # Replace with function body.
 
 #----------------------------------------------------------------------------
@@ -269,6 +306,22 @@ func _process(time_elapsed):
     if (translation.z > -get_parent().MIN_X):
         translation.z = -get_parent().MIN_X;
         curr_velocity.z = -(curr_velocity.z / 2.0);
+
+    #== handle pending sonar firing ==========================================
+    if (sonar_charge_counter > -1): 
+        sonar_charge_counter -= 1;
+    
+    if (sonar_charge_counter == 0):
+        $\"..\".on_sonar(); 
+        $\"../HUD\".spawn_sonar_ping_effect($\"../Camera\".unproject_position(self.translation),0.00000);
+        snd_sonar_fire.play();
+
+    #== handle sonar key/btn =================================================
+    if (Global._button_a == Global.BUTTON_STATE.PRESSED):
+        if ((curr_electricity > Global.SUBMARINE_SONAR_COST) and (sonar_charge_counter < 1)):
+            sonar_charge_counter = SONAR_CHARGE_TIME;
+            curr_electricity -= Global.SUBMARINE_SONAR_COST;
+            snd_sonar_charge.play();
 
     #== update  battery  =====================================================
     # are we accelerating?

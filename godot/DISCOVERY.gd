@@ -51,6 +51,8 @@ var noise_attack     : AudioStreamPlayer = null;
 var should_show_arrow: bool = false;
 var dist_in_meters   : float = 0.0;
 
+var ping_sound       : AudioStreamPlayer2D;
+
 var collision_shape  : CollisionShape = null; 
 var velocity         : Vector3 = Vector3.ZERO;
 
@@ -76,6 +78,10 @@ func _ready():
     #self.HUD = get_tree().get_root().find_node("HUD");
     #assert(self.HUD != null);
     set_process(true);
+    ping_sound = AudioStreamPlayer2D.new();
+    ping_sound.stream = load("res://HUD/sounds/sonar_bounce.wav");
+    ping_sound.volume_db = Global.get_sfx_vol_in_db();
+    add_child(ping_sound);
     return;
 
 #--------------------------------------------------------------------------------------------------
@@ -173,7 +179,11 @@ func _process(delta):
         sonar_echo_timer = sonar_echo_timer - 1;
     
     if (sonar_echo_timer == 0):
-        HUD.spawn_sonar_ping_effect(CAM.unproject_position(self.translation), self.dist_in_meters, self.disc_name);
+        # it's sonar time!
+        var screen_pos = CAM.unproject_position(self.translation);
+        HUD.spawn_sonar_ping_effect(screen_pos, self.dist_in_meters, self.disc_name);
+        ping_sound.position = screen_pos;
+        ping_sound.play();
 
     if (can_move):
         move_and_collide(self.velocity); # should we do this here, or should the child scene we load into self.visual do it?
