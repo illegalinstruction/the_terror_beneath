@@ -117,7 +117,7 @@ var screenwipe_active		: bool;
 var screenwipe_next_scene;
 
 #---- GAMEPLAY VARS ------------------------------------------------------------
-export var MAX_SONAR_PING_DISTANCE : float = 1280.0; # in PIXELS (relative to 1280x720)
+export var MAX_SONAR_PING_DISTANCE : float = 2000.0; # in PIXELS (relative to 1280x720)
 
 export var SONAR_WAVE_SPEED : float = 11.25; # in PIXELS (relative to 1280x720) 
 

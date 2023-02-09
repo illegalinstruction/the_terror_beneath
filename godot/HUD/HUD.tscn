@@ -20,11 +20,12 @@ export var BATT_PERCENT : float = 0.0;
 const NEEDLE_START = -129.0; # FIXME - the whole HUD needs redoing
 const NEEDLE_END = 129.5;
 
-const SONAR_LIFETIME_TICKS : int = 100;
+const SONAR_LIFETIME_TICKS : int = 150;
 
 var actual_sonar_array_length : int = 0; # Ha! Take THAT, weird threading issue.
 
 var distance_font : DynamicFont;
+
 
 #-------------------------------------------------------------------------------
 # helper class to let the visible representation of sonar reflections manage 
@@ -94,6 +95,7 @@ func _ready():
 
     $Label.add_font_override(\"font\",Global.ui_font);
     
+    # the distance-to-offscreen-discovery sonar typeface 
     distance_font = DynamicFont.new(); 
     distance_font.font_data = load(\"res://font/rangefont.otf\");
     distance_font.size = 28;
