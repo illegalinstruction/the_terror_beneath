@@ -46,11 +46,11 @@ class SONAR_SHOCK_RING:
     
     #==========================
     
-    func _init(in_pos: Vector2, distance : float, in_caption: String, in_dest: Array, in_parent:Node2D):
+    func _init(in_pos: Vector2, in_distance : float, in_caption: String, in_dest: Array, in_parent:Node2D):
         self.pos    = in_pos;
         self.dest   = in_dest; 
         self.parent = in_parent;
-        self.distance = distance;
+        self.distance = in_distance;
         self.caption = in_caption;
         in_dest.append(self);
         return;
@@ -130,7 +130,14 @@ func _process(_ignored):
     $DepthGaugeBase/DepthGaugeNeedle.rotation_degrees = ((NEEDLE_END - NEEDLE_START) * (SUB_DEPTH / SUB_MAX_DEPTH)) + NEEDLE_START;
     
     # --- update text 
-    var tmp = \"O2: %.1f %% \\n Battery: %.1f %% \\n Depth: %d M\" %  [O2_PERCENT, BATT_PERCENT, int(0 - SUB_DEPTH)];
+    var depth_tmp : String;
+    
+    if (int(0 - SUB_DEPTH) < 1):
+        depth_tmp = \"On Surface\";
+    else:
+        depth_tmp = \"Depth: %04d M\" % [int(0 - SUB_DEPTH)];
+    
+    var tmp = \"O2: %.1f %% \\n Battery: %.1f %% \\n %s\" %  [O2_PERCENT, BATT_PERCENT, depth_tmp];
     $Label.set_text(tmp);
     $Label.anchor_right = int(get_viewport().size.x);
     $Label.anchor_bottom = int(get_viewport().size.y);
@@ -184,8 +191,11 @@ func _draw():
                     ));
                 
                 # these are where the actual arrow will be drawn
+# warning-ignore:unassigned_variable
                 var tmp_point1 : Vector2;
+# warning-ignore:unassigned_variable
                 var tmp_point2 : Vector2;
+# warning-ignore:unassigned_variable
                 var tmp_point3 : Vector2;
                 
                 var tmp_points  = PoolVector2Array();
@@ -250,6 +260,8 @@ func _draw():
                 if (sonar_shock_ring_array[index].caption.length() > 12):
                     caption_str = caption_str  + \"...\";
                     
+# warning-ignore:unassigned_variable_op_assign
+                # it's actually set in the if block up there, Godot's just watchin' out for us a little too carefully
                 caption_pos -= (distance_font.get_string_size(caption_str) / 2.0);
                 draw_string(distance_font, caption_pos, caption_str, Color(0,0,0,sonar_shock_ring_array[index].col.a));
                 caption_pos += Vector2(2,2);
