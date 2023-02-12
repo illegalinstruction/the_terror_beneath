@@ -69,8 +69,9 @@ func _ready():
     prop_curr_pos 		= 0.0;
     prop_curr_speed 	= 0.0;
     elevon_curr_angle 	= 0.0;
-    $\"SUBMARINE motor sound\".play();
-    $\"SUBMARINE motor sound\".stream.loop_mode = 2;
+    $\"SUBMARINE motor sound\".volume_db = Global.get_sfx_vol_in_db();
+    #$\"SUBMARINE motor sound\".play();
+    #$\"SUBMARINE motor sound\".stream.loop_mode = 2;
     return;
 
 #-------------------------------------------------------------------------------
@@ -99,7 +100,6 @@ func _process(delta):
             
     # motor noise		
     $\"SUBMARINE motor sound\".pitch_scale = 1 + ((abs(prop_curr_speed) / MAX_PROP_SPEED) / MOTOR_PITCH_SCALE_ADJ);
-    $\"SUBMARINE motor sound\".unit_db = MOTOR_BASE_VOLUME + ((prop_curr_speed / MAX_PROP_SPEED) * MOTOR_VOLUME_SCALE_ADJ);
     
     # animate prop
     $\"SUBMARINE prop\".rotate_z(prop_curr_speed * PI / 180.0);
@@ -201,9 +201,9 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 4.36777e-11, 2.64693e-08, -1.6
 mesh = SubResource( 3 )
 material/0 = ExtResource( 2 )
 
-[node name="SUBMARINE motor sound" type="AudioStreamPlayer3D" parent="."]
+[node name="SUBMARINE motor sound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 4 )
-unit_db = 20.168
+volume_db = 24.0
 autoplay = true
 
 [node name="SpotLight" type="SpotLight" parent="."]
