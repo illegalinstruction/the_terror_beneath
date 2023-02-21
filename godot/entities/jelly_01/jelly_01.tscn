@@ -51,24 +51,24 @@ var anim_clock : int = 0;
 #----------------------------------------------------------------------------
 
 func _ready():
-	$AnimationPlayer.play(\"Action\");
-	set_process(true);
-	
-	# spawn in random allowed location
-	#translation.x = clamp(randi(), get_parent().MIN_X, get_parent().MAX_X);
-	#translation.y = clamp(randi(), 5, get_parent().SUNLIGHT_ZONE_DEPTH);
-	
-	return;
+    $AnimationPlayer.play(\"Action\");
+    set_process(true);
+    
+    # spawn in random allowed location
+    #translation.x = clamp(randi(), get_parent().MIN_X, get_parent().MAX_X);
+    #translation.y = clamp(randi(), 5, get_parent().SUNLIGHT_ZONE_DEPTH);
+    
+    return;
 
 #----------------------------------------------------------------------------
 
 func _process(_ignore):
-	anim_clock += 1;
-		
-	$Armature.translation.x = sin(anim_clock / 723.0) * 2.15;
-	$Armature.translation.y = sin(anim_clock / 1323.0) * 3.09;
-	$Armature.rotation_degrees.z = sin(anim_clock / (1323.0 * 2.0)) * 6.79;
-	return;
+    anim_clock += 1;
+        
+    $Armature.translation.x = sin(anim_clock / 723.0) * 2.15;
+    $Armature.translation.y = sin(anim_clock / 1323.0) * 3.09;
+    $Armature.rotation_degrees.z = sin(anim_clock / (1323.0 * 2.0)) * 6.79;
+    return;
 "
 
 [sub_resource type="ArrayMesh" id=1]
@@ -223,6 +223,7 @@ bones/7/enabled = true
 bones/7/bound_children = [  ]
 
 [node name="jellyfish body" type="MeshInstance" parent="Armature/Skeleton"]
+cast_shadow = 0
 mesh = SubResource( 1 )
 skin = SubResource( 2 )
 

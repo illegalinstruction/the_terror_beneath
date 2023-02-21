@@ -1,9 +1,5 @@
-[gd_scene load_steps=45 format=2]
+[gd_scene load_steps=38 format=2]
 
-[ext_resource path="res://ocean/OCEAN-submegred.material" type="Material" id=1]
-[ext_resource path="res://ocean/OCEAN-back_wall.material" type="Material" id=2]
-[ext_resource path="res://ocean/OCEAN-surface.material" type="Material" id=3]
-[ext_resource path="res://ocean/fog_gradient.png" type="Texture" id=4]
 [ext_resource path="res://ocean/ocean-height.png" type="Texture" id=5]
 [ext_resource path="res://ocean/mult_gradient.png" type="Texture" id=6]
 [ext_resource path="res://ocean/ocean-normal.png" type="Texture" id=7]
@@ -17,7 +13,6 @@ surfaces/0 = {
 "blend_shape_data": [  ],
 "format": 2194711,
 "index_count": 23220,
-"material": ExtResource( 3 ),
 "primitive": 4,
 "skeleton_aabb": [  ],
 "vertex_count": 12385
@@ -29,7 +24,6 @@ surfaces/1 = {
 "blend_shape_data": [  ],
 "format": 2194711,
 "index_count": 510,
-"material": ExtResource( 1 ),
 "primitive": 4,
 "skeleton_aabb": [  ],
 "vertex_count": 252
@@ -41,7 +35,6 @@ surfaces/2 = {
 "blend_shape_data": [  ],
 "format": 2194711,
 "index_count": 702,
-"material": ExtResource( 2 ),
 "primitive": 4,
 "skeleton_aabb": [  ],
 "vertex_count": 316
@@ -455,200 +448,10 @@ render_priority = 127
 shader = SubResource( 72 )
 shader_param/tex_vtx_4 = ExtResource( 5 )
 
-[sub_resource type="VisualShaderNodeTexture" id=66]
-output_port_for_preview = 0
-texture = ExtResource( 4 )
-
-[sub_resource type="VisualShaderNodeInput" id=74]
-input_name = "uv"
-
-[sub_resource type="VisualShader" id=75]
-resource_local_to_scene = true
-code = "shader_type spatial;
-render_mode cull_disabled, specular_schlick_ggx, async_visible;
-
-uniform sampler2D tex_vtx_4;
-uniform sampler2D tex_vtx_9;
-uniform sampler2D tex_frg_49;
-
-
-
-void vertex() {
-// Input:10
-	vec3 n_out10p0 = VERTEX;
-
-// Input:5
-	vec3 n_out5p0 = vec3(UV, 0.0);
-
-// VectorOp:22
-	vec3 n_in22p1 = vec3(2.00000, 0.80000, 0.00000);
-	vec3 n_out22p0 = n_out5p0 * n_in22p1;
-
-// VectorDecompose:6
-	float n_out6p0 = n_out22p0.x;
-	float n_out6p1 = n_out22p0.y;
-	float n_out6p2 = n_out22p0.z;
-
-// Input:2
-	float n_out2p0 = TIME;
-
-// ScalarOp:3
-	float n_in3p1 = 0.13790;
-	float n_out3p0 = n_out2p0 * n_in3p1;
-
-// ScalarOp:7
-	float n_out7p0 = n_out6p0 + n_out3p0;
-
-// ScalarOp:11
-	float n_in11p1 = 0.10250;
-	float n_out11p0 = n_out2p0 * n_in11p1;
-
-// ScalarOp:12
-	float n_out12p0 = n_out6p1 + n_out11p0;
-
-// VectorCompose:8
-	float n_in8p2 = 0.00000;
-	vec3 n_out8p0 = vec3(n_out7p0, n_out12p0, n_in8p2);
-
-// Texture:4
-	vec4 tex_vtx_4_read = texture(tex_vtx_4, n_out8p0.xy);
-	vec3 n_out4p0 = tex_vtx_4_read.rgb;
-	float n_out4p1 = tex_vtx_4_read.a;
-
-// VectorDecompose:14
-	float n_out14p0 = n_out4p0.x;
-	float n_out14p1 = n_out4p0.y;
-	float n_out14p2 = n_out4p0.z;
-
-// VectorCompose:15
-	float n_in15p0 = 0.00000;
-	float n_in15p2 = 0.00000;
-	vec3 n_out15p0 = vec3(n_in15p0, n_out14p0, n_in15p2);
-
-// VectorOp:13
-	vec3 n_out13p0 = n_out10p0 + n_out15p0;
-
-// Texture:9
-	vec4 tex_vtx_9_read = texture(tex_vtx_9, n_out8p0.xy);
-	vec3 n_out9p0 = tex_vtx_9_read.rgb;
-	float n_out9p1 = tex_vtx_9_read.a;
-
-// VectorDecompose:17
-	float n_out17p0 = n_out9p0.x;
-	float n_out17p1 = n_out9p0.y;
-	float n_out17p2 = n_out9p0.z;
-
-// ScalarOp:19
-	float n_in19p1 = -1.00000;
-	float n_out19p0 = n_out17p2 * n_in19p1;
-
-// VectorCompose:18
-	vec3 n_out18p0 = vec3(n_out17p0, n_out19p0, n_out17p1);
-
-// VectorOp:20
-	vec3 n_in20p1 = vec3(0.50000, 0.50000, 0.50000);
-	vec3 n_out20p0 = n_out18p0 - n_in20p1;
-
-// VectorOp:21
-	vec3 n_in21p1 = vec3(2.00000, 2.00000, 2.00000);
-	vec3 n_out21p0 = n_out20p0 * n_in21p1;
-
-// Output:0
-	VERTEX = n_out13p0;
-	NORMAL = n_out21p0;
-
-}
-
-void fragment() {
-// Scalar:28
-	float n_out28p0 = 0.000000;
-
-// Scalar:29
-	float n_out29p0 = 1.000000;
-
-// Input:50
-	vec3 n_out50p0 = vec3(UV, 0.0);
-
-// Texture:49
-	vec4 tex_frg_49_read = texture(tex_frg_49, n_out50p0.xy);
-	vec3 n_out49p0 = tex_frg_49_read.rgb;
-	float n_out49p1 = tex_frg_49_read.a;
-
-// Output:0
-	ALBEDO = vec3(n_out28p0);
-	METALLIC = n_out28p0;
-	ROUGHNESS = n_out29p0;
-	SPECULAR = n_out28p0;
-	EMISSION = n_out49p0;
-
-}
-
-void light() {
-// Output:0
-
-}
-"
-graph_offset = Vector2( -2872.24, 74.7041 )
-modes/cull = 2
-nodes/vertex/0/position = Vector2( 680, -80 )
-nodes/vertex/2/node = SubResource( 9 )
-nodes/vertex/2/position = Vector2( -1020, 360 )
-nodes/vertex/3/node = SubResource( 10 )
-nodes/vertex/3/position = Vector2( -820, 340 )
-nodes/vertex/4/node = SubResource( 11 )
-nodes/vertex/4/position = Vector2( -580, -260 )
-nodes/vertex/5/node = SubResource( 12 )
-nodes/vertex/5/position = Vector2( -1200, 80 )
-nodes/vertex/6/node = SubResource( 13 )
-nodes/vertex/6/position = Vector2( -800, 140 )
-nodes/vertex/7/node = SubResource( 14 )
-nodes/vertex/7/position = Vector2( -440, 100 )
-nodes/vertex/8/node = SubResource( 15 )
-nodes/vertex/8/position = Vector2( -180, 140 )
-nodes/vertex/9/node = SubResource( 16 )
-nodes/vertex/9/position = Vector2( 60, 240 )
-nodes/vertex/10/node = SubResource( 2 )
-nodes/vertex/10/position = Vector2( -680, -400 )
-nodes/vertex/11/node = SubResource( 3 )
-nodes/vertex/11/position = Vector2( -820, 440 )
-nodes/vertex/12/node = SubResource( 4 )
-nodes/vertex/12/position = Vector2( -440, 200 )
-nodes/vertex/13/node = SubResource( 5 )
-nodes/vertex/13/position = Vector2( 80, -340 )
-nodes/vertex/14/node = SubResource( 6 )
-nodes/vertex/14/position = Vector2( -400, -140 )
-nodes/vertex/15/node = SubResource( 7 )
-nodes/vertex/15/position = Vector2( -140, -120 )
-nodes/vertex/16/node = SubResource( 8 )
-nodes/vertex/16/position = Vector2( -260, -240 )
-nodes/vertex/17/node = SubResource( 21 )
-nodes/vertex/17/position = Vector2( 280, 400 )
-nodes/vertex/18/node = SubResource( 22 )
-nodes/vertex/18/position = Vector2( 780, 340 )
-nodes/vertex/19/node = SubResource( 23 )
-nodes/vertex/19/position = Vector2( 560, 380 )
-nodes/vertex/20/node = SubResource( 24 )
-nodes/vertex/20/position = Vector2( 1012.35, 380.836 )
-nodes/vertex/21/node = SubResource( 25 )
-nodes/vertex/21/position = Vector2( 260, 20 )
-nodes/vertex/22/node = SubResource( 44 )
-nodes/vertex/22/position = Vector2( -1002.51, 85.0995 )
-nodes/vertex/connections = PoolIntArray( 2, 0, 3, 0, 6, 0, 7, 0, 3, 0, 7, 1, 7, 0, 8, 0, 8, 0, 4, 0, 8, 0, 9, 0, 2, 0, 11, 0, 11, 0, 12, 1, 12, 0, 8, 1, 6, 1, 12, 0, 4, 0, 14, 0, 15, 0, 13, 1, 13, 0, 0, 0, 14, 0, 16, 0, 9, 0, 17, 0, 17, 2, 19, 0, 19, 0, 18, 1, 17, 0, 18, 0, 17, 1, 18, 2, 18, 0, 20, 0, 20, 0, 21, 0, 21, 0, 0, 1, 10, 0, 13, 0, 5, 0, 22, 0, 22, 0, 6, 0, 14, 0, 15, 1 )
-nodes/fragment/0/position = Vector2( 360, 1020 )
-nodes/fragment/28/node = SubResource( 45 )
-nodes/fragment/28/position = Vector2( 380, 720 )
-nodes/fragment/29/node = SubResource( 46 )
-nodes/fragment/29/position = Vector2( 380, 800 )
-nodes/fragment/49/node = SubResource( 66 )
-nodes/fragment/49/position = Vector2( 80, 960 )
-nodes/fragment/50/node = SubResource( 74 )
-nodes/fragment/50/position = Vector2( -74.2202, 1085.89 )
-nodes/fragment/connections = PoolIntArray( 29, 0, 0, 3, 28, 0, 0, 2, 28, 0, 0, 4, 28, 0, 0, 0, 49, 0, 0, 5, 50, 0, 49, 0 )
-
-[sub_resource type="ShaderMaterial" id=76]
-render_priority = 127
-shader = SubResource( 75 )
-shader_param/tex_vtx_4 = ExtResource( 5 )
+[sub_resource type="SpatialMaterial" id=79]
+params_cull_mode = 2
+albedo_color = Color( 0, 0, 0, 1 )
+metallic_specular = 0.0
 
 [sub_resource type="PlaneMesh" id=77]
 
@@ -665,9 +468,14 @@ cast_shadow = 0
 mesh = SubResource( 1 )
 material/0 = SubResource( 71 )
 material/1 = SubResource( 73 )
-material/2 = SubResource( 76 )
+material/2 = SubResource( 79 )
 
 [node name="backdrop_fix" type="MeshInstance" parent="."]
 transform = Transform( 90, 0, 0, 0, -4.37114e-08, -30, 0, 1, -1.31134e-06, 0, -90, -56.285 )
+mesh = SubResource( 77 )
+material/0 = SubResource( 78 )
+
+[node name="backdrop_fix2" type="MeshInstance" parent="."]
+transform = Transform( 90, 0, 0, 0, -4.37114e-08, -30, 0, 1, -1.31134e-06, 0, -31.3858, -52.8261 )
 mesh = SubResource( 77 )
 material/0 = SubResource( 78 )
