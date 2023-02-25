@@ -5,8 +5,8 @@
 [ext_resource path="res://entities/jelly_01/jelly_01.tscn" type="PackedScene" id=3]
 [ext_resource path="res://ocean/ocean-underwater-deform-y.png" type="Texture" id=4]
 [ext_resource path="res://ocean/ocean-underwater-deform-x.png" type="Texture" id=5]
+[ext_resource path="res://entities/humpback/humpback.tscn" type="PackedScene" id=6]
 [ext_resource path="res://HUD/HUD.tscn" type="PackedScene" id=13]
-[ext_resource path="res://entities/humpback/humpback.glb" type="PackedScene" id=14]
 
 [sub_resource type="VisualShaderNodeScalarOp" id=9]
 default_input_values = [ 0, 0.0, 1, 0.0315497 ]
@@ -853,6 +853,10 @@ script = SubResource( 35 )
 
 [node name="Viewport" type="Viewport" parent="ViewportContainer"]
 size = Vector2( 1280, 720 )
+handle_input_locally = false
+render_target_update_mode = 3
+audio_listener_enable_2d = true
+audio_listener_enable_3d = true
 
 [node name="gameplay" type="Spatial" parent="ViewportContainer/Viewport"]
 script = SubResource( 2 )
@@ -917,20 +921,47 @@ environment = SubResource( 8 )
 
 [node name="HUD" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 13 )]
 
-[node name="humpback" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 14 )]
-transform = Transform( -0.0532771, 0, 0.99858, 0, 1, 0, -0.99858, 0, -0.0532771, 5.41834, -52.9938, 17.1058 )
-
-[node name="humpback2" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 14 )]
-transform = Transform( -0.567989, -0.324871, 0.756206, -0.524088, 0.851205, -0.0279616, -0.634602, -0.4122, -0.653736, 4.97567, -53.149, -18.1822 )
-
-[node name="humpback3" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 14 )]
-transform = Transform( -0.325693, 0.630269, -0.704758, 0.593759, 0.716427, 0.366308, 0.735781, -0.299153, -0.607564, 7.9932, -53.149, -48.317 )
-
-[node name="humpback4" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 14 )]
-transform = Transform( -0.0847676, -0.0587562, -0.994667, -0.369747, 0.928838, -0.0233564, 0.925257, 0.365795, -0.100461, 2.25252, -64.7478, -62.5723 )
-
 [node name="ocean-impostor" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 2 )]
 transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0 )
+
+[node name="humpback" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 6 )]
+transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 8.24147, -56.3052, -67.1515 )
+
+[node name="humpback2" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 6 )]
+transform = Transform( -4.37114e-08, 0, 1, -0.45013, 0.892963, -1.96758e-08, -0.892963, -0.45013, -3.90327e-08, 7.1845, -64.0219, -76.354 )
+
+[node name="humpback3" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 6 )]
+transform = Transform( -4.37114e-08, 0, 1, 0.48661, 0.873619, 2.12704e-08, -0.873619, 0.48661, -3.81871e-08, 7.1845, -82.852, -99.657 )
+
+[node name="humpback8" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 6 )]
+transform = Transform( -4.37114e-08, 0, 1, -0.372712, 0.927947, -1.62918e-08, -0.927947, -0.372712, -4.05619e-08, 7.1845, -82.852, -157.016 )
+
+[node name="humpback9" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 6 )]
+transform = Transform( -4.37114e-08, 0, 1, 0.0642537, 0.997934, 2.80862e-09, -0.997934, 0.0642537, -4.36211e-08, -0.613572, -82.852, -149.917 )
+
+[node name="humpback10" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 6 )]
+transform = Transform( -4.37114e-08, 0, 1, 0.0642537, 0.997934, 2.80862e-09, -0.997934, 0.0642537, -4.36211e-08, -0.613572, -101.65, -189.394 )
+
+[node name="humpback11" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 6 )]
+transform = Transform( -0.641788, -0.201887, -0.739831, -0.300073, 0.953916, -1.31166e-08, 0.705736, 0.222003, -0.672793, -19.204, -117.755, -143.723 )
+
+[node name="humpback12" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 6 )]
+transform = Transform( -0.641788, -0.201887, -0.739831, -0.300073, 0.953916, -1.31166e-08, 0.705736, 0.222003, -0.672793, -19.204, -138.758, -31.9087 )
+
+[node name="humpback13" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 6 )]
+transform = Transform( -0.233002, -0.0732953, -0.96971, -0.599623, 0.79587, 0.0839217, 0.765612, 0.601014, -0.229389, -10, -150, -150 )
+
+[node name="humpback4" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 6 )]
+transform = Transform( -4.37114e-08, 0, 1, -0.40688, 0.913482, -1.77853e-08, -0.913482, -0.40688, -3.99295e-08, 7.1845, -30.5152, -99.657 )
+
+[node name="humpback5" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 6 )]
+transform = Transform( -4.37114e-08, 0, 1, -0.40688, 0.913482, -1.77853e-08, -0.913482, -0.40688, -3.99295e-08, 7.1845, -8.67011, -110.966 )
+
+[node name="humpback6" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 6 )]
+transform = Transform( -4.37114e-08, 0, 1, -0.40688, 0.913482, -1.77853e-08, -0.913482, -0.40688, -3.99295e-08, 7.1845, -8.67011, -75.177 )
+
+[node name="humpback7" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 6 )]
+transform = Transform( -4.37114e-08, 0, 1, 0.713299, 0.700859, 3.11793e-08, -0.700859, 0.713299, -3.06355e-08, 7.1845, -8.67011, -54.9957 )
 
 [node name="debug_git" type="Label" parent="."]
 margin_left = 32.0

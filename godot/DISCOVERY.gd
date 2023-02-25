@@ -80,7 +80,7 @@ func _ready():
     set_process(true);
     ping_sound = AudioStreamPlayer2D.new();
     ping_sound.stream = load("res://HUD/sounds/sonar_bounce.wav");
-    ping_sound.volume_db = Global.get_sfx_vol_in_db();
+    ping_sound.volume_db = Global.get_sfx_vol_in_db() * 100;
     add_child(ping_sound);
     return;
 
@@ -137,6 +137,7 @@ func init_from_json_at_pos(filename : String, x : float, y : float, in_hud : Nod
 # appropriate.
 
 func on_sonar(player_pos : Vector3):
+    
     # reset this flag to its default
     self.should_show_arrow = false;
 
@@ -184,6 +185,7 @@ func _process(delta):
         HUD.spawn_sonar_ping_effect(screen_pos, self.dist_in_meters, self.disc_name);
         ping_sound.position = screen_pos;
         ping_sound.play();
+        print_debug("hit by sonar wave: " + self.disc_name + " at " + str(translation));
 
     if (can_move):
         move_and_collide(self.velocity); # should we do this here, or should the child scene we load into self.visual do it?
