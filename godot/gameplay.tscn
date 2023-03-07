@@ -858,6 +858,8 @@ script = SubResource( 35 )
 size = Vector2( 1280, 720 )
 handle_input_locally = false
 render_target_update_mode = 3
+audio_listener_enable_2d = true
+audio_listener_enable_3d = true
 
 [node name="gameplay" type="Spatial" parent="ViewportContainer/Viewport"]
 script = SubResource( 2 )
