@@ -42,30 +42,30 @@ const SPLASH_END  : int = 180; # in 'ticks'
 #-------------------------------------------------------------------------------
 
 func _ready():
-    Global.load_options_data();
-    set_process(true);
-        
-    var screenwipe = load(\"res://helper_screenwipe.tscn\");
-    add_child(screenwipe.instance());
-    Global.new_scene_screenwipe_start();
-    $Sprite.scale.x = (get_viewport().size.x / $Sprite.texture.get_size().x);  
-    $Sprite.scale.y = $Sprite.scale.x;
+	Global.load_options_data();
+	set_process(true);
+		
+	var screenwipe = load(\"res://helper_screenwipe.tscn\");
+	add_child(screenwipe.instance());
+	Global.new_scene_screenwipe_start();
+	$Sprite.scale.x = (get_viewport().size.x / $Sprite.texture.get_size().x);  
+	$Sprite.scale.y = $Sprite.scale.x;
 
-    return;
+	return;
 
 #-------------------------------------------------------------------------------
 
 func _process(_ignored):
-    # --- gracefully handle resize
-    $Sprite.scale.x = (get_viewport().size.x / $Sprite.texture.get_size().x);  
-    $Sprite.scale.y = $Sprite.scale.x;
+	# --- gracefully handle resize
+	$Sprite.scale.x = (get_viewport().size.x / $Sprite.texture.get_size().x);  
+	$Sprite.scale.y = $Sprite.scale.x;
 
-    # --- animate splash
-    anim_clock += 1;
+	# --- animate splash
+	anim_clock += 1;
 
-    if (anim_clock == SPLASH_END):
-        Global.change_scene_to((load(\"res://main_menu.tscn\")));	
-    return;
+	if (anim_clock == SPLASH_END):
+		Global.change_scene_to((load(\"res://main_menu.tscn\")));	
+	return;
 "
 
 [node name="splash_and_legal" type="Node2D"]
