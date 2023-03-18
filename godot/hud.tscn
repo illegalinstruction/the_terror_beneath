@@ -92,12 +92,163 @@ func spawn_sonar_ping_effect(in_pos : Vector2, in_distance : float, in_caption: 
     
 #-------------------------------------------------------------------------------
 #== end sonar shock ring stuff =================================================
+# due to a Godot limitation, the actual drawing doesn't happen inside this class
+# but in the scene_wide 'draw()' method below.
 
+#-------------------------------------------------------------------------------
 
+# used to position the 'discovery-offscreen' arrows
+const ARROW_TIP_X       : float =   640.0;
+const ARROW_TIP_Y       : float =   360.0;
+const ARROW_SPACING_X   : float =   533.333;
+const ARROW_SPACING_Y   : float =   300.0;
+
+const CAPTION_SPACING_X : float =   455.11111;
+const CAPTION_SPACING_Y : float =   256.00;
+
+const ARROW_WIDTH       : float =   40.0;
+
+# used to render the captions
+var distance_font : DynamicFont;
+
+func _draw():
+    # --- update sonar ping waves, if any ----------------------------------
+    for index in range(0,actual_sonar_array_length):
+        
+        if ((index < actual_sonar_array_length) and (sonar_shock_ring_array[index] != null)):
+            draw_arc(sonar_shock_ring_array[index].pos,
+                (SONAR_LIFETIME_TICKS - sonar_shock_ring_array[index].anim_clock)*Global.SONAR_WAVE_SPEED,
+                0,
+                6.283185308,
+                64, 
+                sonar_shock_ring_array[index].col,
+                3.0);
+            sonar_shock_ring_array[index].tick();
+            
+            #----------------------------------------------------------------
+            # is the source of the wave off-screen?
+            if (not(get_viewport_rect().has_point(sonar_shock_ring_array[index].pos))):
+                var vp_ctr : Vector2 = get_viewport_rect().get_center();
+                
+                # determine where the line to it crosses the edge of the display
+                var slope : float = float(sonar_shock_ring_array[index].pos.y-vp_ctr.y) / float(sonar_shock_ring_array[index].pos.x-vp_ctr.x);
+                
+                # which way do we need to go from the centre?
+                var x_sign = sign(sonar_shock_ring_array[index].pos.x-vp_ctr.x);
+                var y_sign = sign(sonar_shock_ring_array[index].pos.y-vp_ctr.y);
+                
+                # which edge of the display will we hit?
+                # multiply the y portion to take into account the non-square aspect ratio                
+                var horz_or_vert : bool = (abs(sonar_shock_ring_array[index].pos.x-vp_ctr.x) > 
+                    (abs(sonar_shock_ring_array[index].pos.y-vp_ctr.y) * (get_viewport_rect().size.x/get_viewport_rect().size.y)
+                    ));
+                
+                # these are where the actual arrow will be drawn
+                var tmp_point1 : Vector2 = Vector2.ZERO;
+                var tmp_point2 : Vector2 = Vector2.ZERO;
+                var tmp_point3 : Vector2 = Vector2.ZERO;
+                
+                var tmp_points  = PoolVector2Array();
+                var tmp_cols    = PoolColorArray();
+                
+                var caption_pos : Vector2 = Vector2.ZERO;
+                
+                # calculate where the points on the arrow should be
+                if (horz_or_vert):
+                    tmp_point1.x = ARROW_TIP_X * x_sign;
+                    tmp_point1.y = tmp_point1.x * slope;
+                    
+                    tmp_point2.x = ARROW_SPACING_X * x_sign;
+                    tmp_point2.y = tmp_point2.x * slope - ARROW_WIDTH;
+                    
+                    tmp_point3.x = tmp_point2.x;
+                    tmp_point3.y = tmp_point2.x * slope + ARROW_WIDTH;
+                    
+                    caption_pos.x = CAPTION_SPACING_X * x_sign;
+                    caption_pos.y = caption_pos.x * slope;
+                else:
+                    tmp_point1.y = ARROW_TIP_Y * y_sign;
+                    tmp_point1.x = tmp_point1.y * (1.0/slope);
+                    
+                    tmp_point2.y = ARROW_SPACING_Y * y_sign;
+                    tmp_point2.x = tmp_point2.y * (1.0/slope) - ARROW_WIDTH;
+                    
+                    tmp_point3.y = tmp_point2.y;
+                    tmp_point3.x = tmp_point2.y * (1.0/slope) + ARROW_WIDTH;
+
+                    caption_pos.y = CAPTION_SPACING_Y * y_sign;
+                    caption_pos.x = caption_pos.y * (1.0/slope);
+                    
+                # adjust for the centre of the display
+                var vwprt_centre : Vector2 = get_viewport_rect().get_center(); 
+                tmp_point1.x += vwprt_centre.x;   
+                tmp_point2.x += vwprt_centre.x;   
+                tmp_point3.x += vwprt_centre.x;   
+                caption_pos.x += vwprt_centre.x;
+
+                tmp_point1.y += vwprt_centre.y;   
+                tmp_point2.y += vwprt_centre.y;   
+                tmp_point3.y += vwprt_centre.y;   
+                caption_pos.y += vwprt_centre.y;
+                                 
+                tmp_points.push_back(tmp_point1);
+                tmp_points.push_back(tmp_point2);
+                tmp_points.push_back(tmp_point3);
+                
+                tmp_cols.push_back(sonar_shock_ring_array[index].col);
+                tmp_cols.push_back(sonar_shock_ring_array[index].col);
+                tmp_cols.push_back(sonar_shock_ring_array[index].col);
+                
+                # eh, finally
+                draw_polygon(tmp_points, tmp_cols);
+                
+                # make sure the string is centred/aligned
+                var distance_pos = caption_pos;
+                
+                # handle extra long discovery names gracefully
+                var caption_str = sonar_shock_ring_array[index].caption.substr(0,12);
+                if (sonar_shock_ring_array[index].caption.length() > 12):
+                    caption_str = caption_str  + \"...\";
+                    
+# warning-ignore:unassigned_variable_op_assign
+                # it's actually set in the if block up there, Godot's just watchin' out for us a little too carefully
+                caption_pos -= (distance_font.get_string_size(caption_str) / 2.0);
+                draw_string(distance_font, caption_pos, caption_str, Color(0,0,0,sonar_shock_ring_array[index].col.a));
+                caption_pos += Vector2(2,2);
+                draw_string(distance_font, caption_pos, caption_str, sonar_shock_ring_array[index].col);
+
+                var dist_string : String =  str(int(sonar_shock_ring_array[index].distance)) + \"m\"
+                distance_pos.x -= (distance_font.get_string_size(dist_string).x / 2.0);
+                distance_pos.y += (distance_font.get_string_size(dist_string).y / 2.0);
+                draw_string(distance_font, distance_pos, dist_string, Color(0,0,0,sonar_shock_ring_array[index].col.a));
+                distance_pos += Vector2(2,2);
+                draw_string(distance_font, distance_pos, dist_string, sonar_shock_ring_array[index].col);
+
+            #-------- end special handling for off-screen discovery ----------    
+            
+            # moved from SONAR_SHOCK_RING.tick() to avoid a thread safety problem
+            if (sonar_shock_ring_array[index].anim_clock < 1):
+                actual_sonar_array_length -= 1;
+                var tmp = sonar_shock_ring_array[index];
+                sonar_shock_ring_array.remove(index);
+                tmp.free();
+
+    # --- end of 'update sonar ping waves' section ----------------------------------
+    
+    return;
+    
 #---------------------------------------------------------------------------------------------------
 
 func _ready():
     set_process(true);
+
+    # the distance-to-offscreen-discovery sonar typeface 
+    distance_font = DynamicFont.new(); 
+    distance_font.font_data = load(\"res://font/rangefont.otf\");
+    distance_font.size = 28;
+    
+    set_process(true);
+    
     return;
 
 #--------------------------------------------------------------------
