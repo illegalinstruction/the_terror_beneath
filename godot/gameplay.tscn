@@ -1,4 +1,4 @@
-[gd_scene load_steps=43 format=2]
+[gd_scene load_steps=45 format=2]
 
 [ext_resource path="res://submarine/SUBMARINE_VISIBLE.tscn" type="PackedScene" id=1]
 [ext_resource path="res://ocean/ocean-impostor.tscn" type="PackedScene" id=2]
@@ -7,6 +7,57 @@
 [ext_resource path="res://ocean/ocean-underwater-deform-x.png" type="Texture" id=5]
 [ext_resource path="res://HUD/HUD.tscn" type="PackedScene" id=13]
 [ext_resource path="res://entities/humpback/humpback.glb" type="PackedScene" id=14]
+
+[sub_resource type="GDScript" id=37]
+script/source = "# 
+#  _the terror_               
+# | |        | |              
+# | |__   ___| | _____      __
+# | '_ \\ / _ \\ |/ _ \\ \\ /\\ / /
+# | |_) |  __/ | (_) \\ V  V / 
+# |_.__/ \\___|_|\\___/ \\_/\\_/ 
+#
+# Copyright 2022 Oregon Institute of Technology
+# 
+# Permission is hereby granted, free of charge, to any person obtaining 
+# a copy of this software and associated documentation files (the 
+# \"Software\"), to deal in the Software without restriction, including 
+# without limitation the rights to use, copy, modify, merge, publish, 
+# distribute, sublicense, and/or sell copies of the Software, and to 
+# permit persons to whom the Software is furnished to do so, subject to 
+# the following conditions:
+# 
+# * The above copyright notice and this permission notice shall be 
+# 	included in all copies or substantial portions of the Software.
+# 
+# * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, 
+# 	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+# 	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+#	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+#	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+#	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+#	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#                                 
+
+extends Node2D;
+
+#---------------------------------------------------------------------------------------------------
+
+func dummy_method(arg : int):
+    print_debug(\"called with \" + str(arg));
+    return;
+
+#---------------------------------------------------------------------------------------------------
+
+func _ready():
+    set_process(true);
+    return;
+
+#--------------------------------------------------------------------
+
+func _process(delta):
+    return;
+"
 
 [sub_resource type="VisualShaderNodeScalarOp" id=9]
 default_input_values = [ 0, 0.0, 1, 0.0315497 ]
@@ -294,14 +345,14 @@ extends ViewportContainer
 #---------------------------------------------------------------------------------------------------
 
 func _ready():
-	set_process(true);
-	return;
+    set_process(true);
+    return;
 
 #---------------------------------------------------------------------------------------------------
 
 func _process(_ignore):
-	material.set(\"shader_param/sub_depth\", $Viewport/gameplay/kinbody_SUBMARINE.translation.y);
-	return;
+    material.set(\"shader_param/sub_depth\", $Viewport/gameplay/kinbody_SUBMARINE.translation.y);
+    return;
 "
 
 [sub_resource type="GDScript" id=2]
@@ -747,6 +798,112 @@ fog_depth_begin = 2.0
 fog_depth_end = 48.0
 fog_depth_curve = 1.51572
 
+[sub_resource type="GDScript" id=36]
+script/source = "# 
+#  _the terror_               
+# | |        | |              
+# | |__   ___| | _____      __
+# | '_ \\ / _ \\ |/ _ \\ \\ /\\ / /
+# | |_) |  __/ | (_) \\ V  V / 
+# |_.__/ \\___|_|\\___/ \\_/\\_/ 
+#
+# Copyright 2022 Oregon Institute of Technology
+# 
+# Permission is hereby granted, free of charge, to any person obtaining 
+# a copy of this software and associated documentation files (the 
+# \"Software\"), to deal in the Software without restriction, including 
+# without limitation the rights to use, copy, modify, merge, publish, 
+# distribute, sublicense, and/or sell copies of the Software, and to 
+# permit persons to whom the Software is furnished to do so, subject to 
+# the following conditions:
+# 
+# * The above copyright notice and this permission notice shall be 
+# 	included in all copies or substantial portions of the Software.
+# 
+# * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, 
+# 	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+# 	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+#	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+#	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+#	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+#	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#                                 
+
+extends Node2D;
+
+#===============================================================================
+#-------------------------------------------------------------------------------
+# helper class to let the visible representation of sonar reflections manage 
+# themselves.
+
+var sonar_shock_ring_array              = [];
+const SONAR_LIFETIME_TICKS      : int   = 150;  # length anim runs (in frames) 
+var actual_sonar_array_length   : int   = 0;    # ugly workaround for a race cond
+
+class SONAR_SHOCK_RING:
+    extends Object;
+    
+    var pos         : Vector2;
+    var col         : Color = Color.white;
+    var anim_clock  : int = SONAR_LIFETIME_TICKS;
+    var parent      : Node2D;
+    var dest        : Array;
+    var distance    : float;
+    var caption     : String;
+    
+    #==========================
+    
+    func _init(in_pos: Vector2, in_distance : float, in_caption: String, in_dest: Array, in_parent:Node2D):
+        self.pos    = in_pos;
+        self.dest   = in_dest; 
+        self.parent = in_parent;
+        self.distance = in_distance;
+        self.caption = in_caption;
+        in_dest.append(self);
+        return;
+
+    #==========================
+    
+    func tick():
+        # expand over time
+        anim_clock = anim_clock - 1;
+        
+        # grow fainter over time
+        col.a =  float(anim_clock / float( SONAR_LIFETIME_TICKS));
+        
+        # are we dead/invisible now? delete ourselves
+        #if (anim_clock < 1):
+        #    dest.erase(self);
+        # moved to outer class' _draw() method - please see discord discussion
+        # for why (possible thread-safety problem)    
+
+#-------------------------------------------------------------------------------
+
+func spawn_sonar_ping_effect(in_pos : Vector2, in_distance : float, in_caption: String=\"\"):
+    var _unused: SONAR_SHOCK_RING = SONAR_SHOCK_RING.new(in_pos, 
+        in_distance, 
+        in_caption,
+        sonar_shock_ring_array,
+        self);
+
+    actual_sonar_array_length += 1;
+    
+#-------------------------------------------------------------------------------
+#== end sonar shock ring stuff =================================================
+
+
+#---------------------------------------------------------------------------------------------------
+
+func _ready():
+    set_process(true);
+    return;
+
+#--------------------------------------------------------------------
+
+func _process(_ignore):
+    return;
+"
+
 [sub_resource type="GDScript" id=3]
 script/source = "# 
 #  _the terror_               
@@ -846,7 +1003,8 @@ func _process(_ignore):
         \"submarine vel: \" + str($\"../ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE\".get(\"curr_velocity\")));
 "
 
-[node name="Node2D" type="Node2D"]
+[node name="gameplay_root" type="Node2D"]
+script = SubResource( 37 )
 
 [node name="ViewportContainer" type="ViewportContainer" parent="."]
 material = SubResource( 31 )
@@ -938,6 +1096,9 @@ transform = Transform( -0.0847676, -0.0587562, -0.994667, -0.369747, 0.928838, -
 
 [node name="ocean-impostor" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 2 )]
 transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0 )
+
+[node name="hud" type="Node2D" parent="."]
+script = SubResource( 36 )
 
 [node name="debug_git" type="Label" parent="."]
 margin_left = 32.0
