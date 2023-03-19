@@ -1,0 +1,191 @@
+[gd_resource type="AnimatedTexture" load_steps=60 format=2]
+
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0011.jpg" type="Texture" id=1]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0006.jpg" type="Texture" id=2]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0001.jpg" type="Texture" id=3]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0004.jpg" type="Texture" id=4]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0005.jpg" type="Texture" id=5]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0014.jpg" type="Texture" id=6]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0009.jpg" type="Texture" id=7]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0007.jpg" type="Texture" id=8]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0008.jpg" type="Texture" id=9]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0010.jpg" type="Texture" id=10]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0013.jpg" type="Texture" id=11]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0012.jpg" type="Texture" id=12]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0017.jpg" type="Texture" id=13]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0003.jpg" type="Texture" id=14]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0002.jpg" type="Texture" id=15]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0033.jpg" type="Texture" id=16]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0051.jpg" type="Texture" id=17]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0055.jpg" type="Texture" id=18]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0049.jpg" type="Texture" id=19]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0053.jpg" type="Texture" id=20]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0048.jpg" type="Texture" id=21]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0046.jpg" type="Texture" id=22]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0044.jpg" type="Texture" id=23]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0060.jpg" type="Texture" id=24]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0057.jpg" type="Texture" id=25]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0052.jpg" type="Texture" id=26]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0045.jpg" type="Texture" id=27]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0054.jpg" type="Texture" id=28]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0034.jpg" type="Texture" id=29]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0039.jpg" type="Texture" id=30]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0043.jpg" type="Texture" id=31]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0037.jpg" type="Texture" id=32]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0032.jpg" type="Texture" id=33]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0038.jpg" type="Texture" id=34]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0041.jpg" type="Texture" id=35]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0040.jpg" type="Texture" id=36]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0035.jpg" type="Texture" id=37]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0047.jpg" type="Texture" id=38]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0058.jpg" type="Texture" id=39]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0050.jpg" type="Texture" id=40]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0042.jpg" type="Texture" id=41]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0059.jpg" type="Texture" id=42]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0023.jpg" type="Texture" id=43]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0036.jpg" type="Texture" id=44]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0031.jpg" type="Texture" id=45]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0024.jpg" type="Texture" id=46]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0025.jpg" type="Texture" id=47]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0027.jpg" type="Texture" id=48]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0026.jpg" type="Texture" id=49]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0028.jpg" type="Texture" id=50]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0029.jpg" type="Texture" id=51]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0030.jpg" type="Texture" id=52]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0019.jpg" type="Texture" id=53]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0015.jpg" type="Texture" id=54]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0018.jpg" type="Texture" id=55]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0020.jpg" type="Texture" id=56]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0022.jpg" type="Texture" id=57]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0021.jpg" type="Texture" id=58]
+[ext_resource path="res://HUD/drip_shader_effect_textures/drip_anim_0016.jpg" type="Texture" id=59]
+
+[resource]
+resource_local_to_scene = true
+flags = 4
+frames = 62
+oneshot = true
+fps = 37.0
+frame_0/texture = ExtResource( 3 )
+frame_1/texture = ExtResource( 3 )
+frame_1/delay_sec = 0.0
+frame_2/texture = ExtResource( 15 )
+frame_2/delay_sec = 0.0
+frame_3/texture = ExtResource( 14 )
+frame_3/delay_sec = 0.0
+frame_4/texture = ExtResource( 4 )
+frame_4/delay_sec = 0.0
+frame_5/texture = ExtResource( 5 )
+frame_5/delay_sec = 0.0
+frame_6/texture = ExtResource( 2 )
+frame_6/delay_sec = 0.0
+frame_7/texture = ExtResource( 8 )
+frame_7/delay_sec = 0.0
+frame_8/texture = ExtResource( 9 )
+frame_8/delay_sec = 0.0
+frame_9/texture = ExtResource( 7 )
+frame_9/delay_sec = 0.0
+frame_10/texture = ExtResource( 10 )
+frame_10/delay_sec = 0.0
+frame_11/texture = ExtResource( 1 )
+frame_11/delay_sec = 0.0
+frame_12/texture = ExtResource( 12 )
+frame_12/delay_sec = 0.0
+frame_13/texture = ExtResource( 11 )
+frame_13/delay_sec = 0.0
+frame_14/texture = ExtResource( 6 )
+frame_14/delay_sec = 0.0
+frame_15/texture = ExtResource( 54 )
+frame_15/delay_sec = 0.0
+frame_16/texture = ExtResource( 59 )
+frame_16/delay_sec = 0.0
+frame_17/texture = ExtResource( 13 )
+frame_17/delay_sec = 0.0
+frame_18/texture = ExtResource( 55 )
+frame_18/delay_sec = 0.0
+frame_19/texture = ExtResource( 53 )
+frame_19/delay_sec = 0.0
+frame_20/texture = ExtResource( 56 )
+frame_20/delay_sec = 0.0
+frame_21/texture = ExtResource( 58 )
+frame_21/delay_sec = 0.0
+frame_22/texture = ExtResource( 57 )
+frame_22/delay_sec = 0.0
+frame_23/texture = ExtResource( 43 )
+frame_23/delay_sec = 0.0
+frame_24/texture = ExtResource( 46 )
+frame_24/delay_sec = 0.0
+frame_25/texture = ExtResource( 47 )
+frame_25/delay_sec = 0.0
+frame_26/texture = ExtResource( 49 )
+frame_26/delay_sec = 0.0
+frame_27/texture = ExtResource( 48 )
+frame_27/delay_sec = 0.0
+frame_28/texture = ExtResource( 50 )
+frame_28/delay_sec = 0.0
+frame_29/texture = ExtResource( 51 )
+frame_29/delay_sec = 0.0
+frame_30/texture = ExtResource( 52 )
+frame_30/delay_sec = 0.0
+frame_31/texture = ExtResource( 45 )
+frame_31/delay_sec = 0.0
+frame_32/texture = ExtResource( 33 )
+frame_32/delay_sec = 0.0
+frame_33/texture = ExtResource( 16 )
+frame_33/delay_sec = 0.0
+frame_34/texture = ExtResource( 29 )
+frame_34/delay_sec = 0.0
+frame_35/texture = ExtResource( 37 )
+frame_35/delay_sec = 0.0
+frame_36/texture = ExtResource( 44 )
+frame_36/delay_sec = 0.0
+frame_37/texture = ExtResource( 32 )
+frame_37/delay_sec = 0.0
+frame_38/texture = ExtResource( 34 )
+frame_38/delay_sec = 0.0
+frame_39/texture = ExtResource( 30 )
+frame_39/delay_sec = 0.0
+frame_40/texture = ExtResource( 36 )
+frame_40/delay_sec = 0.0
+frame_41/texture = ExtResource( 35 )
+frame_41/delay_sec = 0.0
+frame_42/texture = ExtResource( 41 )
+frame_42/delay_sec = 0.0
+frame_43/texture = ExtResource( 31 )
+frame_43/delay_sec = 0.0
+frame_44/texture = ExtResource( 23 )
+frame_44/delay_sec = 0.0
+frame_45/texture = ExtResource( 27 )
+frame_45/delay_sec = 0.0
+frame_46/texture = ExtResource( 22 )
+frame_46/delay_sec = 0.0
+frame_47/texture = ExtResource( 38 )
+frame_47/delay_sec = 0.0
+frame_48/texture = ExtResource( 21 )
+frame_48/delay_sec = 0.0
+frame_49/texture = ExtResource( 19 )
+frame_49/delay_sec = 0.0
+frame_50/texture = ExtResource( 40 )
+frame_50/delay_sec = 0.0
+frame_51/texture = ExtResource( 17 )
+frame_51/delay_sec = 0.0
+frame_52/texture = ExtResource( 26 )
+frame_52/delay_sec = 0.0
+frame_53/texture = ExtResource( 20 )
+frame_53/delay_sec = 0.0
+frame_54/texture = ExtResource( 28 )
+frame_54/delay_sec = 0.0
+frame_55/texture = ExtResource( 18 )
+frame_55/delay_sec = 0.0
+frame_56/texture = ExtResource( 25 )
+frame_56/delay_sec = 0.0
+frame_57/texture = ExtResource( 39 )
+frame_57/delay_sec = 0.0
+frame_58/texture = ExtResource( 39 )
+frame_58/delay_sec = 0.0
+frame_59/texture = ExtResource( 42 )
+frame_59/delay_sec = 0.0
+frame_60/texture = ExtResource( 24 )
+frame_60/delay_sec = 0.0
+frame_61/texture = ExtResource( 24 )
+frame_61/delay_sec = 0.43
