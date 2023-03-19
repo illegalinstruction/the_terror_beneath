@@ -385,6 +385,8 @@ var snd_sonar_fire : AudioStreamPlayer;
 const SONAR_CHARGE_TIME : int = 70; #in frames
 var sonar_charge_counter : int = -1;
 
+var bob_anim_clock : int = 0; #part of the fix for #83, increments once per frame
+
 #----------------------------------------------------------------------------
 
 func _ready():
@@ -403,6 +405,8 @@ func _ready():
     
     add_child(snd_sonar_charge);
     add_child(snd_sonar_fire);
+    
+    bob_anim_clock = 0;
   
     return; # Replace with function body.
 
@@ -528,6 +532,13 @@ func _process(time_elapsed):
     #== update hud ============================================================
     get_tree().get_current_scene().set_elec_display((curr_electricity / Global.SUBMARINE_MAX_ELECTRICITY) * 100.0);
     get_tree().get_current_scene().set_o2_display((curr_o2 / Global.SUBMARINE_MAX_O2) * 100.0);
+
+    #== #83 - bob slightly above -2m to make it look like =====================
+    #== the waves interact with us ============================================
+    bob_anim_clock += 1;
+    var between_0_and_5 =  clamp(translation.y + 5.0, 0.0, 5.0);
+    $SUBMARINE_VISIBLE_ROOT.translation.y = (
+        cos(bob_anim_clock/43.7) * between_0_and_5/31.0) - (between_0_and_5 / 12.0);
     
     return;
 "
