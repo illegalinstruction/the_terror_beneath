@@ -5,8 +5,82 @@
 [ext_resource path="res://entities/jelly_01/jelly_01.tscn" type="PackedScene" id=3]
 [ext_resource path="res://ocean/ocean-underwater-deform-y.png" type="Texture" id=4]
 [ext_resource path="res://ocean/ocean-underwater-deform-x.png" type="Texture" id=5]
-[ext_resource path="res://HUD/HUD.tscn" type="PackedScene" id=13]
+[ext_resource path="res://hud.tscn" type="PackedScene" id=6]
 [ext_resource path="res://entities/humpback/humpback.glb" type="PackedScene" id=14]
+
+[sub_resource type="GDScript" id=37]
+script/source = "# 
+#  _the terror_               
+# | |        | |              
+# | |__   ___| | _____      __
+# | '_ \\ / _ \\ |/ _ \\ \\ /\\ / /
+# | |_) |  __/ | (_) \\ V  V / 
+# |_.__/ \\___|_|\\___/ \\_/\\_/ 
+#
+# Copyright 2022 Oregon Institute of Technology
+# 
+# Permission is hereby granted, free of charge, to any person obtaining 
+# a copy of this software and associated documentation files (the 
+# \"Software\"), to deal in the Software without restriction, including 
+# without limitation the rights to use, copy, modify, merge, publish, 
+# distribute, sublicense, and/or sell copies of the Software, and to 
+# permit persons to whom the Software is furnished to do so, subject to 
+# the following conditions:
+# 
+# * The above copyright notice and this permission notice shall be 
+# 	included in all copies or substantial portions of the Software.
+# 
+# * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, 
+# 	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+# 	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+#	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+#	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+#	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+#	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#                                 
+
+extends Node2D;
+
+
+func spawn_sonar_ping_effect(in_pos : Vector2, in_distance : float, in_caption: String=\"\"):
+    $hud.spawn_sonar_ping_effect(in_pos,in_distance,in_caption);
+    return;
+    
+#---------------------------------------------------------------------------------------------------
+
+func set_elec_display(elec:float):
+    $hud.set_elec(elec);
+    return;
+
+#---------------------------------------------------------------------------------------------------
+
+func set_o2_display(o2:float):
+    $hud.set_o2(o2);
+    return;
+
+#---------------------------------------------------------------------------------------------------
+
+func set_depth_display(depth:float):
+    $hud.set_depth(depth);
+    return;
+
+#---------------------------------------------------------------------------------------------------
+
+func set_distance_from_shore_display(distance:float):
+    $hud.set_distance_from_shore(distance);
+    return;
+
+#---------------------------------------------------------------------------------------------------
+
+func _ready():
+    set_process(true);
+    return;
+
+#--------------------------------------------------------------------
+
+func _process(delta):
+    return;
+"
 
 [sub_resource type="VisualShaderNodeScalarOp" id=9]
 default_input_values = [ 0, 0.0, 1, 0.0315497 ]
@@ -294,14 +368,14 @@ extends ViewportContainer
 #---------------------------------------------------------------------------------------------------
 
 func _ready():
-	set_process(true);
-	return;
+    set_process(true);
+    return;
 
 #---------------------------------------------------------------------------------------------------
 
 func _process(_ignore):
-	material.set(\"shader_param/sub_depth\", $Viewport/gameplay/kinbody_SUBMARINE.translation.y);
-	return;
+    material.set(\"shader_param/sub_depth\", $Viewport/gameplay/kinbody_SUBMARINE.translation.y);
+    return;
 "
 
 [sub_resource type="GDScript" id=2]
@@ -444,7 +518,6 @@ func adjust_sun_by_sub_depth():
     tmp.b = smoothstep(.09,1.0,tmp.b);
     $WorldEnvironment.environment.fog_color = FOG_COLOUR * tmp;
     
-    $HUD.SUB_MAX_DEPTH = -750.0;
     
     return;
 
@@ -461,15 +534,17 @@ func _process(delta):
     
     adjust_sun_by_sub_depth();
     
-    $HUD.SUB_DEPTH = $kinbody_SUBMARINE.translation.y / 2.0;
+    
+    get_tree().get_current_scene().set_distance_from_shore_display(-$kinbody_SUBMARINE.translation.z + MIN_X);
+    
+    get_tree().get_current_scene().set_depth_display($kinbody_SUBMARINE.translation.y / -2.0);
+    #$HUD.SUB_DEPTH = $kinbody_SUBMARINE.translation.y / 2.0;
     
     # did the current song end?  start a new one.
     if (Global.is_bgm_done()):
         print(\"tryna play next song\");
         Global.set_bgm(int(rand_range(1,IN_GAME_SONG_MAX_INDEX + 0.5)), false); 
-
-    
-    
+   
     return;
 
 #----------------------------------------------------------------------------
@@ -629,7 +704,7 @@ func _process(time_elapsed):
     
     if (sonar_charge_counter == 0):
         $\"..\".on_sonar(); 
-        $\"../HUD\".spawn_sonar_ping_effect($\"../Camera\".unproject_position(self.translation),0.00000);
+        get_tree().get_current_scene().spawn_sonar_ping_effect($\"../Camera\".unproject_position(self.translation),0.00000);
         snd_sonar_fire.play();
 
     #== handle sonar key/btn =================================================
@@ -670,8 +745,8 @@ func _process(time_elapsed):
         curr_o2 = Global.SUBMARINE_MAX_O2;
 
     #== update hud ============================================================
-    $\"../HUD\".BATT_PERCENT = (curr_electricity / Global.SUBMARINE_MAX_ELECTRICITY) * 100.0;
-    $\"../HUD\".O2_PERCENT = (curr_o2 / Global.SUBMARINE_MAX_O2) * 100.0;
+    get_tree().get_current_scene().set_elec_display((curr_electricity / Global.SUBMARINE_MAX_ELECTRICITY) * 100.0);
+    get_tree().get_current_scene().set_o2_display((curr_o2 / Global.SUBMARINE_MAX_O2) * 100.0);
     
     return;
 "
@@ -747,50 +822,6 @@ fog_depth_begin = 2.0
 fog_depth_end = 48.0
 fog_depth_curve = 1.51572
 
-[sub_resource type="GDScript" id=3]
-script/source = "# 
-#  _the terror_               
-# | |        | |              
-# | |__   ___| | _____      __
-# | '_ \\ / _ \\ |/ _ \\ \\ /\\ / /
-# | |_) |  __/ | (_) \\ V  V / 
-# |_.__/ \\___|_|\\___/ \\_/\\_/ 
-#
-# Copyright 2022 Oregon Institute of Technology
-# 
-# Permission is hereby granted, free of charge, to any person obtaining 
-# a copy of this software and associated documentation files (the 
-# \"Software\"), to deal in the Software without restriction, including 
-# without limitation the rights to use, copy, modify, merge, publish, 
-# distribute, sublicense, and/or sell copies of the Software, and to 
-# permit persons to whom the Software is furnished to do so, subject to 
-# the following conditions:
-# 
-# * The above copyright notice and this permission notice shall be 
-# 	included in all copies or substantial portions of the Software.
-# 
-# * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, 
-# 	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
-# 	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
-#	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
-#	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
-#	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
-#	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#                                              
-
-extends Label
-
-func _ready():
-	if (Global.DEBUG_MODE):
-		var cmd_output = [];
-		OS.execute(\"git\",[\"rev-parse\",\"HEAD\"],true,cmd_output);
-		set_text(cmd_output[0]);
-		show();
-	else:
-		hide();
-
-"
-
 [sub_resource type="GDScript" id=4]
 script/source = "
 # 
@@ -846,7 +877,8 @@ func _process(_ignore):
         \"submarine vel: \" + str($\"../ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE\".get(\"curr_velocity\")));
 "
 
-[node name="Node2D" type="Node2D"]
+[node name="gameplay_root" type="Node2D"]
+script = SubResource( 37 )
 
 [node name="ViewportContainer" type="ViewportContainer" parent="."]
 material = SubResource( 31 )
@@ -922,8 +954,6 @@ shadow_enabled = true
 [node name="WorldEnvironment" type="WorldEnvironment" parent="ViewportContainer/Viewport/gameplay"]
 environment = SubResource( 8 )
 
-[node name="HUD" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 13 )]
-
 [node name="humpback" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 14 )]
 transform = Transform( -0.0532771, 0, 0.99858, 0, 1, 0, -0.99858, 0, -0.0532771, 5.41834, -52.9938, 17.1058 )
 
@@ -939,17 +969,10 @@ transform = Transform( -0.0847676, -0.0587562, -0.994667, -0.369747, 0.928838, -
 [node name="ocean-impostor" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 2 )]
 transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0 )
 
-[node name="debug_git" type="Label" parent="."]
-margin_left = 32.0
-margin_top = 32.0
-margin_right = 72.0
-margin_bottom = 46.0
-custom_colors/font_color = Color( 0.686275, 1, 0, 1 )
-custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
-custom_constants/shadow_as_outline = 0
-script = SubResource( 3 )
+[node name="hud" parent="." instance=ExtResource( 6 )]
 
 [node name="debug_sub" type="Label" parent="."]
+visible = false
 margin_left = 32.0
 margin_top = 96.0
 margin_right = 72.0

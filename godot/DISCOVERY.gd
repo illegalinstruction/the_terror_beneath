@@ -99,7 +99,7 @@ func init_from_json(filename : String, in_hud : Node2D, in_cam : Camera):
     HUD = in_hud;
     CAM = in_cam;
     
-    assert(HUD != null);
+    #assert(HUD != null);
     assert(CAM != null);
     
     # checks to make sure the discovery description file isn't malformed
@@ -181,7 +181,7 @@ func _process(delta):
     if (sonar_echo_timer == 0):
         # it's sonar time!
         var screen_pos = CAM.unproject_position(self.translation);
-        HUD.spawn_sonar_ping_effect(screen_pos, self.dist_in_meters, self.disc_name);
+        get_tree().get_current_scene().spawn_sonar_ping_effect(screen_pos, self.dist_in_meters, self.disc_name);
         ping_sound.position = screen_pos;
         ping_sound.play();
 

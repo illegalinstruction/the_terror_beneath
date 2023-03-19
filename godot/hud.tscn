@@ -1,0 +1,395 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://HUD/border_depth.png" type="Texture" id=1]
+[ext_resource path="res://HUD/border_surface.png" type="Texture" id=2]
+[ext_resource path="res://HUD/callouts/lower_left_joyp.png" type="Texture" id=3]
+[ext_resource path="res://HUD/callouts/lower_left_keyb.png" type="Texture" id=4]
+
+[sub_resource type="GDScript" id=36]
+script/source = "# 
+#  _the terror_               
+# | |        | |              
+# | |__   ___| | _____      __
+# | '_ \\ / _ \\ |/ _ \\ \\ /\\ / /
+# | |_) |  __/ | (_) \\ V  V / 
+# |_.__/ \\___|_|\\___/ \\_/\\_/ 
+#
+# Copyright 2022 Oregon Institute of Technology
+# 
+# Permission is hereby granted, free of charge, to any person obtaining 
+# a copy of this software and associated documentation files (the 
+# \"Software\"), to deal in the Software without restriction, including 
+# without limitation the rights to use, copy, modify, merge, publish, 
+# distribute, sublicense, and/or sell copies of the Software, and to 
+# permit persons to whom the Software is furnished to do so, subject to 
+# the following conditions:
+# 
+# * The above copyright notice and this permission notice shall be 
+# 	included in all copies or substantial portions of the Software.
+# 
+# * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, 
+# 	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+# 	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+#	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+#	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+#	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+#	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#                                 
+
+extends Node2D;
+
+var curr_depth      : float;
+var curr_elec       : float;
+var curr_o2         : float;
+var curr_distance   : float;
+
+#===============================================================================
+#-------------------------------------------------------------------------------
+# methods to control the hud from other parts of gameplay. 
+
+
+func set_depth(depth : float):
+    curr_depth = depth;
+    return;
+
+#-------------------------------------------------------------------------------
+
+func set_distance_from_shore(distance : float):
+    curr_distance = distance;
+    return;
+
+#-------------------------------------------------------------------------------
+
+func set_elec(elec_remaining : float):
+    curr_elec = elec_remaining;
+    return;
+
+#-------------------------------------------------------------------------------
+
+func set_o2(o2_remaining : float):
+    curr_o2 = o2_remaining;
+    return;
+
+#===============================================================================
+#-------------------------------------------------------------------------------
+# helper class to let the visible representation of sonar reflections manage 
+# themselves.
+
+var sonar_shock_ring_array              = [];
+const SONAR_LIFETIME_TICKS      : int   = 150;  # length anim runs (in frames) 
+var actual_sonar_array_length   : int   = 0;    # ugly workaround for a race cond
+
+class SONAR_SHOCK_RING:
+    extends Object;
+    
+    var pos         : Vector2;
+    var col         : Color = Color.white;
+    var anim_clock  : int = SONAR_LIFETIME_TICKS;
+    var parent      : Node2D;
+    var dest        : Array;
+    var distance    : float;
+    var caption     : String;
+    
+    #==========================
+    
+    func _init(in_pos: Vector2, in_distance : float, in_caption: String, in_dest: Array, in_parent:Node2D):
+        self.pos    = in_pos;
+        self.dest   = in_dest; 
+        self.parent = in_parent;
+        self.distance = in_distance;
+        self.caption = in_caption;
+        in_dest.append(self);
+        return;
+
+    #==========================
+    
+    func tick():
+        # expand over time
+        anim_clock = anim_clock - 1;
+        
+        # grow fainter over time
+        col.a =  float(anim_clock / float( SONAR_LIFETIME_TICKS));
+        
+        # are we dead/invisible now? delete ourselves
+        #if (anim_clock < 1):
+        #    dest.erase(self);
+        # moved to outer class' _draw() method - please see discord discussion
+        # for why (possible thread-safety problem)    
+
+#-------------------------------------------------------------------------------
+
+func spawn_sonar_ping_effect(in_pos : Vector2, in_distance : float, in_caption: String=\"\"):
+    var _unused: SONAR_SHOCK_RING = SONAR_SHOCK_RING.new(in_pos, 
+        in_distance, 
+        in_caption,
+        sonar_shock_ring_array,
+        self);
+
+    actual_sonar_array_length += 1;
+    
+#-------------------------------------------------------------------------------
+#== end sonar shock ring stuff =================================================
+# due to a Godot limitation, the actual drawing doesn't happen inside this class
+# but in the scene_wide 'draw()' method below.
+
+#-------------------------------------------------------------------------------
+
+# used to position the 'discovery-offscreen' arrows
+const ARROW_TIP_X       : float =   532.0;
+const ARROW_TIP_Y       : float =   252.0;
+const ARROW_SPACING_X   : float =   424.5555;
+const ARROW_SPACING_Y   : float =   192.0;
+
+const CAPTION_SPACING_X : float =   390.0;
+const CAPTION_SPACING_Y : float =   160.0;
+
+const ARROW_WIDTH       : float =   40.0;
+
+# used to render the captions
+var distance_font : DynamicFont;
+
+func _draw():
+    # --- update sonar ping waves, if any ----------------------------------
+    for index in range(0,actual_sonar_array_length):
+        
+        if ((index < actual_sonar_array_length) and (sonar_shock_ring_array[index] != null)):
+            draw_arc(sonar_shock_ring_array[index].pos,
+                (SONAR_LIFETIME_TICKS - sonar_shock_ring_array[index].anim_clock)*Global.SONAR_WAVE_SPEED,
+                0,
+                6.283185308,
+                64, 
+                sonar_shock_ring_array[index].col,
+                3.0);
+            sonar_shock_ring_array[index].tick();
+            
+            #----------------------------------------------------------------
+            # is the source of the wave off-screen?
+            if (not(get_viewport_rect().has_point(sonar_shock_ring_array[index].pos))):
+                var vp_ctr : Vector2 = get_viewport_rect().get_center();
+                
+                # determine where the line to it crosses the edge of the display
+                var slope : float = float(sonar_shock_ring_array[index].pos.y-vp_ctr.y) / float(sonar_shock_ring_array[index].pos.x-vp_ctr.x);
+                
+                # which way do we need to go from the centre?
+                var x_sign = sign(sonar_shock_ring_array[index].pos.x-vp_ctr.x);
+                var y_sign = sign(sonar_shock_ring_array[index].pos.y-vp_ctr.y);
+                
+                # which edge of the display will we hit?
+                # multiply the y portion to take into account the non-square aspect ratio                
+                var horz_or_vert : bool = (abs(sonar_shock_ring_array[index].pos.x-vp_ctr.x) > 
+                    (abs(sonar_shock_ring_array[index].pos.y-vp_ctr.y) * (get_viewport_rect().size.x/get_viewport_rect().size.y)
+                    ));
+                
+                # these are where the actual arrow will be drawn
+                var tmp_point1 : Vector2 = Vector2.ZERO;
+                var tmp_point2 : Vector2 = Vector2.ZERO;
+                var tmp_point3 : Vector2 = Vector2.ZERO;
+                
+                var tmp_points  = PoolVector2Array();
+                var tmp_cols    = PoolColorArray();
+                
+                var caption_pos : Vector2 = Vector2.ZERO;
+                
+                # calculate where the points on the arrow should be
+                if (horz_or_vert):
+                    tmp_point1.x = ARROW_TIP_X * x_sign;
+                    tmp_point1.y = tmp_point1.x * slope;
+                    
+                    tmp_point2.x = ARROW_SPACING_X * x_sign;
+                    tmp_point2.y = tmp_point2.x * slope - ARROW_WIDTH;
+                    
+                    tmp_point3.x = tmp_point2.x;
+                    tmp_point3.y = tmp_point2.x * slope + ARROW_WIDTH;
+                    
+                    caption_pos.x = CAPTION_SPACING_X * x_sign;
+                    caption_pos.y = caption_pos.x * slope;
+                else:
+                    tmp_point1.y = ARROW_TIP_Y * y_sign;
+                    tmp_point1.x = tmp_point1.y * (1.0/slope);
+                    
+                    tmp_point2.y = ARROW_SPACING_Y * y_sign;
+                    tmp_point2.x = tmp_point2.y * (1.0/slope) - ARROW_WIDTH;
+                    
+                    tmp_point3.y = tmp_point2.y;
+                    tmp_point3.x = tmp_point2.y * (1.0/slope) + ARROW_WIDTH;
+
+                    caption_pos.y = CAPTION_SPACING_Y * y_sign;
+                    caption_pos.x = caption_pos.y * (1.0/slope);
+                    
+                # adjust for the centre of the display
+                var vwprt_centre : Vector2 = get_viewport_rect().get_center(); 
+                tmp_point1.x += vwprt_centre.x;   
+                tmp_point2.x += vwprt_centre.x;   
+                tmp_point3.x += vwprt_centre.x;   
+                caption_pos.x += vwprt_centre.x;
+
+                tmp_point1.y += vwprt_centre.y;   
+                tmp_point2.y += vwprt_centre.y;   
+                tmp_point3.y += vwprt_centre.y;   
+                caption_pos.y += vwprt_centre.y;
+                                 
+                tmp_points.push_back(tmp_point1);
+                tmp_points.push_back(tmp_point2);
+                tmp_points.push_back(tmp_point3);
+                
+                tmp_cols.push_back(sonar_shock_ring_array[index].col);
+                tmp_cols.push_back(sonar_shock_ring_array[index].col);
+                tmp_cols.push_back(sonar_shock_ring_array[index].col);
+                
+                # eh, finally
+                draw_polygon(tmp_points, tmp_cols);
+                
+                # make sure the string is centred/aligned
+                var distance_pos = caption_pos;
+                
+                # handle extra long discovery names gracefully
+                var caption_str = sonar_shock_ring_array[index].caption.substr(0,12);
+                if (sonar_shock_ring_array[index].caption.length() > 12):
+                    caption_str = caption_str  + \"...\";
+                    
+# warning-ignore:unassigned_variable_op_assign
+                # it's actually set in the if block up there, Godot's just watchin' out for us a little too carefully
+                caption_pos -= (distance_font.get_string_size(caption_str) / 2.0);
+                draw_string(distance_font, caption_pos, caption_str, Color(0,0,0,sonar_shock_ring_array[index].col.a));
+                caption_pos += Vector2(2,2);
+                draw_string(distance_font, caption_pos, caption_str, sonar_shock_ring_array[index].col);
+
+                var dist_string : String =  str(int(sonar_shock_ring_array[index].distance)) + \"m\"
+                distance_pos.x -= (distance_font.get_string_size(dist_string).x / 2.0);
+                distance_pos.y += (distance_font.get_string_size(dist_string).y / 2.0);
+                draw_string(distance_font, distance_pos, dist_string, Color(0,0,0,sonar_shock_ring_array[index].col.a));
+                distance_pos += Vector2(2,2);
+                draw_string(distance_font, distance_pos, dist_string, sonar_shock_ring_array[index].col);
+
+            #-------- end special handling for off-screen discovery ----------    
+            
+            # moved from SONAR_SHOCK_RING.tick() to avoid a thread safety problem
+            if (sonar_shock_ring_array[index].anim_clock < 1):
+                actual_sonar_array_length -= 1;
+                var tmp = sonar_shock_ring_array[index];
+                sonar_shock_ring_array.remove(index);
+                tmp.free();
+
+    # --- end of 'update sonar ping waves' section ----------------------------------
+    
+    return;
+    
+#---------------------------------------------------------------------------------------------------
+
+func _ready():
+    # the distance-to-offscreen-discovery sonar typeface 
+    distance_font = DynamicFont.new(); 
+    distance_font.font_data = load(\"res://font/rangefont.otf\");
+    distance_font.size = 28;
+
+    $lbl_depth.add_font_override(\"font\",Global.ui_font);
+    $lbl_o2.add_font_override(\"font\",Global.ui_font);
+    $lbl_elec.add_font_override(\"font\",Global.ui_font);
+    $lbl_distance.add_font_override(\"font\",Global.ui_font);
+
+    if (Global.use_joystick):
+        $button_callouts_keyboard.hide();
+        $button_callouts_joypad.show();
+    else:
+        $button_callouts_keyboard.show();
+        $button_callouts_joypad.hide();
+    
+    set_process(true);
+    
+    return;
+
+#--------------------------------------------------------------------
+
+func _process(_ignore):
+    
+    $BorderSurface.modulate.a = (clamp(100.0 - curr_depth,0.0,100.0) / 100.0);
+
+    var depth_tmp : String;
+    if (curr_depth < 1):
+        depth_tmp = \"On Surface\";
+    else:
+        depth_tmp = \"Depth: %04.0f M\" % [curr_depth];    
+    $lbl_depth.set_text(depth_tmp);
+    
+    $lbl_distance.set_text(\"%05.0f M east of shore\" % [curr_distance]);
+
+    $lbl_elec.set_text(\"Battery: %03.1f %% charged\" % [curr_elec]);
+    $lbl_o2.set_text(\"Air: %03.1f %% left\" % [curr_o2]);
+    
+    update();
+    
+    return;
+"
+
+[node name="hud" type="Node2D"]
+script = SubResource( 36 )
+__meta__ = {
+"_edit_horizontal_guides_": [ 642.0 ],
+"_edit_vertical_guides_": [ 1135.0 ]
+}
+
+[node name="button_callouts_keyboard" type="Sprite" parent="."]
+position = Vector2( 76, 662 )
+scale = Vector2( 0.4, 0.4 )
+texture = ExtResource( 4 )
+centered = false
+offset = Vector2( 0, -512 )
+
+[node name="button_callouts_joypad" type="Sprite" parent="."]
+position = Vector2( 76, 662 )
+scale = Vector2( 0.4, 0.4 )
+texture = ExtResource( 3 )
+centered = false
+offset = Vector2( 0, -512 )
+
+[node name="BorderDepth" type="Sprite" parent="."]
+position = Vector2( 640, 360 )
+texture = ExtResource( 1 )
+
+[node name="BorderSurface" type="Sprite" parent="."]
+position = Vector2( 640, 360 )
+texture = ExtResource( 2 )
+
+[node name="lbl_depth" type="Label" parent="."]
+margin_left = 1112.0
+margin_top = 630.0
+margin_right = 1200.0
+margin_bottom = 644.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "XXXXm Depth"
+
+[node name="lbl_o2" type="Label" parent="."]
+margin_left = 448.0
+margin_top = 48.0
+margin_right = 588.0
+margin_bottom = 62.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "XX.YY% O2 Remaining"
+align = 2
+
+[node name="lbl_elec" type="Label" parent="."]
+margin_left = 696.0
+margin_top = 48.0
+margin_right = 882.0
+margin_bottom = 62.0
+grow_vertical = 0
+text = "XX.XX% Electricity Remaining"
+align = 2
+
+[node name="lbl_distance" type="Label" parent="."]
+margin_left = 816.0
+margin_top = 630.0
+margin_right = 938.0
+margin_bottom = 644.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "XXXXm From Shore"
+align = 2
+
+[node name="speech_bg" type="Sprite" parent="."]
+
+[node name="chara_portrait" type="Sprite" parent="."]
+
+[node name="discovery_bg" type="Sprite" parent="."]

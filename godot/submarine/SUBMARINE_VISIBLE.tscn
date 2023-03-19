@@ -70,8 +70,6 @@ func _ready():
     prop_curr_speed 	= 0.0;
     elevon_curr_angle 	= 0.0;
     $\"SUBMARINE motor sound\".volume_db = Global.get_sfx_vol_in_db();
-    #$\"SUBMARINE motor sound\".play();
-    #$\"SUBMARINE motor sound\".stream.loop_mode = 2;
     return;
 
 #-------------------------------------------------------------------------------
