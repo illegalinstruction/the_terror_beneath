@@ -1,10 +1,9 @@
-[gd_scene load_steps=19 format=2]
+[gd_scene load_steps=18 format=2]
 
 [ext_resource path="res://submarine/SUBMARINE_VISIBLE.tscn" type="PackedScene" id=1]
 [ext_resource path="res://ocean/ocean-impostor.tscn" type="PackedScene" id=2]
 [ext_resource path="res://entities/jelly_01/jelly_01.tscn" type="PackedScene" id=3]
 [ext_resource path="res://loop-texture.tres" type="Shader" id=4]
-[ext_resource path="res://HUD/surface_drip.tres" type="Texture" id=5]
 [ext_resource path="res://hud.tscn" type="PackedScene" id=6]
 [ext_resource path="res://entities/humpback/humpback.glb" type="PackedScene" id=14]
 
@@ -94,7 +93,6 @@ viewport_path = NodePath("ViewportContainer/Viewport")
 resource_local_to_scene = true
 shader = ExtResource( 4 )
 shader_param/sub_depth = -2000.0
-shader_param/tex_frg_25 = ExtResource( 5 )
 shader_param/tex_frg_22 = SubResource( 32 )
 
 [sub_resource type="GDScript" id=35]
