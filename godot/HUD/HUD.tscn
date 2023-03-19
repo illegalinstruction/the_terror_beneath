@@ -20,10 +20,6 @@ export var BATT_PERCENT : float = 0.0;
 const NEEDLE_START = -129.0; # FIXME - the whole HUD needs redoing
 const NEEDLE_END = 129.5;
 
-const SONAR_LIFETIME_TICKS : int = 150;
-
-var actual_sonar_array_length : int = 0; # Ha! Take THAT, weird threading issue.
-
 var distance_font : DynamicFont;
 
 
@@ -31,7 +27,9 @@ var distance_font : DynamicFont;
 # helper class to let the visible representation of sonar reflections manage 
 # themselves.
 
-var sonar_shock_ring_array = [];
+var sonar_shock_ring_array              = [];
+const SONAR_LIFETIME_TICKS      : int   = 150;  # length anim runs (in frames) 
+var actual_sonar_array_length   : int   = 0;    # ugly workaround for a race cond
 
 class SONAR_SHOCK_RING:
     extends Object;
@@ -84,12 +82,7 @@ func spawn_sonar_ping_effect(in_pos : Vector2, in_distance : float, in_caption: 
 #-------------------------------------------------------------------------------
 
 func _ready():
-    if (Global.use_joystick):
-        $LowerLeftKeyb.hide();
-        $LowerLeftJoyp.show();
-    else:
-        $LowerLeftKeyb.show();
-        $LowerLeftJoyp.hide();
+
     
     $DepthGaugeBase/DepthGaugeNeedle.rotation_degrees = -129.0;
 
@@ -135,7 +128,7 @@ func _process(_ignored):
     if (int(0 - SUB_DEPTH) < 1):
         depth_tmp = \"On Surface\";
     else:
-        depth_tmp = \"Depth: %04d M\" % [int(0 - SUB_DEPTH)];
+        depth_tmp = \"Depth: %04.2f M\" % [int(0 - SUB_DEPTH)];
     
     var tmp = \"O2: %.1f %% \\n Battery: %.1f %% \\n %s\" %  [O2_PERCENT, BATT_PERCENT, depth_tmp];
     $Label.set_text(tmp);
@@ -297,6 +290,7 @@ script = SubResource( 1 )
 SUB_MAX_DEPTH = -2500.0
 
 [node name="LowerLeftJoyp" type="Sprite" parent="."]
+visible = false
 show_behind_parent = true
 position = Vector2( 0, 720 )
 texture = ExtResource( 1 )
@@ -304,6 +298,7 @@ centered = false
 offset = Vector2( 0, -512 )
 
 [node name="LowerLeftKeyb" type="Sprite" parent="."]
+visible = false
 show_behind_parent = true
 position = Vector2( 0, 720 )
 texture = ExtResource( 2 )
@@ -311,15 +306,18 @@ centered = false
 offset = Vector2( 0, -512 )
 
 [node name="DepthGaugeBase" type="Sprite" parent="."]
+visible = false
 show_behind_parent = true
 position = Vector2( 1024, 464 )
 texture = ExtResource( 3 )
 
 [node name="DepthGaugeNeedle" type="Sprite" parent="DepthGaugeBase"]
+visible = false
 rotation = -2.25846
 texture = ExtResource( 4 )
 
 [node name="Label" type="Label" parent="."]
+visible = false
 show_behind_parent = true
 margin_right = 1264.0
 margin_bottom = 704.0
@@ -327,6 +325,7 @@ align = 2
 valign = 2
 
 [node name="ElecGauge" type="Sprite" parent="."]
+visible = false
 show_behind_parent = true
 position = Vector2( 1157, 236 )
 texture = ExtResource( 5 )
