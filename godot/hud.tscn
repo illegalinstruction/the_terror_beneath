@@ -379,10 +379,10 @@ text = "XX.XX% Electricity Remaining"
 align = 2
 
 [node name="lbl_distance" type="Label" parent="."]
-margin_left = 816.0
-margin_top = 630.0
-margin_right = 938.0
-margin_bottom = 644.0
+margin_left = 736.0
+margin_top = 624.0
+margin_right = 858.0
+margin_bottom = 638.0
 grow_horizontal = 0
 grow_vertical = 0
 text = "XXXXm From Shore"

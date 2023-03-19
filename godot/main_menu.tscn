@@ -50,146 +50,146 @@ var cursor_index : int = 0;
 
 #-------------------------------------------------------------------------------
 func _ready():
-	var screenwipe = load(\"res://helper_screenwipe.tscn\");
-	Global.new_scene_screenwipe_start();
-	Global.load_options_data();
-	
-	# --- load sounds
-	snd_choice 	= load(\"res://mainmenu/cursor_select.wav\");
-	snd_move 	= load(\"res://mainmenu/cursor_move.wav\");
-	$sfx_player.volume_db = Global.get_sfx_vol_in_db();
-	
-	# --- adjust backdrop
-	$background.scale.x = (get_viewport().size.x / $background.texture.get_size().x);  
-	$background.scale.y = $background.scale.x;
+    var screenwipe = load(\"res://helper_screenwipe.tscn\");
+    Global.new_scene_screenwipe_start();
+    Global.load_options_data();
+    
+    # --- load sounds
+    snd_choice 	= load(\"res://mainmenu/cursor_select.wav\");
+    snd_move 	= load(\"res://mainmenu/cursor_move.wav\");
+    $sfx_player.volume_db = Global.get_sfx_vol_in_db();
+    
+    # --- adjust backdrop
+    $background.scale.x = (get_viewport().size.x / $background.texture.get_size().x);  
+    $background.scale.y = $background.scale.x;
 
-	# --- center & adjust logo/header 
-	$logo.position.x = get_viewport().size.x / 2.0;
-	$logo.position.y = get_viewport().size.y / 4.0;
-	
-	$logo.scale.x = $background.scale.x;
-	$logo.scale.y = $background.scale.x;
+    # --- center & adjust logo/header 
+    $logo.position.x = get_viewport().size.x / 2.0;
+    $logo.position.y = get_viewport().size.y / 4.0;
+    
+    $logo.scale.x = $background.scale.x;
+    $logo.scale.y = $background.scale.x;
 
-	# --- populate menu items
-	menu_items.append(Label.new());
-	menu_items.back().text = \"New Game\";
+    # --- populate menu items
+    menu_items.append(Label.new());
+    menu_items.back().text = \"New Game\";
 
-	if (Global.GAME_SUPPORTS_SAVING):
-		menu_items.append(Label.new());
-		menu_items.back().text = \"Continue\";
+    if (Global.GAME_SUPPORTS_SAVING):
+        menu_items.append(Label.new());
+        menu_items.back().text = \"Continue\";
 
-	if (Global.GAME_SUPPORTS_HIGH_SCORES):
-		menu_items.append(Label.new());
-		menu_items.back().text = \"High Scores\";
+    if (Global.GAME_SUPPORTS_HIGH_SCORES):
+        menu_items.append(Label.new());
+        menu_items.back().text = \"High Scores\";
 
-	if (Global.GAME_SUPPORTS_TROPHIES):
-		menu_items.append(Label.new());
-		menu_items.back().text = \"Trophies\";
-		
-	menu_items.append(Label.new());
-	menu_items.back().text = \"Options\";
+    if (Global.GAME_SUPPORTS_TROPHIES):
+        menu_items.append(Label.new());
+        menu_items.back().text = \"Trophies\";
+        
+    menu_items.append(Label.new());
+    menu_items.back().text = \"Options\";
 
-	menu_items.append(Label.new()); 
-	menu_items.back().text = \"Quit\";
+    menu_items.append(Label.new()); 
+    menu_items.back().text = \"Quit\";
 
-	# --- add them to screen
-	for i in range( 0, menu_items.size()):
-		menu_items[i].add_font_override(\"font\",Global.ui_font);
-		
-		add_child(menu_items[i]);
-		menu_items[i].set_align(1); # centred
-		menu_items[i].rect_position.x = 0;
-		menu_items[i].rect_size.x = get_viewport().size.x;
-		menu_items[i].rect_position.y = i * menu_items[i].rect_size.y + get_viewport().size.y / 2.0;
+    # --- add them to screen
+    for i in range( 0, menu_items.size()):
+        menu_items[i].add_font_override(\"font\",Global.ui_font);
+        
+        add_child(menu_items[i]);
+        menu_items[i].set_align(1); # centred
+        menu_items[i].rect_position.x = 0;
+        menu_items[i].rect_size.x = get_viewport().size.x;
+        menu_items[i].rect_position.y = i * menu_items[i].rect_size.y + get_viewport().size.y / 2.0;
 
-	# --- add last so it's on top
-	add_child(screenwipe.instance());
-	
-	# --- start main menu music
-	Global.set_bgm(99);
-	
-	set_process(true);
-	return;
+    # --- add last so it's on top
+    add_child(screenwipe.instance());
+    
+    # --- start main menu music
+    Global.set_bgm(99);
+    
+    set_process(true);
+    return;
 
 #-------------------------------------------------------------------------------
 
 func _process(delta):
-	
-	# === HANDLE SCREEN RESIZES ================================================
-	# --- adjust cursor height
-	$cursor.scale.y = (2.0 * (get_viewport().size.x / $background.texture.get_size().x));
+    
+    # === HANDLE SCREEN RESIZES ================================================
+    # --- adjust cursor height
+    $cursor.scale.y = (2.0 * (get_viewport().size.x / $background.texture.get_size().x));
 
-	# --- adjust backdrop
-	$background.scale.x = (get_viewport().size.x / $background.texture.get_size().x);  
-	$background.scale.y = $background.scale.x;
+    # --- adjust backdrop
+    $background.scale.x = (get_viewport().size.x / $background.texture.get_size().x);  
+    $background.scale.y = $background.scale.x;
 
-	# --- center & adjust logo/header 
-	$logo.position.x = get_viewport().size.x / 2.0;
-	$logo.position.y = get_viewport().size.y / 4.0;
-	
-	$logo.scale.x = $background.scale.x;
-	$logo.scale.y = $background.scale.x;	
+    # --- center & adjust logo/header 
+    $logo.position.x = get_viewport().size.x / 2.0;
+    $logo.position.y = get_viewport().size.y / 4.0;
+    
+    $logo.scale.x = $background.scale.x;
+    $logo.scale.y = $background.scale.x;	
 
-	# --- adjust menu items
-	for i in range( 0, menu_items.size()):
-		menu_items[i].set_align(1); # centred
-		menu_items[i].rect_position.x = 0;
-		menu_items[i].rect_size.x = get_viewport().size.x;
-		menu_items[i].rect_position.y = (i * Global.ui_font.get_height()) + get_viewport().size.y / 2.0;
-	
-	# === HANDLE KEY INPUT =====================================================
-	# -------------- UP
-	if (Global._menu_up == Global.BUTTON_STATE.PRESSED):
-		cursor_index -= 1;
-		
-		if (cursor_index < 0):
-			cursor_index = menu_items.size() - 1;
-			
-		$sfx_player.stop();
-		$sfx_player.stream = snd_move;		
-		$sfx_player.play();
-	
-	# ------------	DOWN	
-	if (Global._menu_down == Global.BUTTON_STATE.PRESSED):
-		cursor_index += 1;
-		
-		if (cursor_index > (menu_items.size()-1)):
-			cursor_index = 0;
-			
-		$sfx_player.stop();
-		$sfx_player.stream = snd_move;
-		$sfx_player.play();
+    # --- adjust menu items
+    for i in range( 0, menu_items.size()):
+        menu_items[i].set_align(1); # centred
+        menu_items[i].rect_position.x = 0;
+        menu_items[i].rect_size.x = get_viewport().size.x;
+        menu_items[i].rect_position.y = (i * Global.ui_font.get_height()) + get_viewport().size.y / 2.0;
+    
+    # === HANDLE KEY INPUT =====================================================
+    # -------------- UP
+    if (Global._menu_up == Global.BUTTON_STATE.PRESSED):
+        cursor_index -= 1;
+        
+        if (cursor_index < 0):
+            cursor_index = menu_items.size() - 1;
+            
+        $sfx_player.stop();
+        $sfx_player.stream = snd_move;		
+        $sfx_player.play();
+    
+    # ------------	DOWN	
+    if (Global._menu_down == Global.BUTTON_STATE.PRESSED):
+        cursor_index += 1;
+        
+        if (cursor_index > (menu_items.size()-1)):
+            cursor_index = 0;
+            
+        $sfx_player.stop();
+        $sfx_player.stream = snd_move;
+        $sfx_player.play();
 
-	# ------------	START, A, or ENTER	
-	if ((Global._menu_accept == Global.BUTTON_STATE.PRESSED)):
-		$sfx_player.stop();
-		$sfx_player.stream = snd_choice;
-		$sfx_player.play();
+    # ------------	START, A, or ENTER	
+    if ((Global._menu_accept == Global.BUTTON_STATE.PRESSED)):
+        $sfx_player.stop();
+        $sfx_player.stream = snd_choice;
+        $sfx_player.play();
 
-		# this is kind of a janky way of handling this
-		# and makes translation into other langs harder than
-		# it needs to be - FIXME
-		if (menu_items[cursor_index].get_text() == \"Quit\"):
-			Global.change_scene_to(null);
-			Global.set_bgm(0);
-		if (menu_items[cursor_index].get_text() == \"Options\"):
-			Global.change_scene_to(load(\"res://options_menu.tscn\"));
-		if (menu_items[cursor_index].get_text() == \"Trophies\"):
-			Global.change_scene_to(load(\"res://trophies.tscn\"));
-		if (menu_items[cursor_index].get_text() == \"Continue\"):
-			Global.change_scene_to(load(\"res://savegames.tscn\"));
-		if (menu_items[cursor_index].get_text() == \"High Scores\"):
-			Global.change_scene_to(load(\"res://high_scores.tscn\"));
-		if (menu_items[cursor_index].get_text() == \"New Game\"):
-			Global.change_scene_to(load(\"res://gameplay.tscn\"));
+        # this is kind of a janky way of handling this
+        # and makes translation into other langs harder than
+        # it needs to be - FIXME
+        if (menu_items[cursor_index].get_text() == \"Quit\"):
+            Global.change_scene_to(null);
+            Global.set_bgm(0);
+        if (menu_items[cursor_index].get_text() == \"Options\"):
+            Global.change_scene_to(load(\"res://options_menu.tscn\"));
+        if (menu_items[cursor_index].get_text() == \"Trophies\"):
+            Global.change_scene_to(load(\"res://trophies.tscn\"));
+        if (menu_items[cursor_index].get_text() == \"Continue\"):
+            Global.change_scene_to(load(\"res://savegames.tscn\"));
+        if (menu_items[cursor_index].get_text() == \"High Scores\"):
+            Global.change_scene_to(load(\"res://high_scores.tscn\"));
+        if (menu_items[cursor_index].get_text() == \"New Game\"):
+            Global.change_scene_to(load(\"res://gameplay.tscn\"));
 
-		
-	# --- adjust cursor
-	$cursor.position.x = get_viewport().size.x / 2.0;	# horz center
-	$cursor.position.y = menu_items[0].rect_position.y + ((cursor_index + 0.5) * Global.ui_font.get_height());
-	
-	
-	return;
+        
+    # --- adjust cursor
+    $cursor.position.x = get_viewport().size.x / 2.0;	# horz center
+    $cursor.position.y = menu_items[0].rect_position.y + ((cursor_index + 0.5) * Global.ui_font.get_height());
+    
+    
+    return;
 "
 
 [sub_resource type="CanvasItemMaterial" id=2]
