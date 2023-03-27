@@ -1,10 +1,12 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=22 format=2]
 
 [ext_resource path="res://submarine/SUBMARINE_VISIBLE.tscn" type="PackedScene" id=1]
 [ext_resource path="res://ocean/ocean-impostor.tscn" type="PackedScene" id=2]
 [ext_resource path="res://entities/jelly_01/jelly_01.tscn" type="PackedScene" id=3]
-[ext_resource path="res://loop-texture.tres" type="Shader" id=4]
+[ext_resource path="res://SHDR_gameplay_viewport_container.tres" type="Shader" id=4]
+[ext_resource path="res://pausemenu/background.png" type="Texture" id=5]
 [ext_resource path="res://hud.tscn" type="PackedScene" id=6]
+[ext_resource path="res://pausemenu/cursor.png" type="Texture" id=7]
 [ext_resource path="res://entities/humpback/humpback.glb" type="PackedScene" id=14]
 
 [sub_resource type="GDScript" id=37]
@@ -40,6 +42,9 @@ script/source = "#
 
 extends Node2D;
 
+var paused : bool;
+var escape_pressed : int = 0; # special handling for the escape and enter keys in the pause menu
+
 
 func spawn_sonar_ping_effect(in_pos : Vector2, in_distance : float, in_caption: String=\"\"):
     $hud.spawn_sonar_ping_effect(in_pos,in_distance,in_caption);
@@ -51,10 +56,6 @@ func set_elec_display(elec:float):
     $hud.set_elec(elec);
     return;
     
-#---------------------------------------------------------------------------------------------------
-    
-func spawn_surfacing_effect():
-    $ViewportContainer.spawn_surfacing_effect();    
 
 #---------------------------------------------------------------------------------------------------
 
@@ -78,22 +79,60 @@ func set_distance_from_shore_display(distance:float):
 
 func _ready():
     set_process(true);
+    paused = false;
+    $pause_menu.hide();
+    $pause_darkener.hide();
     return;
 
 #--------------------------------------------------------------------
 
+func notify_unpaused():
+    $pause_darkener.hide();
+    $pause_menu.hide();
+    paused = false;
+
+#--------------------------------------------------------------------
+
+func quit_and_return_to_main_menu():
+    print_debug(\"here 1.\")
+    Global.change_scene_to(load(\"res://main_menu.tscn\"));
+    paused = false;
+
+#--------------------------------------------------------------------
+
 func _process(delta):
+    # check if the start button was pressed last frame
+    # if yes, toggle pause mode
+    if (Input.is_key_pressed(KEY_ESCAPE)):
+        self.escape_pressed += 1;
+    else:
+        self.escape_pressed = 0;
+
+    if ((Global._button_start == Global.BUTTON_STATE.PRESSED) and (Global.use_joystick)) or (escape_pressed == 1):
+        paused = not paused;
+
+        # did we just pause? if yes, dim the display,
+        # halve the music volume, and show a menu
+        if (paused):
+            $pause_darkener.show();
+            $pause_menu.show();
+            $pause_menu.reset();
+        else:
+            $pause_darkener.hide();
+            $pause_menu.hide();
+            Global.save_options_data(); 
+
     return;
 "
 
-[sub_resource type="ViewportTexture" id=32]
+[sub_resource type="ViewportTexture" id=38]
 viewport_path = NodePath("ViewportContainer/Viewport")
 
 [sub_resource type="ShaderMaterial" id=31]
 resource_local_to_scene = true
 shader = ExtResource( 4 )
-shader_param/sub_depth = -2000.0
-shader_param/tex_frg_22 = SubResource( 32 )
+shader_param/sub_depth = 0.0
+shader_param/tex_frg_27 = SubResource( 38 )
 
 [sub_resource type="GDScript" id=35]
 script/source = "# 
@@ -134,16 +173,6 @@ var drip_tex : AnimatedTexture = null;
 
 func _ready():
     set_process(true);
-    drip_tex = load(\"res://HUD/surface_drip.tres\");
-    material.set(\"shader_param/tex_frg_25\", drip_tex);
-    return;
-
-#---------------------------------------------------------------------------------------------------
-
-
-
-func spawn_surfacing_effect():
-    drip_tex.set_current_frame(0);
     return;
 
 #---------------------------------------------------------------------------------------------------
@@ -299,6 +328,8 @@ func adjust_sun_by_sub_depth():
 #----------------------------------------------------------------------------
 
 func _process(delta):
+    if (get_tree().get_current_scene().paused):
+        return;
 
     # move the ocean imposter alongside the ship
     $\"ocean-impostor\".translation.z = $kinbody_SUBMARINE.translation.z;
@@ -411,6 +442,10 @@ func _ready():
 #----------------------------------------------------------------------------
 
 func _process(time_elapsed):
+    #== handle the game being paused ==========================================
+    if (get_tree().get_current_scene().paused):
+        return;
+
     #== respond to input ======================================================
     if (Global._left_stick_distance >= Global.ANALOGUE_DEAD_ZONE):
         # do we have charge to run the motor?
@@ -458,10 +493,6 @@ func _process(time_elapsed):
 
     # drag
     curr_velocity *= Global.SUBMARINE_DRAG_MULT_FACTOR;
-    
-    # VERY near the surface?
-    if (curr_velocity.y > translation.y):
-        get_tree().get_current_scene().spawn_surfacing_effect();
     
     # let the physics run
     # warning-ignore:return_value_discarded
@@ -661,11 +692,180 @@ func _ready():
 func _process(_ignore):
     self.set_text(\"input: left stick  deflection:\" + str(Global._left_stick_distance) + \" angle:\" + str(rad2deg(Global._left_stick_angle)) + 
         \"\\n  A: \" + str(Global._button_a) + \"  B: \" + str(Global._button_b)+ \"  X: \" + str(Global._button_x)+ \"  Y: \" + str(Global._button_y) + 
+        \"\\n  START: \" + str(Global._button_start) + \"  SELECT: \" + str(Global._button_select) + 
         \"\\n use joypad? \" + str(Global.use_joystick) + \"\\n \" +
+        \"should I be paused right now: \" + str(get_tree().get_current_scene().paused) + \"\\n\" +
         \"submarine angle: \" + str($\"../ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE\".rotation_degrees.y) + \"\\n\" +
         \"submarine pos: \" + str($\"../ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE\".translation) + \"\\n\" +
         \"submarine vel: \" + str($\"../ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE\".get(\"curr_velocity\")));
 "
+
+[sub_resource type="GDScript" id=39]
+script/source = "# 
+#  _the terror_               
+# | |        | |              
+# | |__   ___| | _____      __
+# | '_ \\ / _ \\ |/ _ \\ \\ /\\ / /
+# | |_) |  __/ | (_) \\ V  V / 
+# |_.__/ \\___|_|\\___/ \\_/\\_/ 
+#
+# Copyright 2022 Oregon Institute of Technology
+# 
+# Permission is hereby granted, free of charge, to any person obtaining 
+# a copy of this software and associated documentation files (the 
+# \"Software\"), to deal in the Software without restriction, including 
+# without limitation the rights to use, copy, modify, merge, publish, 
+# distribute, sublicense, and/or sell copies of the Software, and to 
+# permit persons to whom the Software is furnished to do so, subject to 
+# the following conditions:
+# 
+# * The above copyright notice and this permission notice shall be 
+# 	included in all copies or substantial portions of the Software.
+# 
+# * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, 
+# 	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+# 	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+#	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+#	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+#	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+#	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# 
+
+extends Node2D
+
+#-------------------------------------------------------------------------------
+# sound effects
+var snd_move   : AudioStreamSample;
+var snd_choice : AudioStreamSample;
+var anim_clock : int = 0;
+
+#-------------------------------------------------------------------------------
+# cursor position & menu items
+var menu_items = [];
+var cursor_index : int = 0;
+
+enum PAUSE_MENU_ITEMS {
+    SOUND_VOL,
+    MUSIC_VOL,
+    FULLSCREEN,
+    RETURN_TO_GAME,
+    QUIT
+};
+
+#-------------------------------------------------------------------------------
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+    # --- load sounds
+    snd_choice 	= load(\"res://mainmenu/cursor_select.wav\");
+    snd_move 	= load(\"res://mainmenu/cursor_move.wav\");
+    $sfx_player.volume_db = Global.get_sfx_vol_in_db();    
+    
+    # --- construct menu ui
+    menu_items.append(Label.new());
+    menu_items.back().text = (\"Sound volume: \" + str(Global.sfx_vol));
+
+    menu_items.append(Label.new());
+    menu_items.back().text = (\"Music volume: \" + str(Global.music_vol));
+
+    menu_items.append(Label.new());
+    menu_items.back().text = (\"Fullscreen: \" + str(Global.fullscreen)); 
+
+    menu_items.append(Label.new());
+    menu_items.back().text = (\"Return To Game\"); 
+    
+    menu_items.append(Label.new());
+    menu_items.back().text = (\"Save & Quit\");
+
+    for i in range( 0, menu_items.size()):
+        menu_items[i].add_font_override(\"font\", Global.ui_font);
+        
+        add_child(menu_items[i]);
+        menu_items[i].set_align(1); # centred
+        menu_items[i].rect_position.x = 480;
+        menu_items[i].rect_position.y = i * menu_items[i].rect_size.y + 180;
+
+    # --- reset cursor
+
+    set_process(true);
+    return;
+
+#-------------------------------------------------------------------------------
+# move the cursor back to where it should start
+func reset():
+    cursor_index = PAUSE_MENU_ITEMS.RETURN_TO_GAME;
+
+#-------------------------------------------------------------------------------
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+    if (not visible):
+        return;
+    # animate and move cursor
+    anim_clock += 1;
+    $cursor.modulate = Color(1.0,1.0,1.0,(sin(anim_clock/40.0) * 0.3)+0.65);
+    
+    $cursor.position.y = menu_items[0].rect_position.y + ((cursor_index + 0.5) * Global.ui_font.get_height());
+    
+    # === HANDLE KEY INPUT =====================================================
+    # -------------- UP
+    if (Global._menu_up == Global.BUTTON_STATE.PRESSED):
+        cursor_index -= 1;
+        
+        if (cursor_index < 0):
+            cursor_index = menu_items.size() - 1;
+            
+        $sfx_player.stop();
+        $sfx_player.stream = snd_move;		
+        $sfx_player.play();
+    
+    # ------------	DOWN	
+    if (Global._menu_down == Global.BUTTON_STATE.PRESSED):
+        cursor_index += 1;
+        
+        if (cursor_index > (menu_items.size()-1)):
+            cursor_index = 0;
+            
+        $sfx_player.stop();
+        $sfx_player.stream = snd_move;
+        $sfx_player.play();
+
+    # ------------	START, A, SPACE, or ENTER	    
+    if ((Global._menu_accept == Global.BUTTON_STATE.PRESSED)):
+        $sfx_player.stop();
+        $sfx_player.stream = snd_choice;
+        $sfx_player.play();
+
+        if (cursor_index == PAUSE_MENU_ITEMS.SOUND_VOL):
+            Global.sfx_vol += 1;
+            if (Global.sfx_vol > Global.MAX_VOLUME):
+                Global.sfx_vol = 0;
+            $sfx_player.volume_db = Global.get_sfx_vol_in_db();
+            menu_items[cursor_index].text = (\"Sound volume: \" + str(Global.sfx_vol));
+
+        if (cursor_index == PAUSE_MENU_ITEMS.MUSIC_VOL):
+            Global.music_vol += 1;
+            if (Global.music_vol > Global.MAX_VOLUME):
+                Global.music_vol = 0;
+            menu_items[cursor_index].text = (\"Music volume: \" + str(Global.music_vol));
+
+        if (cursor_index == PAUSE_MENU_ITEMS.FULLSCREEN):
+            Global.fullscreen = (not Global.fullscreen);
+            menu_items[cursor_index].text = (\"Use fullscreen? \" + str(Global.fullscreen));
+            OS.window_fullscreen = Global.fullscreen;
+
+        if (cursor_index == PAUSE_MENU_ITEMS.RETURN_TO_GAME):
+           Global.save_options_data(); 
+           get_tree().get_current_scene().notify_unpaused();
+
+        if (cursor_index == PAUSE_MENU_ITEMS.QUIT):
+           get_tree().get_current_scene().quit_and_return_to_main_menu();
+
+    return;
+"
+
+[sub_resource type="CanvasItemMaterial" id=40]
+blend_mode = 1
 
 [node name="gameplay_root" type="Node2D"]
 script = SubResource( 37 )
@@ -761,8 +961,12 @@ transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0
 
 [node name="hud" parent="." instance=ExtResource( 6 )]
 
+[node name="pause_darkener" type="ColorRect" parent="."]
+margin_right = 1280.0
+margin_bottom = 720.0
+color = Color( 0, 0, 0, 0.752941 )
+
 [node name="debug_sub" type="Label" parent="."]
-visible = false
 margin_left = 32.0
 margin_top = 96.0
 margin_right = 72.0
@@ -771,3 +975,18 @@ custom_colors/font_color = Color( 1, 0.498039, 0, 1 )
 custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
 custom_constants/shadow_as_outline = 0
 script = SubResource( 4 )
+
+[node name="pause_menu" type="Node2D" parent="."]
+script = SubResource( 39 )
+
+[node name="menu_bg" type="Sprite" parent="pause_menu"]
+position = Vector2( 640, 360 )
+texture = ExtResource( 5 )
+
+[node name="cursor" type="Sprite" parent="pause_menu"]
+modulate = Color( 0.721569, 0.541176, 0.384314, 1 )
+material = SubResource( 40 )
+position = Vector2( 640, 360 )
+texture = ExtResource( 7 )
+
+[node name="sfx_player" type="AudioStreamPlayer2D" parent="pause_menu"]

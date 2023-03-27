@@ -173,7 +173,9 @@ func on_photographed():
 #--------------------------------------------------------------------------------------------------
 
 func _process(delta):
-       
+    #if (get_tree().get_current_scene().paused):
+    #    return;
+               
     # handle sonar pings
     if (sonar_echo_timer > -1):
         sonar_echo_timer = sonar_echo_timer - 1;
@@ -186,6 +188,8 @@ func _process(delta):
         ping_sound.play();
 
     if (can_move):
-        move_and_collide(self.velocity); # should we do this here, or should the child scene we load into self.visual do it?
+        if (visual.has_method("game_logic")):
+            visual.game_logic();
+        move_and_collide(self.velocity); 
         
     return;
