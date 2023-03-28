@@ -1,0 +1,23 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/volc_loop.wav-5e5d702ded010fb862a79295e8e6196d.sample"
+
+[deps]
+
+source_file="res://entities/underwater_volc/volc_loop.wav"
+dest_files=[ "res://.import/volc_loop.wav-5e5d702ded010fb862a79295e8e6196d.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0
