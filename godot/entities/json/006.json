@@ -1,0 +1,8 @@
+{   
+	"visual": "res://entities/comb_jelly/comb_jelly.tscn",    
+    "portrait": "res://portraits/comb.jpg",
+    "disc_name": "Comb Jelly (Mnemiopsis leidyi)",
+    "flavour_text": "The American Atlantic Comb Jelly is one of several species of stingless ctenophore. This small animal propels itself through the water by moving rows of combs inside its body in sequence. The combs are iridescent, giving them a rainbow appearance.",
+    "can_move": "1",
+    "id":"6"
+}

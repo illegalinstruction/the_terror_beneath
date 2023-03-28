@@ -1,0 +1,8 @@
+{   
+	"visual": "res://entities/mag_anomaly/mag_anomaly.tscn",    
+    "portrait": "res://portraits/mag_anomaly.jpg",
+    "disc_name": "Magnetic Anomaly",
+    "flavour_text": "Curiously, the ferrous rocks on the seafloor here appear to have their magnetic polarity reversed. Why?",
+    "can_move": "0",
+    "id":"3"
+}

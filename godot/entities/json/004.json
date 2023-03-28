@@ -1,0 +1,8 @@
+{   
+	"visual": "res://entities/volcano/volcano.tscn",    
+    "portrait": "res://portraits/volcano.jpg",
+    "disc_name": "Undersea Volcanic Vent",
+    "flavour_text": "It almost looks as if the earth's crust is pulling apart down here... Maybe Snider-Pellegrini is onto something after all.",
+    "can_move": "0",
+    "id":"4"
+}

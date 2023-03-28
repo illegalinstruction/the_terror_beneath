@@ -1,0 +1,8 @@
+{   
+	"visual": "res://entities/humpback/humpback.tscn",    
+    "portrait": "res://portraits/humpback_discovery.jpg",
+    "disc_name": "Humpback Whale (Megaptera novaeangliae)",
+    "flavour_text": "These baleen whales have a worldwide range and are commonly found in the Atlantic everywhere from the Arctic Circle down to spawning grounds near the Carribean Islands. Their large pectoral fins are nearly one-third the length of their body.",
+    "can_move": "1",
+    "id":"2"
+}

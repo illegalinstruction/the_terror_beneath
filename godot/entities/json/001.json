@@ -1,5 +1,8 @@
-{  "visual": "res://entities/placeholder_discovery/placeholder_discovery.tscn",    
+{   
+	"visual": "res://entities/placeholder_discovery/placeholder_discovery.tscn",    
     "portrait": "res://portraits/placeholder_discovery.jpg",
     "disc_name": "Placeholder Discovery (Archaeobacter Cubus Giganticus)",
     "flavour_text": "we\'ve got an awful lot to bake, each pony needs a piece of cake",
-    "can_move": "0"}
+    "can_move": "0",
+    "id":"0"
+}

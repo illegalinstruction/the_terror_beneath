@@ -1,0 +1,8 @@
+{   
+	"visual": "res://entities/moon_jelly/moon_jelly.tscn",    
+    "portrait": "res://portraits/moon.jpg",
+    "disc_name": "Moon Jelly (Aurelia aurita)",
+    "flavour_text": "Pulsating gently in the waves with an almost otherworldly grace, this jellyfish species is named for the half-moon-like appearance of its bell.  It forms an important part of the food chain, feeding sea turtles and sunfish.",
+    "can_move": "1",
+    "id":"5"
+}
