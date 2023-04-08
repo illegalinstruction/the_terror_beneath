@@ -229,7 +229,7 @@ func poll_joystick():
 
     if (Input.is_joy_button_pressed(0, JOY_SELECT) or (Input.is_key_pressed(KEY_ESCAPE)) ):
         _menu_cancel = _menu_cancel + 1;
-        _menu_cancel = int(clamp(_menu_accept,0,2.0));
+        _menu_cancel = int(clamp(_menu_cancel,0,2.0));
     else:
         _menu_cancel = BUTTON_STATE.IDLE;	
     
