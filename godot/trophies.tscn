@@ -1,6 +1,30 @@
-[gd_scene format=2]
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://trophies.gd" type="Script" id=1]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends Label
+
+
+# Declare member variables here. Examples:
+# var a = 2
+# var b = \"text\"
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+    set_process(true);
+    pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+    text = \"I'm discovery \" + str($\"../../cursor_index\");
+    pass
+"
 
 [node name="trophies_root" type="Node2D"]
+script = ExtResource( 1 )
 
 [node name="Label" type="Label" parent="."]
 margin_left = 79.0
@@ -8,3 +32,30 @@ margin_top = 120.0
 margin_right = 317.0
 margin_bottom = 134.0
 text = "Discoveries/trophy room placeholder"
+
+[node name="drill_down_root" type="Node2D" parent="."]
+
+[node name="Viewport" type="Viewport" parent="drill_down_root"]
+size = Vector2( 800, 720 )
+transparent_bg = true
+handle_input_locally = false
+render_target_update_mode = 3
+
+[node name="mesh_holder" type="Spatial" parent="drill_down_root/Viewport"]
+
+[node name="DirectionalLight" type="DirectionalLight" parent="drill_down_root/Viewport/mesh_holder"]
+
+[node name="Camera" type="Camera" parent="drill_down_root/Viewport/mesh_holder"]
+
+[node name="ColorRect" type="ColorRect" parent="drill_down_root"]
+margin_right = 40.0
+margin_bottom = 40.0
+color = Color( 0.215686, 0.294118, 0.803922, 1 )
+
+[node name="placeholder" type="Label" parent="drill_down_root"]
+margin_right = 116.0
+margin_bottom = 14.0
+text = "drilldown is active"
+script = SubResource( 1 )
+
+[node name="sfx_player" type="AudioStreamPlayer" parent="."]
