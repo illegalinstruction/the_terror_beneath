@@ -1,0 +1,10 @@
+[gd_scene format=2]
+
+[node name="trophies_root" type="Node2D"]
+
+[node name="Label" type="Label" parent="."]
+margin_left = 79.0
+margin_top = 120.0
+margin_right = 317.0
+margin_bottom = 134.0
+text = "Discoveries/trophy room placeholder"
