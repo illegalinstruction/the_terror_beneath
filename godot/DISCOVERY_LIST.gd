@@ -72,7 +72,7 @@ func get_dir_contents(rootPath: String) -> Array:
 
     if dir.open(rootPath) == OK:
         dir.list_dir_begin(true, false)
-        _add_dir_contents(dir, files, directories)
+ #       _add_dir_contents(dir, files, directories)
     else:
         push_error("An error occurred when trying to access the path.")
 
@@ -84,7 +84,7 @@ func populate_list():
     
     for filename in file_list[0]:
         print_debug(filename);
-        if (filename.ends_with(".json"):
+        if (filename.ends_with(".json")):
             var tmp = Discovery.new();
             tmp.init_from_json(filename, null, null);
             
