@@ -100,7 +100,10 @@ func _process(delta):
     
     # echo effect done playing - destroy ourselves
     if (sonar_echo_timer < 0) and (not ping_sound.playing):
+        remove_child(ping_sound);
+        ping_sound.queue_free();
         get_parent().remove_child(self);
+        queue_free();
 
     return;
 #---------------------------------------------------------------------------
