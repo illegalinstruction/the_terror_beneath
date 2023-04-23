@@ -117,6 +117,7 @@ func _process(delta):
             $pause_darkener.show();
             $pause_menu.show();
             $pause_menu.reset();
+            print_stray_nodes(); # trying to debug the sonar
         else:
             $pause_darkener.hide();
             $pause_menu.hide();
@@ -276,11 +277,12 @@ func _ready():
 #----------------------------------------------------------------------------
 
 func on_sonar():
-    # to do - make discoveries an array and iterate through them
-    test_disc.on_sonar($kinbody_SUBMARINE.translation);
-    test_disc2.on_sonar($kinbody_SUBMARINE.translation);
-    test_disc3.on_sonar($kinbody_SUBMARINE.translation);
-    test_disc4.on_sonar($kinbody_SUBMARINE.translation);
+    
+    var tmp = SONAR_HELPER.new();
+    tmp.translation = test_disc.translation;
+    add_child(tmp);
+    tmp.on_sonar(test_disc.disc_name,$kinbody_SUBMARINE.translation,$Camera);
+    
 
 #----------------------------------------------------------------------------
 
@@ -360,6 +362,7 @@ func _process(delta):
 #----------------------------------------------------------------------------
 
 func _on_player_died():
+    print_stray_nodes();
     var screenwipe = load(\"res://helper_screenwipe.tscn\");
     Global.change_scene_to(load(\"res://drowned.tscn\"));
     Global.new_scene_screenwipe_start();

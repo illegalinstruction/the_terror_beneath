@@ -8,6 +8,22 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "KinematicBody",
+"class": "DISCOVERY",
+"language": "GDScript",
+"path": "res://DISCOVERY.gd"
+}, {
+"base": "Spatial",
+"class": "SONAR_HELPER",
+"language": "GDScript",
+"path": "res://SONAR_HELPER.gd"
+} ]
+_global_script_class_icons={
+"DISCOVERY": "",
+"SONAR_HELPER": ""
+}
+
 [application]
 
 config/name="below"

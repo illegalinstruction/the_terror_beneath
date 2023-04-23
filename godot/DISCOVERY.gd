@@ -27,8 +27,8 @@
 #	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #                                              
 
-
 extends KinematicBody;
+class_name DISCOVERY
 
 var visual           : Spatial = null;
 var portrait         : Texture = null;
@@ -51,13 +51,8 @@ var noise_attack     : AudioStreamPlayer = null;
 var should_show_arrow: bool = false;
 var dist_in_meters   : float = 0.0;
 
-var ping_sound       : AudioStreamPlayer2D;
-
 var collision_shape  : CollisionShape = null; 
 var velocity         : Vector3 = Vector3.ZERO;
-
-var HUD                     = null; # TODO: should be typed
-var CAM                     = null;
 
 # distances from player at which we need to display an arrow pointing towards
 # ourselves when sonared 
@@ -73,15 +68,7 @@ func _init():
 #--------------------------------------------------------------------------------------------------
 
 func _ready():
-    # we need to be able to communicate directly with the HUD, so check
-    # that we can access it, and throw a tantrum if not. 
-    #self.HUD = get_tree().get_root().find_node("HUD");
-    #assert(self.HUD != null);
     set_process(true);
-    ping_sound = AudioStreamPlayer2D.new();
-    ping_sound.stream = load("res://HUD/sounds/sonar_bounce.wav");
-    ping_sound.volume_db = Global.get_sfx_vol_in_db();
-    add_child(ping_sound);
     return;
 
 #--------------------------------------------------------------------------------------------------
@@ -95,13 +82,7 @@ func init_from_json(filename : String, in_hud : Node2D, in_cam : Camera):
     
     var dict = parse_json(txt);
     assert(dict != null);
-    
-    HUD = in_hud;
-    CAM = in_cam;
-    
-    #assert(HUD != null);
-    assert(CAM != null);
-    
+
     # checks to make sure the discovery description file isn't malformed
     # if we're missing a vital field, we throw a tantrum and soft-crash.
     assert("visual" in dict);              #asset path, relative to "res://"
@@ -131,33 +112,6 @@ func init_from_json_at_pos(filename : String, x : float, y : float, in_hud : Nod
     return;
 
 #--------------------------------------------------------------------------------------------------
-# check if we're close enough to the player for the echo to hit us.
-# if yes, set a counter, wait _n_ frames, then tell the hud to draw
-# a sonar echo emanating from our location, plus our name if that's
-# appropriate.
-
-func on_sonar(player_pos : Vector3):
-    # reset this flag to its default
-    self.should_show_arrow = false;
-
-    self.dist_in_meters = sqrt(pow(self.translation.z - player_pos.z,2) + pow(self.translation.y - player_pos.y,2));
-    var my_2D_pos = CAM.unproject_position(self.translation);
-    var sub_2D_pos = CAM.unproject_position(player_pos);
-    
-    var pythag_distance : float = sqrt(pow(my_2D_pos.x - sub_2D_pos.x,2) + pow(my_2D_pos.y - sub_2D_pos.y,2));
-    if (pythag_distance > Global.MAX_SONAR_PING_DISTANCE):
-        # out of range - do nothing.
-        sonar_echo_timer = -1;
-        
-        return;
-    else:
-        # start a countdown to simulate the delay between the sound leaving
-        # the sub and the sound hitting us
-        sonar_echo_timer = (pythag_distance / Global.SONAR_WAVE_SPEED);
-        
-    return;
-
-#--------------------------------------------------------------------------------------------------
 # the first time we're within photographing range of the player, tell the HUD to
 # display our portrait and flavour text.
 func on_found():
@@ -173,20 +127,6 @@ func on_photographed():
 #--------------------------------------------------------------------------------------------------
 
 func _process(delta):
-    #if (get_tree().get_current_scene().paused):
-    #    return;
-               
-    # handle sonar pings
-    if (sonar_echo_timer > -1):
-        sonar_echo_timer = sonar_echo_timer - 1;
-    
-    if (sonar_echo_timer == 0):
-        # it's sonar time!
-        var screen_pos = CAM.unproject_position(self.translation);
-        get_tree().get_current_scene().spawn_sonar_ping_effect(screen_pos, self.dist_in_meters, self.disc_name);
-        ping_sound.position = screen_pos;
-        ping_sound.play();
-
     if (can_move):
         if (visual.has_method("game_logic")):
             visual.game_logic();
