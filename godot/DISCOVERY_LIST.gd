@@ -34,6 +34,14 @@
 
 extends Node2D;
 
+
+var sonar_bounce : AudioStream = null;
+
+#-----------------------------------------------------------------------
+func _ready():
+    sonar_bounce = load("res://HUD/sounds/sonar_bounce.wav");
+    return;
+
 # the actual list (of dictionaries, containing all the stuff in the json)
 # should be treated as module-private
 var priv_disc_list = [];
@@ -60,34 +68,4 @@ func get_entry(index : int):
         return null;
         
     return priv_disc_list[index];
-    
-    
-#-----------------------------------------------------------------------
-# shamelessly stolen from 
-# https://godotengine.org/qa/5175/how-to-get-all-the-files-inside-a-folder  
-func get_dir_contents(rootPath: String) -> Array:
-    var files = []
-    var directories = []
-    var dir = Directory.new()
-
-    if dir.open(rootPath) == OK:
-        dir.list_dir_begin(true, false)
- #       _add_dir_contents(dir, files, directories)
-    else:
-        push_error("An error occurred when trying to access the path.")
-
-    return [files, directories]
-    
-#-----------------------------------------------------------------------
-func populate_list():
-    var file_list = get_dir_contents("res://entities/json");
-    
-    for filename in file_list[0]:
-        print_debug(filename);
-        if (filename.ends_with(".json")):
-            var tmp = Discovery.new();
-            tmp.init_from_json(filename, null, null);
-            
-
-    
     
