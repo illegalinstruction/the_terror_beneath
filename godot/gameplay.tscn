@@ -131,6 +131,7 @@ viewport_path = NodePath("ViewportContainer/Viewport")
 [sub_resource type="ShaderMaterial" id=31]
 resource_local_to_scene = true
 shader = ExtResource( 4 )
+shader_param/sub_dist_from_shore = null
 shader_param/sub_depth = 0.0
 shader_param/tex_frg_27 = SubResource( 38 )
 
@@ -143,7 +144,7 @@ script/source = "#
 # | |_) |  __/ | (_) \\ V  V / 
 # |_.__/ \\___|_|\\___/ \\_/\\_/ 
 #
-# Copyright 2022 Oregon Institute of Technology
+# Copyright 2022, 2023 Oregon Institute of Technology
 # 
 # Permission is hereby granted, free of charge, to any person obtaining 
 # a copy of this software and associated documentation files (the 
@@ -179,6 +180,7 @@ func _ready():
 
 func _process(_ignore):
     material.set(\"shader_param/sub_depth\", $Viewport/gameplay/kinbody_SUBMARINE.translation.y);
+    material.set(\"shader_param/sub_dist_from_shore\", -$Viewport/gameplay/kinbody_SUBMARINE.translation.z);
     return;
 "
 
@@ -191,7 +193,7 @@ script/source = "#
 # | |_) |  __/ | (_) \\ V  V / 
 # |_.__/ \\___|_|\\___/ \\_/\\_/ 
 #
-# Copyright 2022 Oregon Institute of Technology
+# Copyright 2023 Oregon Institute of Technology
 # 
 # Permission is hereby granted, free of charge, to any person obtaining 
 # a copy of this software and associated documentation files (the 
@@ -322,7 +324,6 @@ func adjust_sun_by_sub_depth():
     tmp.b = smoothstep(.09,1.0,tmp.b);
     $WorldEnvironment.environment.fog_color = FOG_COLOUR * tmp;
     
-    
     return;
 
 #----------------------------------------------------------------------------
@@ -340,6 +341,9 @@ func _process(delta):
     
     adjust_sun_by_sub_depth();
     
+    # adjust the wave position based on the sub position
+    # the 'magic number' is to reduce the effect slightly to make it look a bit more realistic
+    $\"ocean-impostor\".set_sub_dist(-$kinbody_SUBMARINE.translation.z/50.0);
     
     get_tree().get_current_scene().set_distance_from_shore_display(-$kinbody_SUBMARINE.translation.z + MIN_X);
     

@@ -1,8 +1,64 @@
-[gd_scene load_steps=38 format=2]
+[gd_scene load_steps=41 format=2]
 
 [ext_resource path="res://ocean/ocean-height.png" type="Texture" id=5]
 [ext_resource path="res://ocean/mult_gradient.png" type="Texture" id=6]
 [ext_resource path="res://ocean/ocean-normal.png" type="Texture" id=7]
+
+[sub_resource type="GDScript" id=82]
+script/source = "# 
+#  _the terror_               
+# | |        | |              
+# | |__   ___| | _____      __
+# | '_ \\ / _ \\ |/ _ \\ \\ /\\ / /
+# | |_) |  __/ | (_) \\ V  V / 
+# |_.__/ \\___|_|\\___/ \\_/\\_/ 
+#
+# Copyright 2023 Oregon Institute of Technology
+# 
+# Permission is hereby granted, free of charge, to any person obtaining 
+# a copy of this software and associated documentation files (the 
+# \"Software\"), to deal in the Software without restriction, including 
+# without limitation the rights to use, copy, modify, merge, publish, 
+# distribute, sublicense, and/or sell copies of the Software, and to 
+# permit persons to whom the Software is furnished to do so, subject to 
+# the following conditions:
+# 
+# * The above copyright notice and this permission notice shall be 
+# 	included in all copies or substantial portions of the Software.
+# 
+# * THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, 
+# 	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+# 	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+#	IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+#	CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+#	TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+#	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#                                              
+extends Spatial
+
+var sub_dist_from_shore : float;
+
+#-------------------------------------------------------------------------------
+
+func set_sub_dist(val: float):
+    sub_dist_from_shore = val;
+    return;
+
+#-------------------------------------------------------------------------------
+
+func _ready():
+    set_process(true);
+    return;
+
+#-------------------------------------------------------------------------------
+
+func _process(_ignore):
+    var mat_0 = $ocean_impostor_surface.get(\"material/0\");
+    var mat_1 = $ocean_impostor_surface.get(\"material/1\");
+    mat_0.set(\"shader_param/sub_east_pos\",sub_dist_from_shore);
+    mat_1.set(\"shader_param/sub_dist_from_shore\",sub_dist_from_shore);
+    return;
+"
 
 [sub_resource type="ArrayMesh" id=1]
 resource_name = "ocean-impostor_Plane"
@@ -47,6 +103,7 @@ render_mode cull_disabled, specular_schlick_ggx, async_visible;
 uniform sampler2D texmap_height;
 uniform sampler2D texmap_normal;
 
+uniform float sub_east_pos;
 
 
 void vertex() {
@@ -65,26 +122,23 @@ void vertex() {
 	float n_out6p1 = n_out22p0.y;
 	float n_out6p2 = n_out22p0.z;
 
-// Input:2
-	float n_out2p0 = TIME;
-
 // ScalarOp:3
 	float n_in3p1 = 0.13790;
-	float n_out3p0 = n_out2p0 * n_in3p1;
+	float n_out3p0 = TIME * n_in3p1;
 
 // ScalarOp:7
 	float n_out7p0 = n_out6p0 + n_out3p0;
 
 // ScalarOp:11
 	float n_in11p1 = 0.10250;
-	float n_out11p0 = n_out2p0 * n_in11p1;
+	float n_out11p0 = TIME * n_in11p1;
 
 // ScalarOp:12
 	float n_out12p0 = n_out6p1 + n_out11p0;
 
 // VectorCompose:8
 	float n_in8p2 = 0.00000;
-	vec3 n_out8p0 = vec3(n_out7p0, n_out12p0, n_in8p2);
+	vec3 n_out8p0 = vec3(n_out7p0 + sub_east_pos, n_out12p0, n_in8p2);
 
 // Texture:4
 	vec4 texmap_height_read = texture(texmap_height, n_out8p0.xy);
@@ -176,6 +230,7 @@ void light() {
 [sub_resource type="ShaderMaterial" id=71]
 resource_local_to_scene = true
 shader = SubResource( 70 )
+shader_param/sub_east_pos = null
 shader_param/texmap_height = ExtResource( 5 )
 shader_param/texmap_normal = ExtResource( 7 )
 
@@ -236,6 +291,11 @@ operator = 2
 [sub_resource type="VisualShaderNodeVectorOp" id=69]
 default_input_values = [ 0, Vector3( 0, 0, 0 ), 1, Vector3( 0, 1.002, 0 ) ]
 
+[sub_resource type="VisualShaderNodeScalarOp" id=80]
+
+[sub_resource type="VisualShaderNodeScalarUniform" id=81]
+uniform_name = "sub_dist_from_shore"
+
 [sub_resource type="VisualShaderNodeScalarOp" id=10]
 default_input_values = [ 0, 0.0, 1, 0.1379 ]
 operator = 2
@@ -258,6 +318,7 @@ resource_local_to_scene = true
 code = "shader_type spatial;
 render_mode blend_mul, cull_disabled, specular_schlick_ggx, async_visible;
 
+uniform float sub_dist_from_shore;
 uniform sampler2D tex_vtx_4;
 uniform sampler2D tex_vtx_9;
 uniform sampler2D tex_frg_50;
@@ -284,6 +345,12 @@ void vertex() {
 	float n_out6p1 = n_out22p0.y;
 	float n_out6p2 = n_out22p0.z;
 
+// ScalarUniform:25
+	float n_out25p0 = sub_dist_from_shore;
+
+// ScalarOp:24
+	float n_out24p0 = n_out6p0 + n_out25p0;
+
 // Input:2
 	float n_out2p0 = TIME;
 
@@ -292,7 +359,7 @@ void vertex() {
 	float n_out3p0 = n_out2p0 * n_in3p1;
 
 // ScalarOp:7
-	float n_out7p0 = n_out6p0 + n_out3p0;
+	float n_out7p0 = n_out24p0 + n_out3p0;
 
 // ScalarOp:11
 	float n_in11p1 = 0.10250;
@@ -383,7 +450,7 @@ void light() {
 
 }
 "
-graph_offset = Vector2( -2872.24, 74.7041 )
+graph_offset = Vector2( -2194.71, -462.13 )
 modes/blend = 3
 modes/cull = 2
 nodes/vertex/0/position = Vector2( 680, -80 )
@@ -431,8 +498,12 @@ nodes/vertex/22/node = SubResource( 44 )
 nodes/vertex/22/position = Vector2( -1002.51, 85.0995 )
 nodes/vertex/23/node = SubResource( 69 )
 nodes/vertex/23/position = Vector2( -1176.11, 205.403 )
-nodes/vertex/connections = PoolIntArray( 2, 0, 3, 0, 6, 0, 7, 0, 3, 0, 7, 1, 7, 0, 8, 0, 8, 0, 4, 0, 8, 0, 9, 0, 2, 0, 11, 0, 11, 0, 12, 1, 12, 0, 8, 1, 6, 1, 12, 0, 4, 0, 14, 0, 15, 0, 13, 1, 13, 0, 0, 0, 14, 0, 16, 0, 9, 0, 17, 0, 17, 2, 19, 0, 19, 0, 18, 1, 17, 0, 18, 0, 17, 1, 18, 2, 18, 0, 20, 0, 20, 0, 21, 0, 21, 0, 0, 1, 10, 0, 13, 0, 14, 0, 15, 1, 22, 0, 6, 0, 5, 0, 23, 0, 23, 0, 22, 0 )
-nodes/fragment/0/position = Vector2( 360, 1020 )
+nodes/vertex/24/node = SubResource( 80 )
+nodes/vertex/24/position = Vector2( -580, -20 )
+nodes/vertex/25/node = SubResource( 81 )
+nodes/vertex/25/position = Vector2( -1060, -120 )
+nodes/vertex/connections = PoolIntArray( 2, 0, 3, 0, 3, 0, 7, 1, 7, 0, 8, 0, 8, 0, 4, 0, 8, 0, 9, 0, 2, 0, 11, 0, 11, 0, 12, 1, 12, 0, 8, 1, 6, 1, 12, 0, 4, 0, 14, 0, 15, 0, 13, 1, 13, 0, 0, 0, 14, 0, 16, 0, 9, 0, 17, 0, 17, 2, 19, 0, 19, 0, 18, 1, 17, 0, 18, 0, 17, 1, 18, 2, 18, 0, 20, 0, 20, 0, 21, 0, 21, 0, 0, 1, 10, 0, 13, 0, 14, 0, 15, 1, 22, 0, 6, 0, 5, 0, 23, 0, 23, 0, 22, 0, 6, 0, 24, 0, 24, 0, 7, 0, 25, 0, 24, 1 )
+nodes/fragment/0/position = Vector2( 840, 820 )
 nodes/fragment/28/node = SubResource( 45 )
 nodes/fragment/28/position = Vector2( 380, 720 )
 nodes/fragment/29/node = SubResource( 46 )
@@ -446,6 +517,7 @@ nodes/fragment/connections = PoolIntArray( 28, 0, 0, 2, 29, 0, 0, 3, 28, 0, 0, 4
 [sub_resource type="ShaderMaterial" id=73]
 render_priority = 127
 shader = SubResource( 72 )
+shader_param/sub_dist_from_shore = null
 shader_param/tex_vtx_4 = ExtResource( 5 )
 
 [sub_resource type="SpatialMaterial" id=79]
@@ -461,6 +533,7 @@ albedo_color = Color( 0, 0, 0, 1 )
 metallic_specular = 0.0
 
 [node name="ocean-impostor" type="Spatial"]
+script = SubResource( 82 )
 
 [node name="ocean_impostor_surface" type="MeshInstance" parent="."]
 transform = Transform( 1.2, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10 )
