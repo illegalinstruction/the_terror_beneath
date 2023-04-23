@@ -72,25 +72,19 @@ func _ready():
 
     # --- populate menu items
     menu_items.append(Label.new());
-    menu_items.back().text = \"New Game\";
+    menu_items.back().text = \"New Game\";    # menu index 0
 
-    if (Global.GAME_SUPPORTS_SAVING):
-        menu_items.append(Label.new());
-        menu_items.back().text = \"Continue\";
+    menu_items.append(Label.new());
+    menu_items.back().text = \"Continue\";    # menu index 1
 
-    if (Global.GAME_SUPPORTS_HIGH_SCORES):
-        menu_items.append(Label.new());
-        menu_items.back().text = \"High Scores\";
-
-    if (Global.GAME_SUPPORTS_TROPHIES):
-        menu_items.append(Label.new());
-        menu_items.back().text = \"Trophies\";
+    menu_items.append(Label.new());
+    menu_items.back().text = \"Discoveries\"; # menu index 2
         
     menu_items.append(Label.new());
-    menu_items.back().text = \"Options\";
+    menu_items.back().text = \"Options\";     # menu index 3
 
     menu_items.append(Label.new()); 
-    menu_items.back().text = \"Quit\";
+    menu_items.back().text = \"Quit\";        # menu index 4
 
     # --- add them to screen
     for i in range( 0, menu_items.size()):
@@ -166,28 +160,27 @@ func _process(delta):
         $sfx_player.stream = snd_choice;
         $sfx_player.play();
 
-        # this is kind of a janky way of handling this
-        # and makes translation into other langs harder than
-        # it needs to be - FIXME
-        if (menu_items[cursor_index].get_text() == \"Quit\"):
-            Global.change_scene_to(null);
-            Global.set_bgm(0);
-        if (menu_items[cursor_index].get_text() == \"Options\"):
-            Global.change_scene_to(load(\"res://options_menu.tscn\"));
-        if (menu_items[cursor_index].get_text() == \"Trophies\"):
-            Global.change_scene_to(load(\"res://trophies.tscn\"));
-        if (menu_items[cursor_index].get_text() == \"Continue\"):
-            Global.change_scene_to(load(\"res://savegames.tscn\"));
-        if (menu_items[cursor_index].get_text() == \"High Scores\"):
-            Global.change_scene_to(load(\"res://high_scores.tscn\"));
-        if (menu_items[cursor_index].get_text() == \"New Game\"):
+        # TODO: make these consts/symbolic defines
+        if (cursor_index == 0):
             Global.change_scene_to(load(\"res://gameplay.tscn\"));
+
+        if (cursor_index == 1):
+            Global.change_scene_to(load(\"res://savegames.tscn\"));
+
+        if (cursor_index == 2):
+            Global.change_scene_to(load(\"res://trophies.tscn\"));
+
+        if (cursor_index == 3):
+            Global.change_scene_to(load(\"res://options_menu.tscn\"));
+
+        if (cursor_index == 4):
+            Global.set_bgm(0);
+            Global.change_scene_to(null);
 
         
     # --- adjust cursor
     $cursor.position.x = get_viewport().size.x / 2.0;	# horz center
     $cursor.position.y = menu_items[0].rect_position.y + ((cursor_index + 0.5) * Global.ui_font.get_height());
-    
     
     return;
 "
