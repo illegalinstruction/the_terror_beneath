@@ -1,10 +1,11 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://entities/comb_jelly/MATL_combjelly_combs.material" type="Material" id=1]
 [ext_resource path="res://entities/comb_jelly/MATL_combjelly_ganglion.material" type="Material" id=2]
 [ext_resource path="res://entities/comb_jelly/MATL_combjelly_main.material" type="Material" id=3]
 [ext_resource path="res://entities/comb_jelly/materials/MATL_combjelly_body.tres" type="Material" id=4]
 [ext_resource path="res://entities/comb_jelly/materials/MATL_combjelly_comb.tres" type="Material" id=5]
+[ext_resource path="res://entities/comb_jelly/materials/MATL_combjelly_ganglion.tres" type="Material" id=6]
 
 [sub_resource type="ArrayMesh" id=5]
 resource_name = "comb_jelly_Cone"
@@ -162,6 +163,7 @@ material/1 = ExtResource( 5 )
 [node name="comb_jelly_major_ganglion" type="MeshInstance" parent="Armature/Skeleton"]
 mesh = SubResource( 3 )
 skin = SubResource( 2 )
+material/0 = ExtResource( 6 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 anims/ArmatureAction = SubResource( 4 )
