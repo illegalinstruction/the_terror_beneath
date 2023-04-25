@@ -48,8 +48,8 @@ const GAME_SUPPORTS_SAVING 			: bool = true;
 const GAME_SUPPORTS_HIGH_SCORES		: bool = false;
 const GAME_SUPPORTS_TROPHIES		: bool = true;
 
-var sfx_vol 		: int 	= 8;
-var music_vol 		: int 	= 8;
+var sfx_vol 		: int 	= 3;
+var music_vol 		: int 	= 3;
 
 #-------------------------------------------------------------------------------
 
