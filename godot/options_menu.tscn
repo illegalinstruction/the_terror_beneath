@@ -13,7 +13,7 @@ script/source = "#
 # | |_) |  __/ | (_) \\ V  V / 
 # |_.__/ \\___|_|\\___/ \\_/\\_/ 
 #
-# Copyright 2022 Oregon Institute of Technology
+# Copyright 2022, 2023 Oregon Institute of Technology
 # 
 # Permission is hereby granted, free of charge, to any person obtaining 
 # a copy of this software and associated documentation files (the 
@@ -187,13 +187,49 @@ func _process(_ignore):
         if (cursor_index == OPTIONS_MENU_ITEMS.SOUND_VOL):
             Global.sfx_vol += 1;
             if (Global.sfx_vol > Global.MAX_VOLUME):
-                Global.sfx_vol = 0;
+                Global.sfx_vol = Global.MAX_VOLUME;
             $sfx_player.volume_db = Global.get_sfx_vol_in_db();
             menu_items[cursor_index].text = (\"Sound volume: \" + str(Global.sfx_vol));
 
         if (cursor_index == OPTIONS_MENU_ITEMS.MUSIC_VOL):
             Global.music_vol += 1;
             if (Global.music_vol > Global.MAX_VOLUME):
+                Global.music_vol = Global.MAX_VOLUME;
+            menu_items[cursor_index].text = (\"Music volume: \" + str(Global.music_vol));
+
+        if (cursor_index == OPTIONS_MENU_ITEMS.FULLSCREEN):
+            Global.fullscreen = (not Global.fullscreen);
+            menu_items[cursor_index].text = (\"Use fullscreen? \" + str(Global.fullscreen));
+            OS.window_fullscreen = Global.fullscreen;
+
+        if (cursor_index == OPTIONS_MENU_ITEMS.JOY_OR_KEY):
+            Global.use_joystick = (not Global.use_joystick);
+
+            # --- ticket 33 - force to safe value if
+            # user tries to change joypad
+            # setting w/ no joypad plugged in
+            if (Global.is_joystick_connected == false):
+                Global.use_joystick = false;
+
+            menu_items[cursor_index].text = (\"Use joypad? \" + str(Global.use_joystick));
+            
+    # ------------	B, BkSp, -, or \\	
+    if ((Global._menu_other == Global.BUTTON_STATE.PRESSED)):
+
+        $sfx_player.stop();
+        $sfx_player.stream = snd_choice;
+        $sfx_player.play();
+
+        if (cursor_index == OPTIONS_MENU_ITEMS.SOUND_VOL):
+            Global.sfx_vol -= 1;
+            if (Global.sfx_vol < 0):
+                Global.sfx_vol = 0;
+            $sfx_player.volume_db = Global.get_sfx_vol_in_db();
+            menu_items[cursor_index].text = (\"Sound volume: \" + str(Global.sfx_vol));
+
+        if (cursor_index == OPTIONS_MENU_ITEMS.MUSIC_VOL):
+            Global.music_vol -= 1;
+            if (Global.music_vol < 0):
                 Global.music_vol = 0;
             menu_items[cursor_index].text = (\"Music volume: \" + str(Global.music_vol));
 
@@ -212,7 +248,6 @@ func _process(_ignore):
                 Global.use_joystick = false;
 
             menu_items[cursor_index].text = (\"Use joypad? \" + str(Global.use_joystick));
-
 
     # --- adjust cursor
     $cursor.position.x = get_viewport().size.x / 2.0;	# horz center
