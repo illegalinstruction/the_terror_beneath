@@ -6,7 +6,7 @@
 # | |_) |  __/ | (_) \ V  V / 
 # |_.__/ \___|_|\___/ \_/\_/ 
 #
-# Copyright 2022 Oregon Institute of Technology
+# Copyright 2022, 2023 Oregon Institute of Technology
 # 
 # Permission is hereby granted, free of charge, to any person obtaining 
 # a copy of this software and associated documentation files (the 
@@ -48,8 +48,8 @@ const GAME_SUPPORTS_SAVING 			: bool = true;
 const GAME_SUPPORTS_HIGH_SCORES		: bool = false;
 const GAME_SUPPORTS_TROPHIES		: bool = true;
 
-var sfx_vol 		: int 	= 8;
-var music_vol 		: int 	= 8;
+var sfx_vol 		: int 	= 3;
+var music_vol 		: int 	= 3;
 
 #-------------------------------------------------------------------------------
 
@@ -174,6 +174,7 @@ var _menu_up : int = BUTTON_STATE.IDLE;
 var _menu_down : int = BUTTON_STATE.IDLE;
 var _menu_accept : int = BUTTON_STATE.IDLE;
 var _menu_cancel : int = BUTTON_STATE.IDLE;
+var _menu_other : int = BUTTON_STATE.IDLE;
 
 var _button_start : int = BUTTON_STATE.IDLE;
 var _button_select : int = BUTTON_STATE.IDLE;
@@ -206,6 +207,7 @@ func poll_joystick():
         _menu_up  = BUTTON_STATE.IDLE;
         _menu_down  = BUTTON_STATE.IDLE;
         _menu_accept = BUTTON_STATE.IDLE;
+        _menu_other = BUTTON_STATE.IDLE;
         _menu_cancel = BUTTON_STATE.IDLE;
         return;
     
@@ -226,6 +228,12 @@ func poll_joystick():
         _menu_accept = int(clamp(_menu_accept,0,2.0));
     else:
         _menu_accept = BUTTON_STATE.IDLE;	
+
+    if (Input.is_joy_button_pressed(0, JOY_XBOX_B) or (Input.is_key_pressed(KEY_BACKSLASH)) or (Input.is_key_pressed(KEY_MINUS))):
+        _menu_other = _menu_other + 1;
+        _menu_other = int(clamp(_menu_other,0,2.0));
+    else:
+        _menu_other = BUTTON_STATE.IDLE;	
 
     if (Input.is_joy_button_pressed(0, JOY_SELECT) or (Input.is_key_pressed(KEY_ESCAPE)) ):
         _menu_cancel = _menu_cancel + 1;

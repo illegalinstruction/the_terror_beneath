@@ -864,6 +864,32 @@ func _process(delta):
 
         if (cursor_index == PAUSE_MENU_ITEMS.QUIT):
            get_tree().get_current_scene().quit_and_return_to_main_menu();
+        
+        
+    # ------------	B, BkSp, -, or \\	
+    if ((Global._menu_other == Global.BUTTON_STATE.PRESSED)):
+
+        $sfx_player.stop();
+        $sfx_player.stream = snd_choice;
+        $sfx_player.play();
+
+        if (cursor_index == PAUSE_MENU_ITEMS.SOUND_VOL):
+            Global.sfx_vol -= 1;
+            if (Global.sfx_vol < 0):
+                Global.sfx_vol = 0;
+            $sfx_player.volume_db = Global.get_sfx_vol_in_db();
+            menu_items[cursor_index].text = (\"Sound volume: \" + str(Global.sfx_vol));
+
+        if (cursor_index == PAUSE_MENU_ITEMS.MUSIC_VOL):
+            Global.music_vol -= 1;
+            if (Global.music_vol < 0):
+                Global.music_vol = 0;
+            menu_items[cursor_index].text = (\"Music volume: \" + str(Global.music_vol));
+
+        if (cursor_index == PAUSE_MENU_ITEMS.FULLSCREEN):
+            Global.fullscreen = (not Global.fullscreen);
+            menu_items[cursor_index].text = (\"Use fullscreen? \" + str(Global.fullscreen));
+            OS.window_fullscreen = Global.fullscreen;
 
     return;
 "
