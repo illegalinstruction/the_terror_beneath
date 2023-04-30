@@ -401,9 +401,14 @@ func ui_font_window_resize_handler():
         ui_font.size = 8;		
     return;
 
+
+var sonar_bounce : AudioStream = null;
+
 #-------------------------------------------------------------------------------
 
 func _ready():
+    # ready sonar bounce sound and keep it in mem
+    sonar_bounce = load("res://HUD/sounds/sonar_bounce.wav");   
     
     # ready screen transition mechanism
     # for use

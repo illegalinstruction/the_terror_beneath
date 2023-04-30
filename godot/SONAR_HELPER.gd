@@ -49,7 +49,7 @@ func _init():
 func _ready():
     set_process(true);
     ping_sound = AudioStreamPlayer2D.new();
-    ping_sound.stream = DiscoveryList.sonar_bounce;
+    ping_sound.stream = Global.sonar_bounce;
     ping_sound.volume_db = Global.get_sfx_vol_in_db();
     add_child(ping_sound);
     return;
@@ -72,7 +72,10 @@ func on_sonar(name : String, player_pos : Vector3, cam : Camera):
     if (pythag_distance > Global.MAX_SONAR_PING_DISTANCE):
         # out of range - do nothing.
         sonar_echo_timer = -1;
-        get_parent().remove_child(self);
+        var parent = get_parent();
+        if (parent != null):
+            parent.remove_child(self);
+            self.queue_free();
         return;
     else:
         # start a countdown to simulate the delay between the sound leaving

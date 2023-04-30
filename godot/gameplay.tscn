@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=2]
+[gd_scene load_steps=23 format=2]
 
 [ext_resource path="res://submarine/SUBMARINE_VISIBLE.tscn" type="PackedScene" id=1]
 [ext_resource path="res://ocean/ocean-impostor.tscn" type="PackedScene" id=2]
@@ -7,6 +7,7 @@
 [ext_resource path="res://pausemenu/background.png" type="Texture" id=5]
 [ext_resource path="res://hud.tscn" type="PackedScene" id=6]
 [ext_resource path="res://pausemenu/cursor.png" type="Texture" id=7]
+[ext_resource path="res://entities/comb_jelly/comb_jelly.tscn" type="PackedScene" id=8]
 [ext_resource path="res://entities/humpback/humpback.glb" type="PackedScene" id=14]
 
 [sub_resource type="GDScript" id=37]
@@ -243,10 +244,6 @@ const OCEAN_IMPOSTOR_DROPDOWN_DEPTH = -65.0;
 
 const IN_GAME_SONG_MAX_INDEX = 4; # please fix when there are more tracks submitted!
 
-var test_disc : Discovery;
-var test_disc2 : Discovery;
-var test_disc3 : Discovery;
-var test_disc4 : Discovery;
 
 #----------------------------------------------------------------------------
 
@@ -257,21 +254,7 @@ func _ready():
     rand_seed(OS.get_ticks_msec());
 
     Global.set_bgm(int(rand_range(1,IN_GAME_SONG_MAX_INDEX + 0.5))); 
-    var tmp = preload(\"res://DISCOVERY.gd\");
-    test_disc = tmp.new();
-    test_disc2 = tmp.new();
-    test_disc3 = tmp.new();
-    test_disc4 = tmp.new();
 
-    test_disc.init_from_json_at_pos(\"res://entities/json/001.json\",50,-25,$HUD,$Camera);
-    test_disc2.init_from_json_at_pos(\"res://entities/json/001.json\",120,-60,$HUD,$Camera);
-    test_disc3.init_from_json_at_pos(\"res://entities/json/001.json\",90,-35,$HUD,$Camera);
-    test_disc4.init_from_json_at_pos(\"res://entities/json/001.json\",80,-40,$HUD,$Camera);
-
-    add_child(test_disc);
-    add_child(test_disc2);
-    add_child(test_disc3);
-    add_child(test_disc4);
     return; 
 
 #----------------------------------------------------------------------------
@@ -279,9 +262,21 @@ func _ready():
 func on_sonar():
     
     var tmp = SONAR_HELPER.new();
-    tmp.translation = test_disc.translation;
+    var tmp2 = SONAR_HELPER.new();
+    var tmp3 = SONAR_HELPER.new();
+    var tmp4 = SONAR_HELPER.new();
+    tmp.translation = $comb_jelly.translation;
+    tmp2.translation = $comb_jelly2.translation;
+    tmp3.translation = $comb_jelly3.translation;
+    tmp4.translation = $comb_jelly4.translation;
     add_child(tmp);
-    tmp.on_sonar(test_disc.disc_name,$kinbody_SUBMARINE.translation,$Camera);
+    add_child(tmp2);
+    add_child(tmp3);
+    add_child(tmp4);
+    tmp.on_sonar($comb_jelly.disc_name,$kinbody_SUBMARINE.translation,$Camera);
+    tmp.on_sonar($comb_jelly2.disc_name,$kinbody_SUBMARINE.translation,$Camera);
+    tmp.on_sonar($comb_jelly3.disc_name,$kinbody_SUBMARINE.translation,$Camera);
+    tmp.on_sonar($comb_jelly4.disc_name,$kinbody_SUBMARINE.translation,$Camera);
     
 
 #----------------------------------------------------------------------------
@@ -704,7 +699,8 @@ func _process(_ignore):
         \"should I be paused right now: \" + str(get_tree().get_current_scene().paused) + \"\\n\" +
         \"submarine angle: \" + str($\"../ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE\".rotation_degrees.y) + \"\\n\" +
         \"submarine pos: \" + str($\"../ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE\".translation) + \"\\n\" +
-        \"submarine vel: \" + str($\"../ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE\".get(\"curr_velocity\")));
+        \"submarine vel: \" + str($\"../ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE\".get(\"curr_velocity\")) + \"\\n\\n\\n\" +
+        \"comb jelly 0: \" + str($\"../ViewportContainer/Viewport/gameplay/comb_jelly\".translation));
 "
 
 [sub_resource type="GDScript" id=39]
@@ -965,6 +961,21 @@ transform = Transform( -0.0847676, -0.0587562, -0.994667, -0.369747, 0.928838, -
 
 [node name="ocean-impostor" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 2 )]
 transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0 )
+
+[node name="comb_jelly" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 8 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6.17141, -9.97108, -97.9381 )
+
+[node name="comb_jelly2" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 8 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.591434, -17.8351, -113.756 )
+
+[node name="comb_jelly3" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 8 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.591434, -17.8351, -113.756 )
+
+[node name="comb_jelly4" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 8 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.591434, -17.8351, -113.756 )
+
+[node name="comb_jelly5" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 8 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8.01965, -17.8351, -113.756 )
 
 [node name="hud" parent="." instance=ExtResource( 6 )]
 

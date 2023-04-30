@@ -65,6 +65,7 @@ const accel_amount = 0.0010237;
 
 
 func _ready():
+
     logic_clock_1= rand_range(480,720);
     logic_clock_1_init = logic_clock_1;
     logic_clock_7= rand_range(390,820);

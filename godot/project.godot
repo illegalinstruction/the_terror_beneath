@@ -34,8 +34,6 @@ config/icon="res://icon.png"
 [autoload]
 
 Global="*res://GLOBAL.gd"
-Discovery="*res://DISCOVERY.gd"
-DiscoveryList="*res://DISCOVERY_LIST.gd"
 
 [debug]
 
