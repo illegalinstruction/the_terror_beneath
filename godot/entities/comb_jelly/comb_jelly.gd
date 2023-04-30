@@ -31,10 +31,8 @@
 # ALL DISCOVERIES MUST INCLUDE THIS PORTION
 extends KinematicBody;
 
-const id = 1;
+const id = 0;
 const portrait_path     : String = "res://entities/comb_jelly/comb_jelly.jpg";
-const disc_name         : String = "Lobe Comb Jelly (Bolinopsis infundibulum)";
-const flavour_text      : String = "This ctenophore is found in the Atlantic ocean from coastal Florida in the United States all the way to Newfoundland in coastal Canada. The beautiful rainbow pattern comes from light refracting through the comblike ciliae it uses to move through the water";
 const can_move          : bool = true;
 const can_hurt_player   : bool = false;
 const can_aggro         : bool = false;
@@ -59,13 +57,12 @@ var logic_clock_6           : int;
 var logic_clock_7_init      : int;
 var logic_clock_7           : int;
 
-
 const max_velocity = 0.0625; # meters per 60th of a second
 const accel_amount = 0.0010237;
 
+#-----------------------------------------------------------------------
 
 func _ready():
-
     logic_clock_1= rand_range(480,720);
     logic_clock_1_init = logic_clock_1;
     logic_clock_7= rand_range(390,820);
@@ -88,9 +85,8 @@ func _ready():
     
     $AnimationPlayer.play("ArmatureAction");
     set_process(true);
+    add_to_group("DISCOVERIES");
     return;
-    
-    
 
 #-----------------------------------------------------------------------
 #I'm thinking comb jelly, regular jelly, whale, wreck of the lincoln, and that's where we stop for June

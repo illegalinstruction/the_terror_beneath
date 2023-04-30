@@ -2,13 +2,13 @@
 
 [ext_resource path="res://submarine/SUBMARINE_VISIBLE.tscn" type="PackedScene" id=1]
 [ext_resource path="res://ocean/ocean-impostor.tscn" type="PackedScene" id=2]
-[ext_resource path="res://entities/jelly_01/jelly_01.tscn" type="PackedScene" id=3]
+[ext_resource path="res://entities/brain_coral/brain-coral-01.tscn" type="PackedScene" id=3]
 [ext_resource path="res://SHDR_gameplay_viewport_container.tres" type="Shader" id=4]
 [ext_resource path="res://pausemenu/background.png" type="Texture" id=5]
 [ext_resource path="res://hud.tscn" type="PackedScene" id=6]
 [ext_resource path="res://pausemenu/cursor.png" type="Texture" id=7]
-[ext_resource path="res://entities/comb_jelly/comb_jelly.tscn" type="PackedScene" id=8]
-[ext_resource path="res://entities/humpback/humpback.glb" type="PackedScene" id=14]
+[ext_resource path="res://entities/brain_coral/brain-coral-03.tscn" type="PackedScene" id=8]
+[ext_resource path="res://entities/brain_coral/brain-coral-02.tscn" type="PackedScene" id=9]
 
 [sub_resource type="GDScript" id=37]
 script/source = "# 
@@ -46,7 +46,6 @@ extends Node2D;
 var paused : bool;
 var escape_pressed : int = 0; # special handling for the escape and enter keys in the pause menu
 
-
 func spawn_sonar_ping_effect(in_pos : Vector2, in_distance : float, in_caption: String=\"\"):
     $hud.spawn_sonar_ping_effect(in_pos,in_distance,in_caption);
     return;
@@ -56,7 +55,7 @@ func spawn_sonar_ping_effect(in_pos : Vector2, in_distance : float, in_caption: 
 func set_elec_display(elec:float):
     $hud.set_elec(elec);
     return;
-    
+   
 
 #---------------------------------------------------------------------------------------------------
 
@@ -248,10 +247,22 @@ const IN_GAME_SONG_MAX_INDEX = 4; # please fix when there are more tracks submit
 #----------------------------------------------------------------------------
 
 func _ready():
-    # load savegame here, position discoveries and sub
-    
     set_process(true);
-    rand_seed(OS.get_ticks_msec());
+    rand_seed(OS.get_unix_time());
+
+    var comb_jelly_archetype = load(\"res://entities/comb_jelly/comb_jelly.tscn\");
+    add_child(comb_jelly_archetype.instance());
+    add_child(comb_jelly_archetype.instance());
+    add_child(comb_jelly_archetype.instance());
+    add_child(comb_jelly_archetype.instance());
+    add_child(comb_jelly_archetype.instance());
+    var moon_jelly_archetype = load(\"res://entities/moon_jelly/moon_jelly.tscn\");
+    add_child(moon_jelly_archetype.instance());
+    add_child(moon_jelly_archetype.instance());
+    add_child(moon_jelly_archetype.instance());
+    add_child(moon_jelly_archetype.instance());
+    add_child(moon_jelly_archetype.instance());
+
 
     Global.set_bgm(int(rand_range(1,IN_GAME_SONG_MAX_INDEX + 0.5))); 
 
@@ -261,23 +272,13 @@ func _ready():
 
 func on_sonar():
     
-    var tmp = SONAR_HELPER.new();
-    var tmp2 = SONAR_HELPER.new();
-    var tmp3 = SONAR_HELPER.new();
-    var tmp4 = SONAR_HELPER.new();
-    tmp.translation = $comb_jelly.translation;
-    tmp2.translation = $comb_jelly2.translation;
-    tmp3.translation = $comb_jelly3.translation;
-    tmp4.translation = $comb_jelly4.translation;
-    add_child(tmp);
-    add_child(tmp2);
-    add_child(tmp3);
-    add_child(tmp4);
-    tmp.on_sonar($comb_jelly.disc_name,$kinbody_SUBMARINE.translation,$Camera);
-    tmp.on_sonar($comb_jelly2.disc_name,$kinbody_SUBMARINE.translation,$Camera);
-    tmp.on_sonar($comb_jelly3.disc_name,$kinbody_SUBMARINE.translation,$Camera);
-    tmp.on_sonar($comb_jelly4.disc_name,$kinbody_SUBMARINE.translation,$Camera);
+    var discoveries = get_tree().get_nodes_in_group(\"DISCOVERIES\");
     
+    for index in range (0, discoveries.size()): 
+        var tmp = SONAR_HELPER.new();
+        tmp.translation = discoveries[index].translation;
+        add_child(tmp);
+        tmp.on_sonar(Global.disc_list[discoveries[index].id].name, $kinbody_SUBMARINE.translation,$Camera);
 
 #----------------------------------------------------------------------------
 
@@ -910,36 +911,6 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -13.466 )
 extents = Vector3( 32, 8, 32 )
 origin_offset = Vector3( 0, 0, 14.278 )
 
-[node name="jelly_01" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 3 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 8.33724, -3.34893, -17.5462 )
-
-[node name="jelly_02" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 3 )]
-transform = Transform( 0.351172, 0, 0.936311, 0, 1, 0, -0.936311, 0, 0.351172, 6.80288, -6.89922, -20.3978 )
-
-[node name="jelly_03" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 3 )]
-transform = Transform( 0.351172, 0, 0.936311, 0, 1, 0, -0.936311, 0, 0.351172, 0.736505, -36.6966, -20.3978 )
-
-[node name="jelly_04" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 3 )]
-transform = Transform( 0.351172, 0, 0.936311, 0, 1, 0, -0.936311, 0, 0.351172, -1.52471, -64.0717, -20.3978 )
-
-[node name="jelly_05" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 3 )]
-transform = Transform( 0.351172, 0, 0.936311, 0, 1, 0, -0.936311, 0, 0.351172, -8.23917, -64.0717, -43.4917 )
-
-[node name="jelly_06" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 3 )]
-transform = Transform( 0.351172, 0, 0.936311, 0, 1, 0, -0.936311, 0, 0.351172, -2.27515, -64.0717, -43.4917 )
-
-[node name="jelly_07" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 3 )]
-transform = Transform( 0.351172, 0, 0.936311, 0, 1, 0, -0.936311, 0, 0.351172, -13.7145, -64.0717, -43.4917 )
-
-[node name="jelly_08" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 3 )]
-transform = Transform( 0.617969, 0, 0.786202, 0, 1, 0, -0.786202, 0, 0.617969, -13.7145, -64.0717, -43.4917 )
-
-[node name="jelly_09" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 3 )]
-transform = Transform( 0.617969, 0, 0.786202, 0, 1, 0, -0.786202, 0, 0.617969, -19.6442, -64.0717, -43.4917 )
-
-[node name="jelly_10" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 3 )]
-transform = Transform( 0.617969, 0, 0.786202, 0, 1, 0, -0.786202, 0, 0.617969, -19.6442, -64.0717, -43.4917 )
-
 [node name="DirectionalLight" type="DirectionalLight" parent="ViewportContainer/Viewport/gameplay"]
 transform = Transform( 0.960915, -0.219362, 0.168889, 0, 0.610048, 0.792364, -0.276845, -0.761394, 0.586204, 0, 0, 0 )
 shadow_enabled = true
@@ -947,35 +918,20 @@ shadow_enabled = true
 [node name="WorldEnvironment" type="WorldEnvironment" parent="ViewportContainer/Viewport/gameplay"]
 environment = SubResource( 8 )
 
-[node name="humpback" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 14 )]
-transform = Transform( -0.0532771, 0, 0.99858, 0, 1, 0, -0.99858, 0, -0.0532771, 5.41834, -52.9938, 17.1058 )
-
-[node name="humpback2" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 14 )]
-transform = Transform( -0.567989, -0.324871, 0.756206, -0.524088, 0.851205, -0.0279616, -0.634602, -0.4122, -0.653736, 4.97567, -53.149, -18.1822 )
-
-[node name="humpback3" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 14 )]
-transform = Transform( -0.325693, 0.630269, -0.704758, 0.593759, 0.716427, 0.366308, 0.735781, -0.299153, -0.607564, 7.9932, -53.149, -48.317 )
-
-[node name="humpback4" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 14 )]
-transform = Transform( -0.0847676, -0.0587562, -0.994667, -0.369747, 0.928838, -0.0233564, 0.925257, 0.365795, -0.100461, 2.25252, -64.7478, -62.5723 )
-
 [node name="ocean-impostor" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 2 )]
 transform = Transform( -4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 0, 0, 0 )
 
-[node name="comb_jelly" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 8 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6.17141, -9.97108, -97.9381 )
+[node name="brain-coral-01_01" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.457301, -29.067, -151.185 )
 
-[node name="comb_jelly2" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 8 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.591434, -17.8351, -113.756 )
+[node name="brain-coral-01_02" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 3 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -29.067, -167.98 )
 
-[node name="comb_jelly3" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 8 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.591434, -17.8351, -113.756 )
+[node name="brain-coral-02_01" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 9 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -5, -26.454, -141.747 )
 
-[node name="comb_jelly4" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 8 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.591434, -17.8351, -113.756 )
-
-[node name="comb_jelly5" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 8 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -8.01965, -17.8351, -113.756 )
+[node name="brain-coral-03_01" parent="ViewportContainer/Viewport/gameplay" instance=ExtResource( 8 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -2.13032, -23.1561, -180.79 )
 
 [node name="hud" parent="." instance=ExtResource( 6 )]
 
