@@ -8,6 +8,16 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "Spatial",
+"class": "SONAR_HELPER",
+"language": "GDScript",
+"path": "res://SONAR_HELPER.gd"
+} ]
+_global_script_class_icons={
+"SONAR_HELPER": ""
+}
+
 [application]
 
 config/name="below"
@@ -18,8 +28,6 @@ config/icon="res://icon.png"
 [autoload]
 
 Global="*res://GLOBAL.gd"
-Discovery="*res://DISCOVERY.gd"
-DiscoveryList="*res://DISCOVERY_LIST.gd"
 
 [debug]
 

@@ -43,6 +43,7 @@ const ANALOGUE_DEAD_ZONE : float = 0.25;
 const game_data_base : String = "user://below_data";
 const options_path 		= game_data_base + "-options";
 const achievements_path = game_data_base + "-trophies";
+const savegame_path     = game_data_base + "-savegame";
 
 const GAME_SUPPORTS_SAVING 			: bool = true;
 const GAME_SUPPORTS_HIGH_SCORES		: bool = false;
@@ -50,6 +51,8 @@ const GAME_SUPPORTS_TROPHIES		: bool = true;
 
 var sfx_vol 		: int 	= 3;
 var music_vol 		: int 	= 3;
+
+var should_load_savegame : bool;
 
 #-------------------------------------------------------------------------------
 
@@ -324,7 +327,6 @@ func poll_joystick():
         else:
             _button_start = BUTTON_STATE.IDLE;
         
-
         return;
     else: # keyboard;
         #--- ANALOGUE STICKS --------------------------
@@ -387,16 +389,76 @@ func poll_joystick():
             _button_start = int(clamp(_button_start,0,2.0));
         else:
             _button_start = BUTTON_STATE.IDLE;
-
         
         #----------
-
         
         # not used in this game
         #_right_stick_x = Input.get_joy_axis(0,JOY_ANALOG_RX);
         #_right_stick_y = Input.get_joy_axis(0,JOY_ANALOG_RY);
     return;
         
+
+#==============================================================================
+# DISCOVERY/TROPHIES LIST
+#==============================================================================
+var  disc_list = [];
+var  was_disc_found = [];
+
+func populate_discovery_list() -> void:
+    disc_list.append({"id":"0","path":"res://entities/comb_jelly/comb_jelly.tscn", "name":"Lobe Comb Jelly (Bolinopsis infundibulum)", "flavour_text":"This ctenophore is found in the Atlantic ocean from coastal Florida in the United States all the way to Newfoundland in coastal Canada. The beautiful rainbow pattern comes from light refracting through the comblike ciliae it uses to move through the water"});
+    disc_list.append({"id":"1", "name":"Common Jellyfish (Aurelia aurita)", "flavour_text":"Also known as the moon jelly, they're found in Baltic, Black, North and Atlantic waters, They use their tentacles to capture and eat plankton and smaller ctenophores."});
+    disc_list.append({"id":"2", "name":"Bluefin Tuna (Thunnus thynnus)", "flavour_text":"This fast-swimming voracious predator can grow to over 500 kg.  They're prized by fishermen for their nutritious meat."});
+    disc_list.append({"id":"3", "name":"The wreck of the Lincoln", "flavour_text":"It's hard to believe we survived this.  I need to find out what happened to her - the souls lost aboard her deserve nothing less."});
+    disc_list.append({"id":"4", "name":"Experimental o2 tank plans", "flavour_text":"Good thing Conseil had the foresight to place these in a watertight chest!  I wonder if we could fabricate one and mount it to the Parisienne?"});
+    disc_list.append({"id":"5", "name":"Humpback Whale (Megaptera novaeangliae)", "flavour_text":"This massive creature can grow up to 15m long and has one of the longest known migratory patterns, from their polar feeding grounds to the tropics where they mate and have calves that weigh up to 680 kg at birth."});
+    disc_list.append({"id":"6", "name":"Gombessa (Latimeria chalumnae)", "flavour_text":"Wow! We've only ever seen these in Permian-era fossils!  What a discovery!"});
+    disc_list.append({"id":"7", "name":"Undersea Cavern", "flavour_text":"Given the presence of stalagmites and stalactites, this -has- to have been on dry land at some point. What, I wonder, accounts for us observing it down here?"});
+    disc_list.append({"id":"8", "name":"Rare Ore Deposit", "flavour_text":"These rounded rocks appear to be some kind of metal nodule. We harvested some, since Conseil thinks he might be able to smelt some and use it to make the hull of the Parissiene stronger."});
+    disc_list.append({"id":"9", "name":"Black Smoker", "flavour_text":"We've known for a while that seafloor volcanoes existed, but I think. Conseil, that you and I may be the first to observe one at depth."});
+    disc_list.append({"id":"10", "name":"Whale Skeleton", "flavour_text":"Species unknown. Appears to have been picked clean by whatever lives down here.  Whatever it was, it was too big to be a humpback."});
+    disc_list.append({"id":"11", "name":"Brain Coral (Diploria labyrinthiformis)", "flavour_text":"Named for its uncanny resemblance to a human brain, this species lives in warm water near the surface, and feeds by catching passing bacteria and zooplankton in tiny ciliae along its surface."});
+    disc_list.append({"id":"12", "name":"Magnetic Anomaly", "flavour_text":"Thank heavens Conseil had the foresight to bring a compass, or we'd have never spotted it!  The rocks here appear to have their magnetic fields -opposite- what we'd expect to see - I wonder what accounts for that?"});
+    
+    for index in range (0, disc_list.size()):
+        was_disc_found.append(false);
+
+    return;
+
+#-------------------------------------------------------------------------------
+
+func load_discovery_data():
+    var fin : File = File.new();
+        
+    if (fin.file_exists(achievements_path)):
+        var error = fin.open(achievements_path, fin.READ);
+        if (error > 0):
+            print_debug("could not open trophies file for reading! error code: " + str(error));
+            return; 
+        
+        for index in range(0, was_disc_found.size()):
+            was_disc_found[index] = fin.get_8();
+        
+        fin.close();
+        OS.window_fullscreen = fullscreen;
+    else:
+        save_discovery_data();
+    return;
+
+#-------------------------------------------------------------------------------
+
+func save_discovery_data():
+    var fout : File = File.new();
+
+    var error = fout.open(achievements_path, fout.WRITE);
+    if (error > 0):
+        print_debug("could not open achievments/trophies file for writing! error code: " + str(error));
+        return; # the show must go on...?
+  
+    for index in range(0, was_disc_found.size()):
+         fout.store_8(was_disc_found[index]);
+
+    fout.close();
+    return;
 
 #==============================================================================
 # UI FONT
@@ -409,9 +471,17 @@ func ui_font_window_resize_handler():
         ui_font.size = 8;		
     return;
 
+var sonar_bounce : AudioStream = null;
+
 #-------------------------------------------------------------------------------
 
 func _ready():
+    # ready sonar bounce sound and keep it in mem
+    sonar_bounce = load("res://HUD/sounds/sonar_bounce.wav");   
+
+    # populate the list of possible discoveries.  used in-game
+    # and by the discovery room.
+    populate_discovery_list();
     
     # ready screen transition mechanism
     # for use
@@ -454,6 +524,7 @@ func _process(_ignored):
                 screenwipe_active = false;
                 screenwipe_direction = false;
                 if (screenwipe_next_scene == null):
+                    print_stray_nodes();
                     get_tree().quit();
                 else:
                     var _unused = get_tree().change_scene_to(screenwipe_next_scene);

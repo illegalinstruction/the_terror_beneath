@@ -1,5 +1,11 @@
-{  "visual": "res://entities/placeholder_discovery/placeholder_discovery.tscn",    
-    "portrait": "res://portraits/placeholder_discovery.jpg",
-    "disc_name": "Placeholder Discovery (Archaeobacter Cubus Giganticus)",
-    "flavour_text": "we\'ve got an awful lot to bake, each pony needs a piece of cake",
-    "can_move": "0"}
+{   
+	"visual": "res://entities/comb_jelly/comb_jelly.tscn",    
+    "portrait": "res://entities/comb_jelly/comb_jelly.jpg",
+    "disc_name": "Lobe Comb Jelly (Bolinopsis infundibulum)",
+    "flavour_text": "This ctenophore is found in the Atlantic ocean from coastal Florida in the United States all the way to Newfoundland in coastal Canada. The beautiful rainbow pattern comes from light refracting through the comblike ciliae it uses to move through the water",
+    "can_move": "1",
+    "x_min" : "55.0",
+    "x_max" : "280.0",
+    "y_min" : "-50.0",
+    "y_max" : "-1.0",
+}

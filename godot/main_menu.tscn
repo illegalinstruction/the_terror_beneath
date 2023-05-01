@@ -75,7 +75,12 @@ func _ready():
     menu_items.back().text = \"New Game\";    # menu index 0
 
     menu_items.append(Label.new());
-    menu_items.back().text = \"Continue\";    # menu index 1
+    var tmpf : File = File.new();
+    if (not (tmpf.file_exists(Global.savegame_path))):
+        menu_items.back().text = \"No saved game\";    # menu index 1
+        menu_items.back().set(\"custom_colors/font_color\", Color(0.5,0.5,0.5,1.0));
+    else:
+        menu_items.back().text = \"Continue\";    # menu index 1
 
     menu_items.append(Label.new());
     menu_items.back().text = \"Discoveries\"; # menu index 2
@@ -161,12 +166,16 @@ func _process(delta):
         $sfx_player.play();
 
         # TODO: make these consts/symbolic defines
-        if (cursor_index == 0):
+        if (cursor_index == 0): # todo - warnd the player that this will overwrite
+            Global.should_load_savegame = false;
             Global.change_scene_to(load(\"res://gameplay.tscn\"));
 
         if (cursor_index == 1):
-            Global.change_scene_to(load(\"res://savegames.tscn\"));
-
+            var tmpf : File = File.new();
+            if ((tmpf.file_exists(Global.savegame_path))):
+                Global.should_load_savegame = true;
+                Global.change_scene_to(load(\"res://gameplay.tscn\"));
+            
         if (cursor_index == 2):
             Global.change_scene_to(load(\"res://trophies.tscn\"));
 
