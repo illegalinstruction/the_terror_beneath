@@ -43,6 +43,7 @@ const ANALOGUE_DEAD_ZONE : float = 0.25;
 const game_data_base : String = "user://below_data";
 const options_path 		= game_data_base + "-options";
 const achievements_path = game_data_base + "-trophies";
+const savegame_path     = game_data_base + "-savegame";
 
 const GAME_SUPPORTS_SAVING 			: bool = true;
 const GAME_SUPPORTS_HIGH_SCORES		: bool = false;
@@ -50,6 +51,8 @@ const GAME_SUPPORTS_TROPHIES		: bool = true;
 
 var sfx_vol 		: int 	= 8;
 var music_vol 		: int 	= 8;
+
+var should_load_savegame : bool;
 
 #-------------------------------------------------------------------------------
 
@@ -316,7 +319,6 @@ func poll_joystick():
         else:
             _button_start = BUTTON_STATE.IDLE;
         
-
         return;
     else: # keyboard;
         #--- ANALOGUE STICKS --------------------------
@@ -379,10 +381,8 @@ func poll_joystick():
             _button_start = int(clamp(_button_start,0,2.0));
         else:
             _button_start = BUTTON_STATE.IDLE;
-
         
         #----------
-
         
         # not used in this game
         #_right_stick_x = Input.get_joy_axis(0,JOY_ANALOG_RX);
@@ -416,6 +416,41 @@ func populate_discovery_list() -> void:
 
     return;
 
+#-------------------------------------------------------------------------------
+
+func load_discovery_data():
+    var fin : File = File.new();
+        
+    if (fin.file_exists(achievements_path)):
+        var error = fin.open(achievements_path, fin.READ);
+        if (error > 0):
+            print_debug("could not open trophies file for reading! error code: " + str(error));
+            return; 
+        
+        for index in range(0, was_disc_found.size()):
+            was_disc_found[index] = fin.get_8();
+        
+        fin.close();
+        OS.window_fullscreen = fullscreen;
+    else:
+        save_discovery_data();
+    return;
+
+#-------------------------------------------------------------------------------
+
+func save_discovery_data():
+    var fout : File = File.new();
+
+    var error = fout.open(achievements_path, fout.WRITE);
+    if (error > 0):
+        print_debug("could not open achievments/trophies file for writing! error code: " + str(error));
+        return; # the show must go on...?
+  
+    for index in range(0, was_disc_found.size()):
+         fout.store_8(was_disc_found[index]);
+
+    fout.close();
+    return;
 
 #==============================================================================
 # UI FONT

@@ -82,8 +82,29 @@ func _ready():
     paused = false;
     $pause_menu.hide();
     $pause_darkener.hide();
+    if (Global.should_load_savegame):
+        load_savegame();
     return;
 
+#--------------------------------------------------------------------
+
+func load_savegame():
+    var fin = File.new();
+    var error = fin.open(Global.savegame_path, fin.READ);
+    if (error > 0):
+        print_debug(\"opening savegame for reading failed! error code: \" + str(error));
+        get_tree().quit();
+        
+    $\"ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE\".translation.x = fin.get_double();
+    $\"ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE\".translation.y = fin.get_double();
+    $\"ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE\".translation.z = fin.get_double();
+    $ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE.curr_electricity = fin.get_double();
+    $ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE.curr_o2  = fin.get_double();
+    $ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE.curr_sulfur  = fin.get_double();
+    fin.close();
+        
+    return;
+    
 #--------------------------------------------------------------------
 
 func notify_unpaused():
@@ -94,7 +115,21 @@ func notify_unpaused():
 #--------------------------------------------------------------------
 
 func quit_and_return_to_main_menu():
-    print_debug(\"here 1.\")
+    var fout = File.new();
+    var error = fout.open(Global.savegame_path, fout.WRITE);
+    if (error > 0):
+        print_debug(\"could not open savegame file for writing! error code: \" + str(error));
+        get_tree().quit();
+    fout.store_double($\"ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE\".translation.x);
+    fout.store_double($\"ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE\".translation.y);
+    fout.store_double($\"ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE\".translation.z);
+    fout.store_double($ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE.curr_electricity);
+    fout.store_double($ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE.curr_o2);
+    fout.store_double($ViewportContainer/Viewport/gameplay/kinbody_SUBMARINE.curr_sulfur);
+    fout.close();
+    
+    Global.save_discovery_data();
+
     Global.change_scene_to(load(\"res://main_menu.tscn\"));
     paused = false;
 
